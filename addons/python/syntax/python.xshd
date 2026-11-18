@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxDefinition name="Python" extensions=".py" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <Color name="Comentario" foreground="#6A9955" fontStyle="italic" />
+  <Color name="Cadena" foreground="#CE9178" />
+  <Color name="Numero" foreground="#B5CEA8" />
+  <Color name="PalabraControl" foreground="#C586C0" fontWeight="bold" />
+  <Color name="PalabraDeclaracion" foreground="#569CD6" fontWeight="bold" />
+  <Color name="FuncionIntegrada" foreground="#DCDCAA" />
+  <Color name="ValorEspecial" foreground="#569CD6" />
+
+  <RuleSet>
+    <Span color="Comentario" begin="#" />
+    <Span color="Cadena" multiline="true" begin="&quot;&quot;&quot;" end="&quot;&quot;&quot;" />
+    <Span color="Cadena" multiline="true" begin="'''" end="'''" />
+
+    <Span color="Cadena">
+      <Begin>"</Begin>
+      <End>"</End>
+      <RuleSet>
+        <Span begin="\\" end="." />
+      </RuleSet>
+    </Span>
+    <Span color="Cadena">
+      <Begin>'</Begin>
+      <End>'</End>
+      <RuleSet>
+        <Span begin="\\" end="." />
+      </RuleSet>
+    </Span>
+
+    <Keywords color="PalabraDeclaracion">
+      <Word>def</Word>
+      <Word>class</Word>
+      <Word>import</Word>
+      <Word>from</Word>
+      <Word>as</Word>
+      <Word>global</Word>
+      <Word>nonlocal</Word>
+      <Word>lambda</Word>
+      <Word>async</Word>
+      <Word>await</Word>
+    </Keywords>
+
+    <Keywords color="PalabraControl">
+      <Word>if</Word>
+      <Word>elif</Word>
+      <Word>else</Word>
+      <Word>for</Word>
+      <Word>in</Word>
+      <Word>while</Word>
+      <Word>break</Word>
+      <Word>continue</Word>
+      <Word>return</Word>
+      <Word>try</Word>
+      <Word>except</Word>
+      <Word>finally</Word>
+      <Word>raise</Word>
+      <Word>with</Word>
+      <Word>pass</Word>
+      <Word>yield</Word>
+      <Word>and</Word>
+      <Word>or</Word>
+      <Word>not</Word>
+      <Word>is</Word>
+    </Keywords>
+
+    <Keywords color="ValorEspecial">
+      <Word>True</Word>
+      <Word>False</Word>
+      <Word>None</Word>
+      <Word>self</Word>
+    </Keywords>
+
+    <Keywords color="FuncionIntegrada">
+      <Word>print</Word>
+      <Word>input</Word>
+      <Word>len</Word>
+      <Word>range</Word>
+      <Word>int</Word>
+      <Word>float</Word>
+      <Word>str</Word>
+      <Word>list</Word>
+      <Word>dict</Word>
+      <Word>enumerate</Word>
+    </Keywords>
+
+    <Rule color="Numero">\b\d+(\.\d+)?\b</Rule>
+  </RuleSet>
+</SyntaxDefinition>

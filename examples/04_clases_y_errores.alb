@@ -1,0 +1,44 @@
+# Clases, encapsulamiento con publico/privado, este, nuevo y manejo de errores
+clase CuentaBancaria {
+    publico titular: texto
+    privado saldo: decimal
+
+    constructor(titular: texto, saldo_inicial: decimal) {
+        este.titular = titular
+        si saldo_inicial < 0.0 {
+            lanzar "El saldo inicial no puede ser negativo."
+        }
+        este.saldo = saldo_inicial
+    }
+
+    publico funcion depositar(monto: decimal) -> decimal {
+        si monto <= 0.0 {
+            lanzar "El depósito debe ser positivo."
+        }
+        este.saldo += monto
+        retornar este.saldo
+    }
+
+    publico funcion retirar(monto: decimal) -> decimal {
+        si monto > este.saldo {
+            lanzar "Fondos insuficientes."
+        }
+        este.saldo -= monto
+        retornar este.saldo
+    }
+
+    publico funcion obtener_saldo() -> decimal {
+        retornar este.saldo
+    }
+}
+
+intentar {
+    variable cuenta = nuevo CuentaBancaria("Lucía", 100.0)
+    cuenta.depositar(50.0)
+    imprimir("Titular:", cuenta.titular, "| Saldo:", cuenta.obtener_saldo())
+    cuenta.retirar(200.0)
+} capturar (err) {
+    imprimir("Error capturado:", err)
+} finalmente {
+    imprimir("Operación finalizada.")
+}

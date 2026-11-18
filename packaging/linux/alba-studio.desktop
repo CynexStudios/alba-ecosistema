@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Alba Studio
+GenericName=Entorno de Desarrollo Alba
+Comment=IDE nativo y lenguaje de programación en español Alba 2.0
+Exec=alba-studio %F
+Icon=alba-studio
+Terminal=false
+Categories=Development;IDE;
+MimeType=text/x-alba;
+StartupWMClass=Alba.IDE
+Keywords=Alba;IDE;Programacion;Desarrollo;CynexStudios;

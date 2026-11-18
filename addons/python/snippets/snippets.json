@@ -1,0 +1,32 @@
+[
+  {
+    "prefijo": "def",
+    "titulo": "Definir función",
+    "descripcion": "Crea una función en Python",
+    "cuerpo": "def nombre(parametro):\n    pass"
+  },
+  {
+    "prefijo": "class",
+    "titulo": "Definir clase",
+    "descripcion": "Crea una clase con constructor __init__",
+    "cuerpo": "class MiClase:\n    def __init__(self):\n        pass"
+  },
+  {
+    "prefijo": "ifmain",
+    "titulo": "Punto de entrada principal",
+    "descripcion": "Bloque estándar __main__ en Python",
+    "cuerpo": "if __name__ == \"__main__\":\n    main()"
+  },
+  {
+    "prefijo": "for",
+    "titulo": "Ciclo for",
+    "descripcion": "Itera sobre una secuencia o rango",
+    "cuerpo": "for i in range(10):\n    print(i)"
+  },
+  {
+    "prefijo": "try",
+    "titulo": "Bloque try/except",
+    "descripcion": "Manejo de excepciones en Python",
+    "cuerpo": "try:\n    pass\nexcept Exception as err:\n    print(err)"
+  }
+]

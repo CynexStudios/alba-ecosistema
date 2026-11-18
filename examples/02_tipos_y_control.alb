@@ -1,0 +1,23 @@
+# Variables, constantes, inferencia, tipado explícito y control de flujo
+constante MAX_INTENTOS: entero = 5
+variable puntaje: decimal = 8.5
+variable aprobado = falso
+
+si puntaje >= 7.0 y no (puntaje > 10.0) {
+    aprobado = verdadero
+    imprimir("Aprobado con:", puntaje)
+} sino_si puntaje >= 5.0 {
+    imprimir("En recuperación con:", puntaje)
+} sino {
+    imprimir("Reprobado.")
+}
+
+para i en rango(1, MAX_INTENTOS + 1) {
+    si i == 2 {
+        continuar
+    }
+    si i == 4 {
+        romper
+    }
+    imprimir("Iteración:", i)
+}

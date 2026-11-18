@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Alba.IDE.ViewModels"
+        xmlns:models="clr-namespace:Alba.IDE.Models"
+        x:Class="Alba.IDE.Views.VentanaAddons"
+        Title="Gestor de Complementos (Addons) — Alba Studio 2.0"
+        Width="780"
+        Height="500"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
+      <Button Classes="PrimaryBtn" Content="Instalar desde carpeta..." Click="AlInstalarCarpeta" />
+      <Button Classes="ToolbarBtn" Content="Recargar" Command="{Binding ComandoRecargar}" />
+      <Button Classes="ToolbarBtn" Content="Activar / Desactivar" Command="{Binding ComandoAlternarEstado}" />
+      <Button Classes="StopBtn" Content="Desinstalar" Command="{Binding ComandoDesinstalar}" />
+    </StackPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="280,16,*" Margin="0,12">
+      <Border Grid.Column="0" Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="8">
+        <ListBox ItemsSource="{Binding Addons}"
+                 SelectedItem="{Binding AddonSeleccionado}"
+                 Background="Transparent">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="models:AddonCargado">
+              <StackPanel Spacing="2" Margin="4">
+                <TextBlock Text="{Binding Manifiesto.Nombre}" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}" />
+                <TextBlock FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}">
+                  <Run Text="{Binding Manifiesto.Lenguaje}" />
+                  <Run Text=" • v" />
+                  <Run Text="{Binding Manifiesto.Version}" />
+                  <Run Text=" • Activo: " />
+                  <Run Text="{Binding Activo}" />
+                </TextBlock>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Border>
+
+      <Border Grid.Column="2" Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+        <ScrollViewer>
+          <StackPanel Spacing="8" DataContext="{Binding AddonSeleccionado}">
+            <TextBlock Text="{Binding Manifiesto.Nombre, FallbackValue='Selecciona un complemento'}"
+                       FontSize="17" FontWeight="Bold" Foreground="{DynamicResource TextoPrincipalBrush}" />
+            <TextBlock Text="{Binding Manifiesto.Descripcion}" TextWrapping="Wrap" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <Separator Background="{DynamicResource BordeSutilBrush}" Margin="0,4" />
+            <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Identificador: " /><Run Text="{Binding Manifiesto.Id}" /></TextBlock>
+            <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Autor: " /><Run Text="{Binding Manifiesto.Autor}" /></TextBlock>
+            <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Extensiones: " /><Run Text="{Binding ExtensionesTexto}" /></TextBlock>
+            <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Ejecutable: " /><Run Text="{Binding Manifiesto.Ejecutable}" /></TextBlock>
+            <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Seguridad: " /><Run Foreground="{DynamicResource ExitoColorBrush}" Text="{Binding EstadoSeguridad}" /></TextBlock>
+            <TextBlock FontSize="12" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Ruta: " /><Run Text="{Binding RutaCarpeta}" /></TextBlock>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="2" Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="6" Padding="10,6">
+      <TextBlock Text="{Binding MensajeEstado}" FontSize="12" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+    </Border>
+  </Grid>
+</Window>

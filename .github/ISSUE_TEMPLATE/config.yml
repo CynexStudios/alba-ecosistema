@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentación oficial de Alba
+    url: https://github.com/CynexStudios/alba-ecosistema/tree/main/docs
+    about: Consulta los manuales del lenguaje Alba, arquitectura, IDE y creación de addons.

@@ -1,0 +1,694 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Alba.IDE.ViewModels"
+        xmlns:models="clr-namespace:Alba.IDE.Models"
+        xmlns:controls="clr-namespace:Alba.IDE.Controls"
+        x:Class="Alba.IDE.Views.VentanaPrincipal"
+        Title="{Binding TituloVentana}"
+        Width="1360"
+        Height="840"
+        MinWidth="960"
+        MinHeight="600"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- ==================== 1. BARRA SUPERIOR ==================== -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource FondoBarraBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="10,6">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <!-- Marca + Menús principales -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <Image Source="avares://Alba.IDE/Assets/alba-studio-256.png"
+                 Width="24" Height="24"
+                 VerticalAlignment="Center"
+                 Margin="2,0,4,0" />
+          <TextBlock Text="ALBA STUDIO"
+                     FontWeight="Bold"
+                     FontSize="13"
+                     Foreground="{DynamicResource TextoPrincipalBrush}"
+                     VerticalAlignment="Center" />
+          <Border Background="{DynamicResource FondoHoverBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="1"
+                  CornerRadius="4"
+                  Padding="5,1"
+                  VerticalAlignment="Center"
+                  Margin="2,0,8,0">
+            <TextBlock Text="v2.0" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+          </Border>
+
+          <Menu VerticalAlignment="Center">
+            <MenuItem Header="Archivo">
+              <MenuItem Header="Nuevo proyecto Alba..." Click="AlNuevoProyecto" />
+              <MenuItem Header="Abrir carpeta de proyecto..." Click="AlAbrirCarpeta" />
+              <MenuItem Header="Abrir archivo..." Click="AlAbrirArchivo" />
+              <Separator />
+              <MenuItem Header="Guardar" Command="{Binding ComandoGuardar}" />
+              <MenuItem Header="Guardar todo" Command="{Binding ComandoGuardarTodo}" />
+              <Separator />
+              <MenuItem Header="Pantalla de inicio" Click="AlIrInicio" />
+              <MenuItem Header="Salir" Click="AlSalir" />
+            </MenuItem>
+            <MenuItem Header="Editar">
+              <MenuItem Header="Buscar / Reemplazar en archivo" Click="AlBuscarReemplazar" />
+              <MenuItem Header="Buscar en todo el proyecto" Click="AlAbrirBusquedaProyecto" />
+            </MenuItem>
+            <MenuItem Header="Ver">
+              <MenuItem Header="Alternar barra lateral" Click="AlAlternarBarraLateral" />
+              <MenuItem Header="Alternar panel inferior" Click="AlAlternarPanelInferior" />
+              <MenuItem Header="Abrir Terminal" Click="AlAbrirTerminal" />
+              <Separator />
+              <MenuItem Header="Cambiar tema visual" Click="AlCambiarTemaRapido" />
+              <MenuItem Header="Configuración..." Click="AlAbrirConfiguracion" />
+            </MenuItem>
+            <MenuItem Header="Ejecutar">
+              <MenuItem Header="Ejecutar archivo actual (F5)" Command="{Binding ComandoEjecutar}" />
+              <MenuItem Header="Verificar archivo actual" Command="{Binding ComandoVerificar}" />
+              <MenuItem Header="Verificar todo el proyecto" Click="AlVerificarProyecto" />
+              <MenuItem Header="Detener ejecución" Command="{Binding ComandoDetener}" />
+            </MenuItem>
+            <MenuItem Header="Herramientas">
+              <MenuItem Header="Paleta de comandos (Ctrl+Shift+P)" Click="AlAbrirPaletaComandos" />
+              <MenuItem Header="Apertura rápida de archivos (Ctrl+P)" Click="AlAbrirArchivosRapidos" />
+              <Separator />
+              <MenuItem Header="Gestor de complementos (Addons)..." Click="AlAbrirAddons" />
+            </MenuItem>
+            <MenuItem Header="Ayuda">
+              <MenuItem Header="Documentación del lenguaje Alba..." Click="AlAbrirDocumentacion" />
+              <MenuItem Header="Comprobar actualizaciones..." Click="AlComprobarActualizaciones" />
+            </MenuItem>
+          </Menu>
+        </StackPanel>
+
+        <!-- Barra central: Proyecto activo + Paleta de Comandos -->
+        <Button Grid.Column="1"
+                HorizontalAlignment="Center"
+                MinWidth="280"
+                MaxWidth="440"
+                Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12,5"
+                Click="AlAbrirPaletaComandos"
+                ToolTip.Tip="Abrir Paleta de Comandos (Ctrl+Shift+P)">
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+            <TextBlock Text="{Binding NombreProyectoActual}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextoPrincipalBrush}" />
+            <TextBlock Text="•" FontSize="12" Foreground="{DynamicResource TextoApagadoBrush}" />
+            <TextBlock Text="Buscar comandos o archivos..." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+          </StackPanel>
+        </Button>
+
+        <!-- Accesos rápidos derechos -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <Button Classes="ToolbarBtn" Content="Verificar" Command="{Binding ComandoVerificar}" ToolTip.Tip="Analizar sintaxis del archivo actual" />
+          <Button Classes="RunBtn" Content="▶ Ejecutar" Command="{Binding ComandoEjecutar}" ToolTip.Tip="Ejecutar programa (F5)" />
+          <Button Classes="StopBtn" Content="■ Detener" Command="{Binding ComandoDetener}" ToolTip.Tip="Detener ejecución" />
+          <Button Classes="ToolbarBtn" Content="Inicio" Click="AlIrInicio" ToolTip.Tip="Ir a Pantalla de Inicio" />
+          <Button Classes="ToolbarBtn" Content="Ajustes" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración y Temas" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ==================== 2. CONTENIDO CENTRAL ==================== -->
+    <Grid Grid.Row="1">
+      <!-- A. PANTALLA DE INICIO (BIENVENIDA) -->
+      <ScrollViewer IsVisible="{Binding MostrarPantallaInicio}" Background="{DynamicResource FondoBaseBrush}">
+        <Grid MaxWidth="1060" Margin="36,30" ColumnDefinitions="1.05*,36,1*">
+          <!-- Columna izquierda: Identidad + Acciones -->
+          <StackPanel Grid.Column="0" Spacing="20">
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+              <Image Source="avares://Alba.IDE/Assets/alba-studio-256.png" Width="76" Height="76" />
+              <StackPanel VerticalAlignment="Center" Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Text="Alba Studio" FontSize="30" FontWeight="Bold" Foreground="{DynamicResource TextoPrincipalBrush}" />
+                  <Border Background="{DynamicResource FondoHoverBrush}"
+                          BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+                          BorderThickness="1"
+                          CornerRadius="5"
+                          Padding="8,2"
+                          VerticalAlignment="Center">
+                    <TextBlock Text="v2.0.0" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  </Border>
+                </StackPanel>
+                <TextBlock Text="Lenguaje de programación en español y entorno de desarrollo profesional."
+                           FontSize="13.5"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextoSecundarioBrush}" />
+              </StackPanel>
+            </StackPanel>
+
+            <TextBlock Text="COMENZAR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,6,0,0" />
+
+            <StackPanel Spacing="10">
+              <Button Classes="CardBtn" Click="AlNuevoProyecto">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Crear nuevo proyecto Alba" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  <TextBlock Text="Genera la estructura inicial con principal.alb listo para programar." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </StackPanel>
+              </Button>
+
+              <Button Classes="CardBtn" Click="AlAbrirCarpeta">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Abrir proyecto o carpeta" FontSize="14" FontWeight="SemiBold" />
+                  <TextBlock Text="Explora una carpeta existente en el árbol de archivos." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </StackPanel>
+              </Button>
+
+              <Button Classes="CardBtn" Click="AlAbrirArchivo">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Abrir archivo de código (.alb, .py, ...)" FontSize="14" FontWeight="SemiBold" />
+                  <TextBlock Text="Edita y ejecuta archivos individuales de forma directa." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </StackPanel>
+              </Button>
+
+              <Grid ColumnDefinitions="*,10,*">
+                <Button Grid.Column="0" Classes="CardBtn" Click="AlAbrirDocumentacion">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="Documentación" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                    <TextBlock Text="Manual completo de Alba" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  </StackPanel>
+                </Button>
+                <Button Grid.Column="2" Classes="CardBtn" Click="AlAbrirConfiguracion">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="Temas y Ajustes" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock Text="Personaliza tu entorno" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  </StackPanel>
+                </Button>
+              </Grid>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Classes="ToolbarBtn" Content="Gestor de Addons" Click="AlAbrirAddons" />
+              <Button Classes="ToolbarBtn" Content="Abrir ejemplo Hola Mundo" Click="AlAbrirEjemploHolaMundo" />
+              <Button Classes="ToolbarBtn" Content="Buscar actualizaciones" Click="AlComprobarActualizaciones" />
+            </StackPanel>
+          </StackPanel>
+
+          <!-- Columna derecha: Recientes + Novedades v2.0.0 -->
+          <StackPanel Grid.Column="2" Spacing="16">
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="16">
+              <StackPanel Spacing="10">
+                <TextBlock Text="RECIENTES" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                <ListBox ItemsSource="{Binding Recientes}"
+                         MaxHeight="250"
+                         Background="Transparent"
+                         DoubleTapped="AlAbrirRecienteDobleClic">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ElementoReciente">
+                      <Grid ColumnDefinitions="Auto,*,Auto" Margin="2,4">
+                        <Border Grid.Column="0"
+                                Background="{DynamicResource FondoHoverBrush}"
+                                CornerRadius="4"
+                                Padding="6,2"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0">
+                          <TextBlock Text="{Binding EtiquetaTipo}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Spacing="1">
+                          <TextBlock Text="{Binding Nombre}" FontSize="13" FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Ruta}" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                          <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="Abrir" Click="AlAbrirRecienteClick" Tag="{Binding}" />
+                          <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="×" Click="AlQuitarRecienteClick" Tag="{Binding}" ToolTip.Tip="Quitar de recientes" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="16">
+              <StackPanel Spacing="8">
+                <TextBlock Text="NOVEDADES DE LA VERSIÓN 2.0.0" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                <TextBlock Text="• Nueva identidad visual, 3 temas base y sintaxis personalizable." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                <TextBlock Text="• Diagnóstico en vivo de código Alba con subrayado y panel Problemas." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                <TextBlock Text="• Terminal del sistema integrada, Paleta de Comandos (Ctrl+Shift+P) y búsqueda global en proyectos." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                <TextBlock Text="• Autoguardado configurable, recuperación de sesión y separación de addons de usuario." FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </ScrollViewer>
+
+      <!-- B. ESPACIO DE TRABAJO DEL IDE -->
+      <Grid IsVisible="{Binding MostrarEspacioTrabajo}" ColumnDefinitions="Auto,Auto,*">
+        <!-- Activity Rail izquierdo -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource FondoBarraBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="0,0,1,0"
+                Width="50"
+                Padding="5,10">
+          <Grid RowDefinitions="*,Auto">
+            <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsExploradorActivo}"
+                      Click="AlRailExplorador"
+                      ToolTip.Tip="Explorador de archivos">
+                <PathIcon Width="18" Height="18" Data="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsBusquedaActiva}"
+                      Click="AlRailBusqueda"
+                      ToolTip.Tip="Buscar en proyecto (Ctrl+Shift+F)">
+                <PathIcon Width="18" Height="18" Data="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsAddonsActivo}"
+                      Click="AlRailAddons"
+                      ToolTip.Tip="Complementos (Addons)">
+                <PathIcon Width="18" Height="18" Data="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm12.5 0v3H20v2h-3.5v3h-2v-3H11v-2h3.5v-3h2z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsHerramientasActivo}"
+                      Click="AlRailHerramientas"
+                      ToolTip.Tip="Herramientas del proyecto">
+                <PathIcon Width="18" Height="18" Data="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
+              </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Spacing="8" HorizontalAlignment="Center">
+              <Button Classes="RailBtn" Click="AlAbrirDocumentacion" ToolTip.Tip="Documentación del lenguaje Alba">
+                <PathIcon Width="18" Height="18" Data="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />
+              </Button>
+              <Button Classes="RailBtn" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración">
+                <PathIcon Width="18" Height="18" Data="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Panel lateral colapsable -->
+        <Grid Grid.Column="1" IsVisible="{Binding MostrarBarraLateral}" ColumnDefinitions="270,4">
+          <Border Grid.Column="0"
+                  Background="{DynamicResource FondoPanelBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="0,0,1,0">
+            <Grid>
+              <!-- Vista 1: Explorador -->
+              <Grid IsVisible="{Binding EsExploradorActivo}" RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="EXPLORADOR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Arch" Click="AlNuevoArchivo" ToolTip.Tip="Nuevo archivo" />
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Dir" Click="AlNuevaCarpeta" ToolTip.Tip="Nueva carpeta" />
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="↻" Command="{Binding ComandoRefrescarExplorador}" ToolTip.Tip="Refrescar" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <TreeView Grid.Row="1"
+                          x:Name="ArbolProyecto"
+                          ItemsSource="{Binding NodosExplorador}"
+                          Background="Transparent"
+                          DoubleTapped="AlDobleClicArbol">
+                  <TreeView.ContextMenu>
+                    <ContextMenu>
+                      <MenuItem Header="Nuevo archivo..." Click="AlNuevoArchivo" />
+                      <MenuItem Header="Nueva carpeta..." Click="AlNuevaCarpeta" />
+                      <Separator />
+                      <MenuItem Header="Renombrar..." Click="AlRenombrarSeleccionado" />
+                      <MenuItem Header="Duplicar archivo" Click="AlDuplicarSeleccionado" />
+                      <Separator />
+                      <MenuItem Header="Eliminar..." Click="AlEliminarSeleccionado" />
+                    </ContextMenu>
+                  </TreeView.ContextMenu>
+                  <TreeView.ItemTemplate>
+                    <TreeDataTemplate DataType="models:NodoProyecto" ItemsSource="{Binding Hijos}">
+                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="2">
+                        <Border Background="{DynamicResource FondoHoverBrush}" CornerRadius="3" Padding="4,1">
+                          <TextBlock Text="{Binding IconoTexto}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        </Border>
+                        <TextBlock Text="{Binding Nombre}" FontSize="12" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </TreeDataTemplate>
+                  </TreeView.ItemTemplate>
+                </TreeView>
+              </Grid>
+
+              <!-- Vista 2: Buscar en Proyecto -->
+              <Grid IsVisible="{Binding EsBusquedaActiva}" RowDefinitions="Auto,Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <TextBlock Text="BUSCAR EN PROYECTO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </Border>
+                <StackPanel Grid.Row="1" Margin="10" Spacing="8">
+                  <TextBox x:Name="TxtBusquedaProyecto"
+                           Text="{Binding TerminoBusquedaProyecto}"
+                           Watermark="Buscar código o texto..."
+                           KeyDown="AlTeclaBusquedaProyecto" />
+                  <Grid ColumnDefinitions="*,Auto">
+                    <CheckBox Grid.Column="0" IsChecked="{Binding BusquedaMayusculas}" Content="Mayúsculas" FontSize="11.5" />
+                    <Button Grid.Column="1" Classes="PrimaryBtn" Content="Buscar" Command="{Binding ComandoBuscarEnProyecto}" />
+                  </Grid>
+                </StackPanel>
+                <ListBox Grid.Row="2"
+                         x:Name="ListaResultadosBusqueda"
+                         ItemsSource="{Binding ResultadosBusqueda}"
+                         Background="Transparent"
+                         DoubleTapped="AlSeleccionarResultadoBusqueda">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ResultadoBusquedaProyecto">
+                      <StackPanel Spacing="2" Margin="4,3">
+                        <TextBlock Text="{Binding Etiqueta}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        <TextBlock Text="{Binding VistaPrevia}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Grid>
+
+              <!-- Vista 3: Addons integrados -->
+              <Grid IsVisible="{Binding EsAddonsActivo}" RowDefinitions="Auto,*,Auto">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <TextBlock Text="COMPLEMENTOS (ADDONS)" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </Border>
+                <ListBox Grid.Row="1" ItemsSource="{Binding AddonsInstalados}" Background="Transparent">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:AddonCargado">
+                      <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="2,4">
+                        <StackPanel Spacing="3">
+                          <TextBlock Text="{Binding Manifiesto.Nombre}" FontWeight="SemiBold" FontSize="12.5" />
+                          <TextBlock FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}">
+                            <Run Text="{Binding Manifiesto.Lenguaje}" />
+                            <Run Text=" • v" />
+                            <Run Text="{Binding Manifiesto.Version}" />
+                          </TextBlock>
+                          <TextBlock FontSize="10.5" Foreground="{DynamicResource ExitoColorBrush}" Text="{Binding EstadoSeguridad}" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Grid.Row="2" Margin="10" Spacing="6">
+                  <Button Classes="PrimaryBtn" Content="Abrir Gestor de Addons..." HorizontalAlignment="Stretch" Click="AlAbrirAddons" />
+                </StackPanel>
+              </Grid>
+
+              <!-- Vista 4: Herramientas del proyecto -->
+              <Grid IsVisible="{Binding EsHerramientasActivo}" RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <TextBlock Text="HERRAMIENTAS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </Border>
+                <StackPanel Grid.Row="1" Margin="10" Spacing="8">
+                  <Button Classes="CardBtn" Click="AlVerificarProyecto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Verificar todo el proyecto" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Analiza todos los archivos .alb en busca de errores." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirTerminal">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Abrir Terminal en proyecto" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Inicia PowerShell o bash en la carpeta actual." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirDocumentacion">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Manual del lenguaje Alba" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Consulta sintaxis, tipos, clases y errores." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirEnExploradorSO">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Abrir carpeta en el sistema" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Muestra el proyecto en tu explorador de archivos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </Grid>
+          </Border>
+          <GridSplitter Grid.Column="1" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Columns" />
+        </Grid>
+
+        <!-- Área central: Pestañas + Editor + Panel inferior colapsable -->
+        <Grid Grid.Column="2" RowDefinitions="*,Auto">
+          <!-- Pestañas + Breadcrumbs + Editor -->
+          <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*">
+            <!-- Barra de pestañas -->
+            <Border Grid.Row="0" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="6,4,6,0">
+              <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ListBox ItemsSource="{Binding PestanasAbiertas}"
+                         SelectedItem="{Binding ArchivoActivo}"
+                         Background="Transparent"
+                         Padding="0">
+                  <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="4" />
+                    </ItemsPanelTemplate>
+                  </ListBox.ItemsPanel>
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ArchivoAbierto">
+                      <StackPanel Orientation="Horizontal" Spacing="8" Margin="4,2">
+                        <StackPanel.ContextMenu>
+                          <ContextMenu>
+                            <MenuItem Header="Cerrar pestaña" Click="AlCerrarPestanaMenu" Tag="{Binding}" />
+                            <MenuItem Header="Cerrar otras pestañas" Click="AlCerrarOtrasPestanasMenu" Tag="{Binding}" />
+                            <MenuItem Header="Cerrar todas" Click="AlCerrarTodasPestanasMenu" />
+                          </ContextMenu>
+                        </StackPanel.ContextMenu>
+                        <TextBlock Text="{Binding Lenguaje}" FontSize="10" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TituloPestana}" FontSize="12" VerticalAlignment="Center" />
+                        <Button Content="×"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="4,0"
+                                FontSize="13"
+                                Foreground="{DynamicResource TextoSecundarioBrush}"
+                                Click="AlCerrarPestanaClick"
+                                Tag="{Binding}" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </ScrollViewer>
+            </Border>
+
+            <!-- Breadcrumbs + Botón Buscar en archivo -->
+            <Border Grid.Row="1" Background="{DynamicResource FondoEditorBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="12,4">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding RutaRelativaActiva}" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Buscar (Ctrl+F)" Click="AlBuscarReemplazar" />
+              </Grid>
+            </Border>
+
+            <!-- Editor principal -->
+            <controls:EditorCodigoAlba Grid.Row="2" x:Name="EditorPrincipal" />
+          </Grid>
+
+          <!-- Panel inferior colapsable y redimensionable -->
+          <Grid Grid.Row="1" IsVisible="{Binding MostrarPanelInferior}" RowDefinitions="4,230">
+            <GridSplitter Grid.Row="0" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Rows" />
+            <Border Grid.Row="1" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,1,0,0">
+              <Grid RowDefinitions="Auto,*">
+                <!-- Cabecera de pestañas inferiores -->
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="10,0">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsConsolaActiva}" Content="CONSOLA" Click="AlTabConsola" />
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsProblemasActiva}" Click="AlTabProblemas">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                          <TextBlock Text="PROBLEMAS" />
+                          <TextBlock Text="{Binding TotalProblemas}" Foreground="{DynamicResource ErrorColorBrush}" FontWeight="Bold" />
+                        </StackPanel>
+                      </Button>
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsTerminalActiva}" Content="TERMINAL" Click="AlTabTerminal" />
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsRegistroActiva}" Content="REGISTRO" Click="AlTabRegistro" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                      <Button Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Limpiar" Click="AlLimpiarPanelInferior" />
+                      <Button Classes="ToolbarBtn" Padding="7,2" FontSize="11" Content="×" Click="AlAlternarPanelInferior" ToolTip.Tip="Ocultar panel inferior (Ctrl+J)" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <!-- Contenido 1: Consola -->
+                <Grid Grid.Row="1" IsVisible="{Binding EsConsolaActiva}" RowDefinitions="*,Auto">
+                  <ListBox Grid.Row="0"
+                           x:Name="ListaConsola"
+                           ItemsSource="{Binding Consola.Mensajes}"
+                           Background="Transparent"
+                           Padding="8,4">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="models:MensajeConsola">
+                        <TextBlock FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Foreground="{Binding ColorHex}">
+                          <Run Text="{Binding Prefijo}" />
+                          <Run Text="{Binding Texto}" />
+                        </TextBlock>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+
+                  <Border Grid.Row="1"
+                          IsVisible="{Binding Consola.EsperandoEntrada}"
+                          Background="{DynamicResource FondoSuperficieBrush}"
+                          BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+                          BorderThickness="0,1,0,0"
+                          Padding="8,6">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <TextBlock Grid.Column="0"
+                                 Text="{Binding Consola.IndicadorEntrada}"
+                                 Foreground="{DynamicResource ExitoColorBrush}"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"
+                                 FontSize="12" />
+                      <TextBox Grid.Column="1"
+                               x:Name="TxtEntradaConsola"
+                               Margin="8,0"
+                               Text="{Binding Consola.EntradaUsuario}"
+                               Background="{DynamicResource FondoEditorBrush}"
+                               Foreground="{DynamicResource TextoPrincipalBrush}"
+                               BorderBrush="{DynamicResource BordeSutilBrush}"
+                               FontFamily="JetBrains Mono, Consolas, monospace"
+                               KeyDown="AlTeclaEntradaConsola" />
+                      <Button Grid.Column="2" Classes="RunBtn" Content="Enviar" Command="{Binding Consola.ComandoEnviarEntrada}" />
+                    </Grid>
+                  </Border>
+                </Grid>
+
+                <!-- Contenido 2: Problemas -->
+                <ListBox Grid.Row="1"
+                         x:Name="ListaProblemas"
+                         IsVisible="{Binding EsProblemasActiva}"
+                         ItemsSource="{Binding Problemas}"
+                         Background="Transparent"
+                         Padding="8,4"
+                         DoubleTapped="AlDobleClicProblema">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ProblemaCodigo">
+                      <Grid ColumnDefinitions="Auto,Auto,*" Margin="2,3">
+                        <TextBlock Grid.Column="0" Text="{Binding Codigo}" FontWeight="Bold" FontSize="11.5" Foreground="{DynamicResource ErrorColorBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding UbicacionTexto}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="2" Text="{Binding Mensaje}" FontSize="12" TextWrapping="Wrap" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Contenido 3: Terminal real -->
+                <Grid Grid.Row="1" IsVisible="{Binding EsTerminalActiva}" RowDefinitions="*,Auto">
+                  <ListBox Grid.Row="0"
+                           x:Name="ListaTerminal"
+                           ItemsSource="{Binding LineasTerminal}"
+                           Background="{DynamicResource FondoEditorBrush}"
+                           Padding="8,4">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding}" FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace" FontSize="12" TextWrapping="Wrap" />
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                  <Border Grid.Row="1" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,1,0,0" Padding="8,5">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <TextBlock Grid.Column="0" Text="$ " FontFamily="JetBrains Mono, Consolas, monospace" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" />
+                      <TextBox Grid.Column="1"
+                               x:Name="TxtComandoTerminal"
+                               Margin="4,0,8,0"
+                               Text="{Binding ComandoTerminal}"
+                               Watermark="Escribe un comando del sistema y presiona Enter..."
+                               FontFamily="JetBrains Mono, Consolas, monospace"
+                               KeyDown="AlTeclaTerminal" />
+                      <Button Grid.Column="2" Classes="PrimaryBtn" Content="Ejecutar" Command="{Binding ComandoEnviarTerminal}" />
+                    </Grid>
+                  </Border>
+                </Grid>
+
+                <!-- Contenido 4: Registro de actividad -->
+                <ListBox Grid.Row="1"
+                         IsVisible="{Binding EsRegistroActiva}"
+                         ItemsSource="{Binding RegistroActividad}"
+                         Background="Transparent"
+                         Padding="8,4">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:EntradaRegistro">
+                      <Grid ColumnDefinitions="Auto,Auto,*" Margin="2,2">
+                        <TextBlock Grid.Column="0" Text="{Binding HoraTexto}" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding Categoria}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="2" Text="{Binding Mensaje}" FontSize="12" TextWrapping="Wrap" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Grid>
+            </Border>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <!-- C. NOTIFICACIÓN DISCRETA (TOAST) -->
+      <Border IsVisible="{Binding MostrarNotificacion}"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Margin="0,0,20,18"
+              Background="{DynamicResource FondoBarraBrush}"
+              BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="14,10"
+              MaxWidth="380">
+        <TextBlock Text="{Binding TextoNotificacion}" FontSize="12.5" TextWrapping="Wrap" Foreground="{DynamicResource TextoPrincipalBrush}" />
+      </Border>
+    </Grid>
+
+    <!-- ==================== 3. BARRA DE ESTADO ==================== -->
+    <Border Grid.Row="2"
+            Background="{DynamicResource FondoBarraBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="12,4">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <TextBlock Text="{Binding EstadoBarra}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding EstaEjecutando}" Width="70" Height="4" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Button Grid.Column="1"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="6,1"
+                Margin="0,0,12,0"
+                Click="AlTabProblemas">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="Errores:" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <TextBlock Text="{Binding TotalProblemas}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource ErrorColorBrush}" />
+          </StackPanel>
+        </Button>
+
+        <TextBlock Grid.Column="2" Text="{Binding ArchivoActivo.Lenguaje, FallbackValue='Sin archivo'}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <TextBlock Grid.Column="3" Text="{Binding PosicionCursor}" FontSize="11" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+
+        <Button Grid.Column="4"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="6,1"
+                Margin="0,0,10,0"
+                Click="AlCambiarTemaRapido"
+                ToolTip.Tip="Clic para cambiar tema visual">
+          <TextBlock Text="{Binding NombreTemaActual}" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+        </Button>
+
+        <TextBlock Grid.Column="5" Text="v2.0.0" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

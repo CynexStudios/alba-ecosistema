@@ -1,0 +1,54 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:Alba.IDE.Models"
+        x:Class="Alba.IDE.Views.VentanaPaletaComandos"
+        Title="Paleta de Comandos — Alba Studio"
+        Width="620"
+        Height="420"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoSuperficieBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="14">
+    <TextBox Grid.Row="0"
+             x:Name="TxtFiltro"
+             Watermark="Escribe un comando o nombre de archivo..."
+             Background="{DynamicResource FondoEditorBrush}"
+             Foreground="{DynamicResource TextoPrincipalBrush}"
+             BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+             FontSize="13"
+             Padding="10,8"
+             TextChanged="AlCambiarFiltro" />
+
+    <ListBox Grid.Row="1"
+             x:Name="ListaComandos"
+             Margin="0,10"
+             Background="{DynamicResource FondoPanelBrush}"
+             BorderBrush="{DynamicResource BordeSutilBrush}"
+             BorderThickness="1"
+             CornerRadius="6"
+             DoubleTapped="AlDobleClicItem">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="models:ComandoPaleta">
+          <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,3">
+            <Border Grid.Column="0"
+                    Background="{DynamicResource FondoHoverBrush}"
+                    CornerRadius="4"
+                    Padding="6,2"
+                    Margin="0,0,10,0">
+              <TextBlock Text="{Binding Categoria}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+            </Border>
+            <TextBlock Grid.Column="1" Text="{Binding Titulo}" FontSize="13" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="2" Text="{Binding Atajo}" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <TextBlock Grid.Row="2"
+               Text="Enter para ejecutar • Esc para cerrar • ↑↓ para navegar"
+               FontSize="11"
+               Foreground="{DynamicResource TextoApagadoBrush}"
+               HorizontalAlignment="Right" />
+  </Grid>
+</Window>

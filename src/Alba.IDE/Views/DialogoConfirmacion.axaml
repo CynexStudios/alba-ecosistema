@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Alba.IDE.Views.DialogoConfirmacion"
+        Width="440"
+        Height="190"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoSuperficieBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="*,Auto" Margin="20">
+    <StackPanel Grid.Row="0" Spacing="8">
+      <TextBlock x:Name="TxtTitulo" FontSize="15" FontWeight="Bold" Text="Confirmar acción" />
+      <TextBlock x:Name="TxtMensaje"
+                 FontSize="12.5"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource TextoSecundarioBrush}"
+                 Text="¿Deseas continuar?" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+      <Button Classes="ToolbarBtn" Content="Cancelar" Click="AlCancelar" />
+      <Button x:Name="BtnConfirmar" Classes="StopBtn" Content="Confirmar" IsDefault="True" Click="AlConfirmar" />
+    </StackPanel>
+  </Grid>
+</Window>

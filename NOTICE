@@ -1,0 +1,10 @@
+Alba Studio y Lenguaje Alba (Ecosistema Alba)
+Copyright 2026 CynexStudios (https://github.com/CynexStudios)
+
+Este producto incluye software desarrollado por CynexStudios para el proyecto Alba.
+
+Componentes de terceros incluidos / referenciados bajo sus respectivas licencias:
+- Avalonia UI (https://avaloniaui.net/) — Licencia MIT
+- AvaloniaEdit (https://github.com/AvaloniaUI/AvaloniaEdit) — Licencia MIT
+- .NET Runtime & SDK (https://dotnet.microsoft.com/) — Licencia MIT
+- xUnit (utilizado únicamente en proyectos de pruebas) — Licencia Apache 2.0

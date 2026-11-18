@@ -1,0 +1,33 @@
+{
+  "id": "alba-amanecer",
+  "nombre": "Alba Amanecer (Claro Profesional)",
+  "esOscuro": false,
+  "fondoBase": "#F1F5F9",
+  "fondoSuperficie": "#FFFFFF",
+  "fondoPanel": "#F8FAFC",
+  "fondoBarra": "#E2E8F0",
+  "fondoEditor": "#FFFFFF",
+  "fondoLineaActual": "#EFF6FF",
+  "fondoHover": "#E2E8F0",
+  "bordeSutil": "#CBD5E1",
+  "textoPrincipal": "#0F172A",
+  "textoSecundario": "#475569",
+  "textoApagado": "#64748B",
+  "acentoPrimario": "#2563EB",
+  "acentoSecundario": "#D97706",
+  "exitoColor": "#16A34A",
+  "advertenciaColor": "#D97706",
+  "errorColor": "#DC2626",
+  "sintaxis": {
+    "comentario": "#15803D",
+    "cadena": "#B45309",
+    "numero": "#0369A1",
+    "palabraControl": "#7E22CE",
+    "palabraDeclaracion": "#1D4ED8",
+    "tipoDato": "#0F766E",
+    "valorEspecial": "#2563EB",
+    "funcionIntegrada": "#A16207",
+    "operadorLogico": "#7E22CE",
+    "delimitador": "#64748B"
+  }
+}

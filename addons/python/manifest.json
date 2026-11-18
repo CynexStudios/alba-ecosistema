@@ -1,0 +1,16 @@
+{
+  "id": "python",
+  "nombre": "Soporte para Python 3",
+  "version": "1.0.0",
+  "descripcion": "Complemento oficial para editar, resaltar sintaxis, autocompletar fragmentos y ejecutar scripts de Python 3 desde Alba Studio.",
+  "autor": "Equipo Alba",
+  "lenguaje": "Python",
+  "extensiones": [
+    ".py"
+  ],
+  "ejecutable": "python3",
+  "scriptEntrada": "plugin.py",
+  "sintaxis": "syntax/python.xshd",
+  "snippets": "snippets/snippets.json",
+  "dependencias": []
+}

@@ -1,0 +1,149 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Alba.IDE.App"
+             RequestedThemeVariant="Dark">
+
+  <Application.Resources>
+    <!-- Paleta base predeterminada (Alba Crepúsculo) actualizada dinámicamente por GestorTemas -->
+    <SolidColorBrush x:Key="FondoBaseBrush" Color="#0A0F1A" />
+    <SolidColorBrush x:Key="FondoSuperficieBrush" Color="#101726" />
+    <SolidColorBrush x:Key="FondoPanelBrush" Color="#0D1320" />
+    <SolidColorBrush x:Key="FondoBarraBrush" Color="#141D2F" />
+    <SolidColorBrush x:Key="FondoEditorBrush" Color="#0B111E" />
+    <SolidColorBrush x:Key="FondoLineaActualBrush" Color="#162033" />
+    <SolidColorBrush x:Key="FondoHoverBrush" Color="#1E293B" />
+    <SolidColorBrush x:Key="BordeSutilBrush" Color="#1E2A3E" />
+    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="TextoSecundarioBrush" Color="#94A3B8" />
+    <SolidColorBrush x:Key="TextoApagadoBrush" Color="#64748B" />
+    <SolidColorBrush x:Key="AcentoPrimarioBrush" Color="#38BDF8" />
+    <SolidColorBrush x:Key="AcentoSecundarioBrush" Color="#F59E0B" />
+    <SolidColorBrush x:Key="ExitoColorBrush" Color="#22C55E" />
+    <SolidColorBrush x:Key="AdvertenciaColorBrush" Color="#FBBF24" />
+    <SolidColorBrush x:Key="ErrorColorBrush" Color="#EF4444" />
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+
+    <!-- Menús principales -->
+    <Style Selector="Menu">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="MenuItem">
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="Padding" Value="8,4" />
+    </Style>
+
+    <!-- Botones de barra -->
+    <Style Selector="Button.ToolbarBtn">
+      <Setter Property="Background" Value="{DynamicResource FondoSuperficieBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BordeSutilBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="10,5" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Button.ToolbarBtn:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
+    </Style>
+
+    <!-- Botón de acción primaria -->
+    <Style Selector="Button.PrimaryBtn">
+      <Setter Property="Background" Value="{DynamicResource AcentoPrimarioBrush}" />
+      <Setter Property="Foreground" Value="#08101D" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="12,6" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Botón Ejecutar -->
+    <Style Selector="Button.RunBtn">
+      <Setter Property="Background" Value="#15803D" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#22C55E" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="12,5" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.RunBtn:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#16A34A" />
+    </Style>
+
+    <!-- Botón Detener -->
+    <Style Selector="Button.StopBtn">
+      <Setter Property="Background" Value="#991B1B" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#EF4444" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="10,5" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <!-- Botones de barra lateral (Activity Rail) -->
+    <Style Selector="Button.RailBtn">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoSecundarioBrush}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Width" Value="38" />
+      <Setter Property="Height" Value="38" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.RailBtn:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
+    </Style>
+    <Style Selector="Button.RailBtn.Activo">
+      <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AcentoPrimarioBrush}" />
+    </Style>
+
+    <!-- Botones de pestañas de panel inferior -->
+    <Style Selector="Button.DockTabBtn">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoSecundarioBrush}" />
+      <Setter Property="BorderThickness" Value="0,0,0,2" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.DockTabBtn.Activo">
+      <Setter Property="Foreground" Value="{DynamicResource AcentoPrimarioBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AcentoPrimarioBrush}" />
+    </Style>
+
+    <!-- Tarjetas interactivas de pantalla de inicio -->
+    <Style Selector="Button.CardBtn">
+      <Setter Property="Background" Value="{DynamicResource FondoSuperficieBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BordeSutilBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,12" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+    </Style>
+    <Style Selector="Button.CardBtn:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AcentoPrimarioBrush}" />
+    </Style>
+  </Application.Styles>
+</Application>

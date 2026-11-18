@@ -1,0 +1,35 @@
+name: Reporte de Error (Bug)
+description: Informa sobre un fallo en el lenguaje Alba o en Alba Studio 2.0
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Versión de Alba Studio / CLI
+      placeholder: "ej. 2.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema operativo
+      options:
+        - Windows 10/11 (x64)
+        - macOS Apple Silicon (arm64)
+        - macOS Intel (x64)
+        - Linux (.deb / .rpm / .AppImage)
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del problema y pasos para reproducirlo
+      placeholder: Explica qué ocurrió y qué esperabas que sucediera.
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Código o salida de error (si aplica)
+      render: text

@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Alba.IDE.Views.VentanaDocumentacion"
+        Title="Documentación de Alba y Alba Studio 2.0"
+        Width="900"
+        Height="600"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid ColumnDefinitions="260,*" Margin="14">
+    <Border Grid.Column="0"
+            Background="{DynamicResource FondoSuperficieBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="10"
+            Margin="0,0,12,0">
+      <Grid RowDefinitions="Auto,*">
+        <TextBlock Grid.Row="0"
+                   Text="GUÍAS Y MANUALES"
+                   FontSize="11"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextoSecundarioBrush}"
+                   Margin="4,2,4,8" />
+        <ListBox Grid.Row="1"
+                 x:Name="ListaDocumentos"
+                 Background="Transparent"
+                 SelectionChanged="AlSeleccionarDocumento" />
+      </Grid>
+    </Border>
+
+    <Border Grid.Column="1"
+            Background="{DynamicResource FondoSuperficieBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="18">
+      <ScrollViewer>
+        <TextBox x:Name="TxtContenidoDoc"
+                 IsReadOnly="True"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 Foreground="{DynamicResource TextoPrincipalBrush}"
+                 FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                 FontSize="13" />
+      </ScrollViewer>
+    </Border>
+  </Grid>
+</Window>

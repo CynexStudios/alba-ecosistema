@@ -1,0 +1,24 @@
+name: Propuesta de Mejora
+description: Sugiere una nueva característica para el lenguaje Alba o para Alba Studio
+title: "[Mejora]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área del proyecto
+      options:
+        - Motor del lenguaje (Alba.Engine)
+        - IDE (Alba Studio)
+        - Sistema de Addons
+        - Instaladores / CLI
+        - Documentación
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Descripción de la mejora propuesta
+      placeholder: Detalla la necesidad y cómo ayudaría a quienes usan Alba Studio.
+    validations:
+      required: true

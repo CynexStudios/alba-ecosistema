@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Alba.IDE.Views.DialogoBuscarReemplazar"
+        Title="Buscar y Reemplazar"
+        Width="440"
+        Height="240"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoSuperficieBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <StackPanel Margin="18" Spacing="10">
+    <TextBlock Text="Buscar:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+    <TextBox x:Name="TxtBuscar"
+             Background="{DynamicResource FondoEditorBrush}"
+             Foreground="{DynamicResource TextoPrincipalBrush}"
+             BorderBrush="{DynamicResource BordeSutilBrush}" />
+
+    <TextBlock Text="Reemplazar por:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+    <TextBox x:Name="TxtReemplazar"
+             Background="{DynamicResource FondoEditorBrush}"
+             Foreground="{DynamicResource TextoPrincipalBrush}"
+             BorderBrush="{DynamicResource BordeSutilBrush}" />
+
+    <CheckBox x:Name="ChkMayusculas" Content="Distinguir mayúsculas y minúsculas" Foreground="{DynamicResource TextoPrincipalBrush}" />
+
+    <TextBlock x:Name="TxtResultado" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" Text="" />
+
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Classes="ToolbarBtn" Content="Buscar siguiente" Click="AlBuscarSiguiente" />
+      <Button Classes="ToolbarBtn" Content="Reemplazar" Click="AlReemplazar" />
+      <Button Classes="RunBtn" Content="Reemplazar todo" Click="AlReemplazarTodo" />
+    </StackPanel>
+  </StackPanel>
+</Window>

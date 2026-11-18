@@ -1,0 +1,33 @@
+{
+  "id": "alba-medianoche",
+  "nombre": "Alba Medianoche (Oscuro Alternativo)",
+  "esOscuro": true,
+  "fondoBase": "#09090B",
+  "fondoSuperficie": "#111115",
+  "fondoPanel": "#0D0D11",
+  "fondoBarra": "#16161C",
+  "fondoEditor": "#0B0B0E",
+  "fondoLineaActual": "#1A1A24",
+  "fondoHover": "#272734",
+  "bordeSutil": "#27272A",
+  "textoPrincipal": "#F4F4F5",
+  "textoSecundario": "#A1A1AA",
+  "textoApagado": "#71717A",
+  "acentoPrimario": "#818CF8",
+  "acentoSecundario": "#34D399",
+  "exitoColor": "#10B981",
+  "advertenciaColor": "#F59E0B",
+  "errorColor": "#F87171",
+  "sintaxis": {
+    "comentario": "#71717A",
+    "cadena": "#FB923C",
+    "numero": "#34D399",
+    "palabraControl": "#E879F9",
+    "palabraDeclaracion": "#818CF8",
+    "tipoDato": "#22D3EE",
+    "valorEspecial": "#A78BFA",
+    "funcionIntegrada": "#FDE047",
+    "operadorLogico": "#E879F9",
+    "delimitador": "#A1A1AA"
+  }
+}

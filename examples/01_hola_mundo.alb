@@ -1,0 +1,6 @@
+# Primer programa en Alba v0.1.0
+constante SALUDO = "Hola, mundo desde Alba!"
+imprimir(SALUDO)
+
+variable usuario = leer("¿Cómo te llamas? ")
+imprimir("Bienvenido/a,", usuario)

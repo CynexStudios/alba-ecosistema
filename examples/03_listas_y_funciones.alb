@@ -1,0 +1,29 @@
+/*
+   Funciones recursivas, closures y manipulación de listas en Alba
+*/
+funcion factorial(n: entero) -> entero {
+    si n <= 1 {
+        retornar 1
+    }
+    retornar n * factorial(n - 1)
+}
+
+funcion filtrar_pares(numeros: lista) -> lista {
+    variable resultado: lista = []
+    variable i = 0
+
+    mientras i < longitud(numeros) {
+        variable actual = numeros[i]
+        i += 1
+        si actual % 2 == 0 {
+            agregar(resultado, actual)
+        }
+    }
+
+    retornar resultado
+}
+
+variable datos = [1, 3, 4, 7, 8, 10]
+datos[1] = 2
+imprimir("Factorial de 5:", factorial(5))
+imprimir("Números pares:", filtrar_pares(datos))

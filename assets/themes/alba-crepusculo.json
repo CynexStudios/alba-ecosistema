@@ -1,0 +1,33 @@
+{
+  "id": "alba-crepusculo",
+  "nombre": "Alba Crepúsculo (Oscuro Profesional)",
+  "esOscuro": true,
+  "fondoBase": "#0A0F1A",
+  "fondoSuperficie": "#101726",
+  "fondoPanel": "#0D1320",
+  "fondoBarra": "#141D2F",
+  "fondoEditor": "#0B111E",
+  "fondoLineaActual": "#162033",
+  "fondoHover": "#1E293B",
+  "bordeSutil": "#1E2A3E",
+  "textoPrincipal": "#E2E8F0",
+  "textoSecundario": "#94A3B8",
+  "textoApagado": "#64748B",
+  "acentoPrimario": "#38BDF8",
+  "acentoSecundario": "#F59E0B",
+  "exitoColor": "#22C55E",
+  "advertenciaColor": "#FBBF24",
+  "errorColor": "#EF4444",
+  "sintaxis": {
+    "comentario": "#6A9955",
+    "cadena": "#F4A261",
+    "numero": "#B5CEA8",
+    "palabraControl": "#C084FC",
+    "palabraDeclaracion": "#38BDF8",
+    "tipoDato": "#2DD4BF",
+    "valorEspecial": "#60A5FA",
+    "funcionIntegrada": "#FACC15",
+    "operadorLogico": "#C084FC",
+    "delimitador": "#94A3B8"
+  }
+}
