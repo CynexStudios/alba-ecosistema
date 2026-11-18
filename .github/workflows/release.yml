@@ -10,6 +10,11 @@ on:
         description: "Versión semántica a empaquetar (sin 'v')"
         required: true
         default: "2.0.0"
+      incluir_macos:
+        description: "Incluir compilación para macOS (.dmg)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -55,39 +60,6 @@ jobs:
             dist/*.exe
             dist/*.zip
 
-  build-macos:
-    name: Paquete macOS (${{ matrix.arch }})
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        arch: [arm64, x64]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "8.0.x"
-
-      - name: Determinar versión
-        id: ver
-        run: |
-          VER="${{ github.event.inputs.version }}"
-          if [ -z "$VER" ]; then VER="${GITHUB_REF_NAME#v}"; fi
-          echo "version=$VER" >> "$GITHUB_OUTPUT"
-
-      - name: Ejecutar pruebas
-        run: dotnet test AlbaEcosistema.sln -c Release
-
-      - name: Generar .app y .dmg (${{ matrix.arch }})
-        run: |
-          chmod +x packaging/macos/build-macos-dmg.sh
-          ./packaging/macos/build-macos-dmg.sh "${{ steps.ver.outputs.version }}" "${{ matrix.arch }}"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installers-macos-${{ matrix.arch }}
-          path: dist/*.dmg
-
   build-linux:
     name: Paquetes Linux (.deb, .rpm, .AppImage)
     runs-on: ubuntu-latest
@@ -118,6 +90,7 @@ jobs:
       - name: Generar .deb, .rpm y .AppImage
         env:
           APPIMAGETOOL: /tmp/appimagetool
+          APPIMAGE_EXTRACT_AND_RUN: "1"
         run: |
           chmod +x packaging/linux/build-linux-packages.sh
           ./packaging/linux/build-linux-packages.sh "${{ steps.ver.outputs.version }}"
@@ -130,9 +103,42 @@ jobs:
             dist/*.rpm
             dist/*.AppImage
 
+  build-macos:
+    name: Paquetes macOS (arm64 + x64)
+    if: github.event_name == 'workflow_dispatch' && inputs.incluir_macos
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Determinar versión
+        id: ver
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ]; then VER="${GITHUB_REF_NAME#v}"; fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Ejecutar pruebas
+        run: dotnet test AlbaEcosistema.sln -c Release
+
+      - name: Generar .app y .dmg (Apple Silicon arm64 e Intel x64)
+        run: |
+          chmod +x packaging/macos/build-macos-dmg.sh
+          ./packaging/macos/build-macos-dmg.sh "${{ steps.ver.outputs.version }}" "arm64"
+          ./packaging/macos/build-macos-dmg.sh "${{ steps.ver.outputs.version }}" "x64"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-macos
+          path: dist/*.dmg
+
   publish-release:
     name: Publicar Release en GitHub
-    needs: [build-windows, build-macos, build-linux]
+    needs: [build-windows, build-linux]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
