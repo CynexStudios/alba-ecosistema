@@ -1,0 +1,73 @@
+# Ejemplo oficial de Cibao Programming Language v5.0.0
+# Demuestra: diccionarios, interpolación, herencia/polimorfismo, elegir,
+# funciones anónimas, coalescencia nula (??), métodos por punto y módulos.
+
+importar "matematicas" como mat
+importar "json" como json
+
+# 1. Diccionarios y coalescencia nula
+variable configuracion: diccionario = {
+    editor: "Xynex Code Editor",
+    lenguaje: "Cibao",
+    version: 5.0
+}
+configuracion["autor"] = "CynexStudios"
+variable tema = configuracion["tema"] ?? "Crepusculo"
+
+imprimir($"Bienvenido a {configuracion.editor} | Lenguaje: {configuracion.lenguaje} ({tema})")
+
+# 2. Herencia, super y polimorfismo (es)
+clase Dispositivo {
+    publico nombre: texto
+    privado id_interno: entero = 1001
+
+    constructor(nombre: texto) {
+        este.nombre = nombre
+    }
+
+    publico funcion describir() -> texto {
+        retornar $"Dispositivo: {este.nombre}"
+    }
+}
+
+clase Computadora extiende Dispositivo {
+    publico ram_gb: entero
+
+    constructor(nombre: texto, ram_gb: entero) {
+        super(nombre)
+        este.ram_gb = ram_gb
+    }
+
+    publico funcion describir() -> texto {
+        retornar $"{super.describir()} ({este.ram_gb} GB RAM)"
+    }
+}
+
+variable equipo: Dispositivo = nuevo Computadora("Xynex Workstation", 32)
+imprimir(equipo.describir())
+imprimir($"Es Dispositivo: {equipo es Dispositivo} | Es Computadora: {equipo es Computadora}")
+
+# 3. Control de flujo elegir / caso / defecto
+variable nota = "A"
+elegir nota {
+    caso "A", "A+":
+        imprimir("Calificación excelente")
+    caso "B":
+        imprimir("Buen desempeño")
+    defecto:
+        imprimir("En progreso")
+}
+
+# 4. Funciones anónimas + métodos encadenados
+variable numeros = [1, 2, 3, 4, 5, 6]
+variable procesados = numeros
+    .filtrar(funcion(n: entero) -> booleano { retornar n % 2 == 0 })
+    .mapear(funcion(n: entero) -> entero { retornar n * 10 })
+
+variable suma = procesados.reducir(0, funcion(acc: entero, x: entero) -> entero { retornar acc + x })
+imprimir($"Pares x10: {procesados} | Suma: {suma}")
+
+# 5. Texto, matemáticas y JSON
+variable texto_limpio = "  cibao moderno  ".recortar().mayusculas()
+imprimir($"Texto: {texto_limpio} | Raíz(144): {mat.raiz(144)}")
+imprimir("JSON:", json.json_a_texto(configuracion))

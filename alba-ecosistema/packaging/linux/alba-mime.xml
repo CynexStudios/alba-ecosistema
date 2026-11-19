@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="text/x-cibao">
+    <comment>Programa en lenguaje Cibao</comment>
+    <glob pattern="*.cibao"/>
+  </mime-type>
+  <mime-type type="text/x-alba">
+    <comment>Programa heredado Cibao / Alba</comment>
+    <glob pattern="*.alb"/>
+  </mime-type>
+</mime-info>

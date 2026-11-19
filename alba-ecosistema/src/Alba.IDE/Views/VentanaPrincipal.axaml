@@ -1,0 +1,1160 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Alba.IDE.ViewModels"
+        xmlns:models="clr-namespace:Alba.IDE.Models"
+        xmlns:controls="clr-namespace:Alba.IDE.Controls"
+        x:Class="Alba.IDE.Views.VentanaPrincipal"
+        Title="{Binding TituloVentana}"
+        Width="1380"
+        Height="860"
+        MinWidth="980"
+        MinHeight="620"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- ==================== 1. BARRA SUPERIOR ==================== -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource FondoBarraBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="10,6">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <!-- Marca + Menús principales -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <Image Source="avares://Alba.IDE/Assets/alba-studio-256.png"
+                 Width="24" Height="24"
+                 VerticalAlignment="Center"
+                 Margin="2,0,4,0" />
+          <TextBlock Text="XYNEX CODE EDITOR"
+                     FontWeight="Bold"
+                     FontSize="12.5"
+                     Foreground="{DynamicResource TextoPrincipalBrush}"
+                     VerticalAlignment="Center" />
+          <TextBlock Text="v5.0"
+                     FontSize="11"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource AcentoPrimarioBrush}"
+                     VerticalAlignment="Center"
+                     Margin="2,0,8,0" />
+
+          <Menu VerticalAlignment="Center">
+            <MenuItem Header="Archivo">
+              <MenuItem Header="Nuevo proyecto..." Click="AlCrearProyecto" />
+              <MenuItem Header="Nuevo programa..." Click="AlCrearPrograma" />
+              <MenuItem Header="Nuevo archivo independiente..." Click="AlCrearArchivoIndependiente" />
+              <Separator />
+              <MenuItem Header="Abrir carpeta de proyecto..." Click="AlAbrirCarpeta" />
+              <MenuItem Header="Abrir archivo..." Click="AlAbrirArchivo" />
+              <Separator />
+              <MenuItem Header="Guardar" Command="{Binding ComandoGuardar}" />
+              <MenuItem Header="Guardar todo" Command="{Binding ComandoGuardarTodo}" />
+              <Separator />
+              <MenuItem Header="Pantalla de inicio" Click="AlIrInicio" />
+              <MenuItem Header="Salir" Click="AlSalir" />
+            </MenuItem>
+            <MenuItem Header="Editar">
+              <MenuItem Header="Buscar / Reemplazar en archivo" Click="AlBuscarReemplazar" />
+              <MenuItem Header="Buscar en todo el proyecto" Click="AlAbrirBusquedaProyecto" />
+            </MenuItem>
+            <MenuItem Header="Ver">
+              <MenuItem Header="Alternar barra lateral" Click="AlAlternarBarraLateral" />
+              <MenuItem Header="Alternar panel inferior" Click="AlAlternarPanelInferior" />
+              <MenuItem Header="Navegador Web integrado (Vista previa)" Click="AlAlternarVistaWeb" />
+              <MenuItem Header="Abrir Terminal" Click="AlAbrirTerminal" />
+              <MenuItem Header="Centro de Herramientas (Tools)" Click="AlAbrirTools" />
+              <Separator />
+              <MenuItem Header="Cambiar tema visual" Click="AlCambiarTemaRapido" />
+              <MenuItem Header="Configuración..." Click="AlAbrirConfiguracion" />
+            </MenuItem>
+            <MenuItem Header="Ejecutar">
+              <MenuItem Header="Ejecutar archivo actual (F5)" Command="{Binding ComandoEjecutar}" />
+              <MenuItem Header="Abrir HTML en navegador real (Live Server)" Click="AlAbrirWebExterno" />
+              <MenuItem Header="Verificar archivo actual" Command="{Binding ComandoVerificar}" />
+              <MenuItem Header="Verificar todo el proyecto" Click="AlVerificarProyecto" />
+              <MenuItem Header="Detener ejecución" Command="{Binding ComandoDetener}" />
+            </MenuItem>
+            <MenuItem Header="Herramientas">
+              <MenuItem Header="Centro de Herramientas (Tools)" Click="AlAbrirTools" />
+              <MenuItem Header="Re-escanear SDKs instalados" Click="AlReescanearTools" />
+              <Separator />
+              <MenuItem Header="Paleta de comandos (Ctrl+Shift+P)" Click="AlAbrirPaletaComandos" />
+              <MenuItem Header="Apertura rápida de archivos (Ctrl+P)" Click="AlAbrirArchivosRapidos" />
+            </MenuItem>
+            <MenuItem Header="GitHub">
+              <MenuItem Header="Panel Git y GitHub" Click="AlRailGitHub" />
+              <MenuItem Header="Iniciar sesión en GitHub..." Click="AlIniciarSesionGitHub" />
+              <MenuItem Header="Publicar proyecto en GitHub..." Click="AlPublicarEnGitHub" />
+              <MenuItem Header="Clonar repositorio por URL..." Click="AlClonarUrlManual" />
+              <Separator />
+              <MenuItem Header="Cerrar sesión de GitHub" Click="AlCerrarSesionGitHub" IsVisible="{Binding EstaConectadoGitHub}" />
+            </MenuItem>
+            <MenuItem Header="Ayuda">
+              <MenuItem Header="Documentación de Cibao..." Click="AlAbrirDocumentacion" />
+              <MenuItem Header="Comprobar actualizaciones..." Click="AlComprobarActualizaciones" />
+            </MenuItem>
+          </Menu>
+        </StackPanel>
+
+        <!-- Barra central: Proyecto activo + Paleta de Comandos -->
+        <Button Grid.Column="1"
+                HorizontalAlignment="Center"
+                MinWidth="260"
+                MaxWidth="440"
+                Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12,5"
+                Click="AlAbrirPaletaComandos"
+                ToolTip.Tip="Abrir Paleta de Comandos (Ctrl+Shift+P)">
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+            <TextBlock Text="{Binding NombreProyectoActual}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextoPrincipalBrush}" />
+            <TextBlock Text="·" FontSize="12" Foreground="{DynamicResource TextoApagadoBrush}" />
+            <TextBlock Text="Buscar comandos o archivos..." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+          </StackPanel>
+        </Button>
+
+        <!-- Accesos rápidos derechos -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <Button Classes="ToolbarBtn" Content="Vista Web" Click="AlAlternarVistaWeb" ToolTip.Tip="Navegador Web integrado y Live Server" />
+          <Button Classes="ToolbarBtn" Content="Tools" Click="AlAbrirTools" ToolTip.Tip="Centro de Herramientas (SDKs y Complementos)" />
+          <Button Classes="ToolbarBtn" Content="Verificar" Command="{Binding ComandoVerificar}" ToolTip.Tip="Analizar sintaxis del archivo actual" />
+          <Button Classes="RunBtn" Content="▶ Ejecutar" Command="{Binding ComandoEjecutar}" ToolTip.Tip="Ejecutar archivo actual (F5)" />
+          <Button Classes="StopBtn" Content="■ Detener" Command="{Binding ComandoDetener}" ToolTip.Tip="Detener ejecución" />
+          <Button Classes="ToolbarBtn" Content="Inicio" Click="AlIrInicio" ToolTip.Tip="Ir a Pantalla de Inicio" />
+          <Button Classes="ToolbarBtn" Content="Ajustes" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración y Temas" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ==================== 2. CONTENIDO CENTRAL ==================== -->
+    <Grid Grid.Row="1">
+      <!-- A. PANTALLA DE INICIO (BIENVENIDA) -->
+      <ScrollViewer IsVisible="{Binding MostrarPantallaInicio}" Background="{DynamicResource FondoBaseBrush}">
+        <Grid MaxWidth="1120" Margin="34,26" ColumnDefinitions="1.08*,28,1*">
+          <!-- Columna izquierda: Identidad + Creación Tripartita + Apertura -->
+          <StackPanel Grid.Column="0" Spacing="18">
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+              <Image Source="avares://Alba.IDE/Assets/alba-studio-256.png" Width="68" Height="68" />
+              <StackPanel VerticalAlignment="Center" Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Text="Xynex Code Editor" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextoPrincipalBrush}" />
+                  <TextBlock Text="v5.0.0" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Bottom" Margin="0,0,0,4" />
+                </StackPanel>
+                <TextBlock Text="IDE profesional multi-lenguaje y entorno oficial de Cibao Programming Language."
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextoSecundarioBrush}" />
+              </StackPanel>
+            </StackPanel>
+
+            <TextBlock Text="CREAR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,4,0,0" />
+
+            <Grid ColumnDefinitions="*,10,*,10,*">
+              <Button Grid.Column="0" Classes="CardBtn" Click="AlCrearProyecto">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Crear proyecto" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  <TextBlock Text="Carpeta estructurada en Cibao, Python, Web, C# o C++." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+
+              <Button Grid.Column="2" Classes="CardBtn" Click="AlCrearPrograma">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Crear programa" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                  <TextBlock Text="Programa ejecutable directo sin carpeta compleja." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+
+              <Button Grid.Column="4" Classes="CardBtn" Click="AlCrearArchivoIndependiente">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Crear archivo" FontSize="13.5" FontWeight="SemiBold" />
+                  <TextBlock Text="Archivo independiente listo para editar y probar." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+            </Grid>
+
+            <TextBlock Text="ABRIR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,2,0,0" />
+
+            <Grid ColumnDefinitions="*,10,*">
+              <Button Grid.Column="0" Classes="CardBtn" Click="AlAbrirCarpeta">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Abrir proyecto o carpeta" FontSize="13.5" FontWeight="SemiBold" />
+                  <TextBlock Text="Carga una carpeta en el explorador del IDE." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+
+              <Button Grid.Column="2" Classes="CardBtn" Click="AlAbrirArchivo">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Abrir archivo independiente" FontSize="13.5" FontWeight="SemiBold" />
+                  <TextBlock Text="Abre .cibao, .alb, .py, .html, .cs o .cpp." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
+              <Button Classes="ToolbarBtn" Content="Centro de Tools" Click="AlAbrirTools" />
+              <Button Classes="ToolbarBtn" Content="Git / GitHub" Click="AlAbrirPanelGitHubInicio" />
+              <Button Classes="ToolbarBtn" Content="Documentación Cibao" Click="AlAbrirDocumentacion" />
+              <Button Classes="ToolbarBtn" Content="Temas y Ajustes" Click="AlAbrirConfiguracion" />
+              <Button Classes="ToolbarBtn" Content="Ejemplo Hola Mundo" Click="AlAbrirEjemploHolaMundo" />
+              <Button Classes="ToolbarBtn" Content="Actualizaciones" Click="AlComprobarActualizaciones" />
+            </StackPanel>
+
+            <!-- Entornos detectados en este equipo -->
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14">
+              <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="ENTORNOS DETECTADOS EN ESTE EQUIPO" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+                  <Button Grid.Column="1" Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Re-escanear" Click="AlReescanearTools" />
+                </Grid>
+                <ItemsControl ItemsSource="{Binding EntornosDetectados}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:EstadoEntornoLenguaje">
+                      <Grid ColumnDefinitions="130,60,*" Margin="0,2">
+                        <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="12" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{Binding ExtensionPrincipal}" FontSize="11.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        <TextBlock Grid.Column="2" Text="{Binding EstadoResumen}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Separator Background="{DynamicResource BordeSutilBrush}" Margin="0,4" />
+                <TextBlock Text="ENTORNOS GRÁFICOS Y WEB" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                <ItemsControl ItemsSource="{Binding EntornosGraficosDetectados}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:EstadoEntornoGrafico">
+                      <Grid ColumnDefinitions="195,65,*" Margin="0,2">
+                        <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="1" Text="{Binding Plataforma}" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                        <TextBlock Grid.Column="2" Text="{Binding Detalle}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <!-- Columna derecha: Proyectos recientes y Archivos recientes separados -->
+          <StackPanel Grid.Column="2" Spacing="14">
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14">
+              <StackPanel Spacing="8">
+                <TextBlock Text="PROYECTOS RECIENTES" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                <TextBlock IsVisible="{Binding SinProyectosRecientes}"
+                           Text="Aún no has abierto proyectos en esta sesión."
+                           FontSize="12"
+                           Foreground="{DynamicResource TextoSecundarioBrush}" />
+                <ListBox ItemsSource="{Binding ProyectosRecientes}"
+                         MaxHeight="195"
+                         Background="Transparent"
+                         DoubleTapped="AlAbrirRecienteDobleClic">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ElementoReciente">
+                      <Grid ColumnDefinitions="*,Auto" Margin="2,3">
+                        <StackPanel Grid.Column="0" Spacing="1">
+                          <TextBlock Text="{Binding Nombre}" FontSize="12.5" FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Ruta}" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="8,0,0,0">
+                          <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="Abrir" Click="AlAbrirRecienteClick" Tag="{Binding}" />
+                          <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="×" Click="AlQuitarRecienteClick" Tag="{Binding}" ToolTip.Tip="Quitar de recientes" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14">
+              <StackPanel Spacing="8">
+                <TextBlock Text="ARCHIVOS RECIENTES" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                <TextBlock IsVisible="{Binding SinArchivosRecientes}"
+                           Text="Aún no has abierto archivos independientes."
+                           FontSize="12"
+                           Foreground="{DynamicResource TextoSecundarioBrush}" />
+                <ListBox ItemsSource="{Binding ArchivosRecientes}"
+                         MaxHeight="195"
+                         Background="Transparent"
+                         DoubleTapped="AlAbrirRecienteDobleClic">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ElementoReciente">
+                      <Grid ColumnDefinitions="*,Auto" Margin="2,3">
+                        <StackPanel Grid.Column="0" Spacing="1">
+                          <TextBlock Text="{Binding Nombre}" FontSize="12.5" FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Ruta}" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="8,0,0,0">
+                          <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="Abrir" Click="AlAbrirRecienteClick" Tag="{Binding}" />
+                          <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="×" Click="AlQuitarRecienteClick" Tag="{Binding}" ToolTip.Tip="Quitar de recientes" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </ScrollViewer>
+
+      <!-- B. ESPACIO DE TRABAJO DEL IDE -->
+      <Grid IsVisible="{Binding MostrarEspacioTrabajo}" ColumnDefinitions="Auto,Auto,*">
+        <!-- Activity Rail izquierdo -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource FondoBarraBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="0,0,1,0"
+                Width="50"
+                Padding="5,10">
+          <Grid RowDefinitions="*,Auto">
+            <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsExploradorActivo}"
+                      Click="AlRailExplorador"
+                      ToolTip.Tip="Explorador de archivos">
+                <PathIcon Width="18" Height="18" Data="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsBusquedaActiva}"
+                      Click="AlRailBusqueda"
+                      ToolTip.Tip="Buscar en proyecto (Ctrl+Shift+F)">
+                <PathIcon Width="18" Height="18" Data="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsGitHubActivo}"
+                      Click="AlRailGitHub"
+                      ToolTip.Tip="Git y GitHub">
+                <PathIcon Width="18" Height="18" Data="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21.5c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsToolsActivo}"
+                      Click="AlRailTools"
+                      ToolTip.Tip="Centro de Herramientas (Tools)">
+                <PathIcon Width="18" Height="18" Data="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm12.5 0v3H20v2h-3.5v3h-2v-3H11v-2h3.5v-3h2z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Classes.Activo="{Binding EsHerramientasActivo}"
+                      Click="AlRailHerramientas"
+                      ToolTip.Tip="Acciones rápidas del proyecto">
+                <PathIcon Width="18" Height="18" Data="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
+              </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Spacing="8" HorizontalAlignment="Center">
+              <Button Classes="RailBtn" Click="AlAbrirDocumentacion" ToolTip.Tip="Documentación de Cibao">
+                <PathIcon Width="18" Height="18" Data="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />
+              </Button>
+              <Button Classes="RailBtn" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración">
+                <PathIcon Width="18" Height="18" Data="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Panel lateral colapsable -->
+        <Grid Grid.Column="1" IsVisible="{Binding MostrarBarraLateral}" ColumnDefinitions="275,4">
+          <Border Grid.Column="0"
+                  Background="{DynamicResource FondoPanelBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="0,0,1,0">
+            <Grid>
+              <!-- Vista 1: Explorador (Archivos independientes + Proyecto) -->
+              <Grid IsVisible="{Binding EsExploradorActivo}" RowDefinitions="Auto,Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="EXPLORADOR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Arch" Click="AlNuevoArchivo" ToolTip.Tip="Nuevo archivo" />
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Prog" Click="AlCrearPrograma" ToolTip.Tip="Nuevo programa" />
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Dir" Click="AlNuevaCarpeta" ToolTip.Tip="Nueva carpeta" />
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="↻" Command="{Binding ComandoRefrescarExplorador}" ToolTip.Tip="Refrescar" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <!-- Archivos independientes abiertos -->
+                <Border Grid.Row="1"
+                        IsVisible="{Binding TieneArchivosIndependientes}"
+                        BorderBrush="{DynamicResource BordeSutilBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="8,6">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="ARCHIVOS INDEPENDIENTES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                    <ListBox ItemsSource="{Binding ArchivosIndependientes}"
+                             MaxHeight="130"
+                             Background="Transparent"
+                             SelectionChanged="AlSeleccionarArchivoIndependiente">
+                      <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:ArchivoAbierto">
+                          <Grid ColumnDefinitions="*,Auto" Margin="2,2">
+                            <TextBlock Grid.Column="0" Text="{Binding TituloPestana}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="1" Text="{Binding Lenguaje}" FontSize="10.5" Foreground="{DynamicResource AcentoPrimarioBrush}" Margin="6,0,0,0" />
+                          </Grid>
+                        </DataTemplate>
+                      </ListBox.ItemTemplate>
+                    </ListBox>
+                  </StackPanel>
+                </Border>
+
+                <TreeView Grid.Row="2"
+                          x:Name="ArbolProyecto"
+                          ItemsSource="{Binding NodosExplorador}"
+                          Background="Transparent"
+                          DoubleTapped="AlDobleClicArbol">
+                  <TreeView.ContextMenu>
+                    <ContextMenu>
+                      <MenuItem Header="Nuevo archivo..." Click="AlNuevoArchivo" />
+                      <MenuItem Header="Nuevo programa..." Click="AlCrearPrograma" />
+                      <MenuItem Header="Nueva carpeta..." Click="AlNuevaCarpeta" />
+                      <Separator />
+                      <MenuItem Header="Renombrar..." Click="AlRenombrarSeleccionado" />
+                      <MenuItem Header="Duplicar archivo" Click="AlDuplicarSeleccionado" />
+                      <Separator />
+                      <MenuItem Header="Eliminar..." Click="AlEliminarSeleccionado" />
+                    </ContextMenu>
+                  </TreeView.ContextMenu>
+                  <TreeView.ItemTemplate>
+                    <TreeDataTemplate DataType="models:NodoProyecto" ItemsSource="{Binding Hijos}">
+                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="2">
+                        <TextBlock Text="{Binding IconoTexto}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Width="30" />
+                        <TextBlock Text="{Binding Nombre}" FontSize="12" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </TreeDataTemplate>
+                  </TreeView.ItemTemplate>
+                </TreeView>
+              </Grid>
+
+              <!-- Vista 2: Buscar en Proyecto -->
+              <Grid IsVisible="{Binding EsBusquedaActiva}" RowDefinitions="Auto,Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <TextBlock Text="BUSCAR EN PROYECTO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </Border>
+                <StackPanel Grid.Row="1" Margin="10" Spacing="8">
+                  <TextBox x:Name="TxtBusquedaProyecto"
+                           Text="{Binding TerminoBusquedaProyecto}"
+                           Watermark="Buscar código o texto..."
+                           KeyDown="AlTeclaBusquedaProyecto" />
+                  <Grid ColumnDefinitions="*,Auto">
+                    <CheckBox Grid.Column="0" IsChecked="{Binding BusquedaMayusculas}" Content="Mayúsculas" FontSize="11.5" />
+                    <Button Grid.Column="1" Classes="PrimaryBtn" Content="Buscar" Command="{Binding ComandoBuscarEnProyecto}" />
+                  </Grid>
+                </StackPanel>
+                <ListBox Grid.Row="2"
+                         x:Name="ListaResultadosBusqueda"
+                         ItemsSource="{Binding ResultadosBusqueda}"
+                         Background="Transparent"
+                         DoubleTapped="AlSeleccionarResultadoBusqueda">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ResultadoBusquedaProyecto">
+                      <StackPanel Spacing="2" Margin="4,3">
+                        <TextBlock Text="{Binding Etiqueta}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        <TextBlock Text="{Binding VistaPrevia}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Grid>
+
+              <!-- Vista 3: Git y GitHub -->
+              <Grid IsVisible="{Binding EsGitHubActivo}" RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="GIT Y GITHUB" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="↻" Click="AlRefrescarGit" ToolTip.Tip="Actualizar estado Git" />
+                      <Button Classes="PrimaryBtn" Padding="7,2" FontSize="11" Content="Publicar" Click="AlPublicarEnGitHub" ToolTip.Tip="Publicar proyecto actual en GitHub" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Row="1">
+                  <StackPanel Margin="10" Spacing="10">
+                    <!-- Cuenta GitHub -->
+                    <Border Background="{DynamicResource FondoSuperficieBrush}"
+                            BorderBrush="{DynamicResource BordeSutilBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="10">
+                      <StackPanel Spacing="6">
+                        <TextBlock Text="CUENTA GITHUB" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+
+                        <StackPanel IsVisible="{Binding NoEstaConectadoGitHub}" Spacing="6">
+                          <TextBlock Text="Conecta tu cuenta de GitHub con OAuth o Token Personal para clonar y publicar." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                          <Button Classes="PrimaryBtn" Content="Iniciar sesión en GitHub" Click="AlIniciarSesionGitHub" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <StackPanel IsVisible="{Binding EstaConectadoGitHub}" Spacing="6">
+                          <Grid ColumnDefinitions="Auto,*">
+                            <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16" ClipToBounds="True" Background="{DynamicResource FondoBarraBrush}" Margin="0,0,8,0">
+                              <Image Source="{Binding AvatarGitHub}" Stretch="UniformToFill" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding ResumenCuentaGitHub}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                              <TextBlock Text="{Binding PermisosCuentaGitHub}" FontSize="10" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                          </Grid>
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Button Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="Repos" Click="AlActualizarReposGitHub" />
+                            <Button Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="Publicar" Click="AlPublicarEnGitHub" />
+                            <Button Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="Salir" Click="AlCerrarSesionGitHub" />
+                          </StackPanel>
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+
+                    <!-- Clonar y repositorios GitHub -->
+                    <Border Background="{DynamicResource FondoSuperficieBrush}"
+                            BorderBrush="{DynamicResource BordeSutilBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="10">
+                      <StackPanel Spacing="6">
+                        <TextBlock Text="CLONAR / MIS REPOSITORIOS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                          <TextBox Grid.Column="0" Text="{Binding UrlClonacionManual}" Watermark="https://github.com/usuario/repo.git" FontSize="11" Margin="0,0,4,0" />
+                          <Button Grid.Column="1" Classes="ToolbarBtn" Padding="7,4" FontSize="11" Content="Clonar" Click="AlClonarUrlManual" />
+                        </Grid>
+
+                        <StackPanel IsVisible="{Binding EstaConectadoGitHub}" Spacing="6">
+                          <TextBox Text="{Binding FiltroReposGitHub}" Watermark="Filtrar tus repositorios..." FontSize="11" />
+                          <ListBox ItemsSource="{Binding RepositoriosGitHub}" MaxHeight="145" Background="Transparent">
+                            <ListBox.ItemTemplate>
+                              <DataTemplate x:DataType="models:RepositorioGitHub">
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                                  <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding Nombre}" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Resumen}" FontSize="10" Foreground="{DynamicResource TextoApagadoBrush}" TextTrimming="CharacterEllipsis" />
+                                  </StackPanel>
+                                  <Button Grid.Column="1" Classes="ToolbarBtn" Padding="6,2" FontSize="10.5" Content="Clonar" Click="AlClonarRepositorioLista" Tag="{Binding}" VerticalAlignment="Center" />
+                                </Grid>
+                              </DataTemplate>
+                            </ListBox.ItemTemplate>
+                          </ListBox>
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+
+                    <!-- Control de versiones Git del proyecto actual -->
+                    <Border Background="{DynamicResource FondoSuperficieBrush}"
+                            BorderBrush="{DynamicResource BordeSutilBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="10">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="REPOSITORIO LOCAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+
+                        <TextBlock IsVisible="{Binding GitNoInstalado}"
+                                   Text="Git no está instalado en el sistema. Instala Git para usar commits, ramas y sincronización."
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource AdvertenciaColorBrush}"
+                                   TextWrapping="Wrap" />
+
+                        <StackPanel IsVisible="{Binding NoEsRepositorioGit}" Spacing="6">
+                          <TextBlock Text="Esta carpeta aún no es un repositorio Git." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                          <Button Classes="PrimaryBtn" Content="Inicializar Git (git init)" Click="AlInicializarGit" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <StackPanel IsVisible="{Binding EsRepositorioGit}" Spacing="8">
+                          <TextBlock Text="{Binding TextoRemotoOrigin}" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" TextTrimming="CharacterEllipsis" />
+
+                          <Grid ColumnDefinitions="*,Auto">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{Binding RamasGit}"
+                                      SelectedItem="{Binding RamaGitSeleccionada}"
+                                      FontSize="11.5"
+                                      Margin="0,0,4,0" />
+                            <Button Grid.Column="1" Classes="ToolbarBtn" Padding="7,4" FontSize="11" Content="+ Rama" Click="AlCrearRamaGit" />
+                          </Grid>
+
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Button Classes="ToolbarBtn" Padding="8,4" FontSize="11" Content="Pull" Click="AlPullGit" />
+                            <Button Classes="PrimaryBtn" Padding="8,4" FontSize="11" Content="Push" Click="AlPushGit" />
+                            <Button Classes="ToolbarBtn" Padding="8,4" FontSize="11" Content="Publicar" Click="AlPublicarEnGitHub" />
+                          </StackPanel>
+
+                          <TextBox Text="{Binding MensajeCommitGit}" Watermark="Mensaje de commit..." FontSize="11.5" />
+                          <Grid ColumnDefinitions="*,Auto">
+                            <Button Grid.Column="0" Classes="PrimaryBtn" Content="Confirmar commit" Click="AlCrearCommitGit" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                            <Button Grid.Column="1" Classes="ToolbarBtn" Padding="7,4" FontSize="11" Content="+ Todo" Click="AlPrepararTodoGit" />
+                          </Grid>
+
+                          <TextBlock Text="CAMBIOS PENDIENTES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                          <ListBox ItemsSource="{Binding CambiosGit}" MaxHeight="145" Background="Transparent">
+                            <ListBox.ItemTemplate>
+                              <DataTemplate x:DataType="models:ArchivoCambioGit">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,2">
+                                  <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding RutaRelativa}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding EtiquetaEstado}" FontSize="9.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                                  </StackPanel>
+                                  <Button Grid.Column="1" Classes="ToolbarBtn" Padding="5,1" FontSize="10" Content="Diff" Click="AlVerDiffCambioGit" Tag="{Binding}" Margin="2,0" />
+                                  <Button Grid.Column="2" Classes="ToolbarBtn" Padding="5,1" FontSize="10" Content="+" Click="AlPrepararCambioGit" Tag="{Binding}" Margin="2,0" />
+                                  <Button Grid.Column="3" Classes="ToolbarBtn" Padding="5,1" FontSize="10" Content="-" Click="AlQuitarCambioGit" Tag="{Binding}" />
+                                </Grid>
+                              </DataTemplate>
+                            </ListBox.ItemTemplate>
+                          </ListBox>
+
+                          <TextBlock Text="HISTORIAL RECIENTE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                          <ListBox ItemsSource="{Binding HistorialCommitsGit}" MaxHeight="120" Background="Transparent">
+                            <ListBox.ItemTemplate>
+                              <DataTemplate x:DataType="models:CommitHistorialGit">
+                                <TextBlock Text="{Binding Resumen}" FontSize="10.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                              </DataTemplate>
+                            </ListBox.ItemTemplate>
+                          </ListBox>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding EstadoOperacionGitTexto}" FontSize="10.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </ScrollViewer>
+              </Grid>
+
+              <!-- Vista 4: Herramientas rápidas del proyecto -->
+              <Grid IsVisible="{Binding EsHerramientasActivo}" RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
+                  <TextBlock Text="ACCIONES RÁPIDAS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </Border>
+                <StackPanel Grid.Row="1" Margin="10" Spacing="8">
+                  <Button Classes="CardBtn" Click="AlAlternarVistaWeb">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Vista previa Web integrada" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                      <TextBlock Text="Navegador integrado con Live Server, consola y vista responsive." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirTools">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Centro de Herramientas (Tools)" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                      <TextBlock Text="Administra SDKs, compiladores, lenguajes y complementos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlPublicarEnGitHub">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Publicar proyecto en GitHub" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                      <TextBlock Text="Asistente guiado con análisis de secretos y .gitignore." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlVerificarProyecto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Verificar todo el proyecto" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Analiza todos los archivos .cibao y .alb en busca de errores." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirTerminal">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Abrir Terminal en proyecto" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Inicia una sesión real en la carpeta actual." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirDocumentacion">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Manual del lenguaje Cibao" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Consulta sintaxis, tipos, clases y errores." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="CardBtn" Click="AlAbrirEnExploradorSO">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="Abrir carpeta en el sistema" FontWeight="SemiBold" FontSize="12.5" />
+                      <TextBlock Text="Muestra el proyecto en tu explorador de archivos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </Grid>
+          </Border>
+          <GridSplitter Grid.Column="1" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Columns" />
+        </Grid>
+
+        <!-- Área central: Editor / Centro Tools integrado + Panel inferior colapsable -->
+        <Grid Grid.Column="2" RowDefinitions="*,Auto">
+          <Grid Grid.Row="0">
+            <!-- Subvista A: Editor de Código -->
+            <Grid IsVisible="{Binding MostrarAreaEditor}" RowDefinitions="Auto,Auto,*">
+              <!-- Barra de pestañas -->
+              <Border Grid.Row="0" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="6,4,6,0">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                  <ListBox ItemsSource="{Binding PestanasAbiertas}"
+                           SelectedItem="{Binding ArchivoActivo}"
+                           Background="Transparent"
+                           Padding="0">
+                    <ListBox.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="4" />
+                      </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="models:ArchivoAbierto">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="4,2">
+                          <StackPanel.ContextMenu>
+                            <ContextMenu>
+                              <MenuItem Header="Cerrar pestaña" Click="AlCerrarPestanaMenu" Tag="{Binding}" />
+                              <MenuItem Header="Cerrar otras pestañas" Click="AlCerrarOtrasPestanasMenu" Tag="{Binding}" />
+                              <MenuItem Header="Cerrar todas" Click="AlCerrarTodasPestanasMenu" />
+                            </ContextMenu>
+                          </StackPanel.ContextMenu>
+                          <TextBlock Text="{Binding Lenguaje}" FontSize="10" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding TituloPestana}" FontSize="12" VerticalAlignment="Center" />
+                          <Button Content="×"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="4,0"
+                                  FontSize="13"
+                                  Foreground="{DynamicResource TextoSecundarioBrush}"
+                                  Click="AlCerrarPestanaClick"
+                                  Tag="{Binding}" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </ScrollViewer>
+              </Border>
+
+              <!-- Breadcrumbs + Botón Buscar en archivo -->
+              <Border Grid.Row="1" Background="{DynamicResource FondoEditorBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="12,4">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="{Binding RutaRelativaActiva}" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+                  <Button Grid.Column="1" Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Buscar (Ctrl+F)" Click="AlBuscarReemplazar" />
+                </Grid>
+              </Border>
+
+              <!-- Editor principal + Vista Web integrada en panel dividido -->
+              <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                <controls:EditorCodigoAlba Grid.Column="0" x:Name="EditorPrincipal" />
+                <Grid Grid.Column="1" IsVisible="{Binding MostrarVistaPreviaWeb}" ColumnDefinitions="4,430">
+                  <GridSplitter Grid.Column="0" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Columns" />
+                  <controls:VistaPreviaWebControl Grid.Column="1" x:Name="VistaPreviaWeb" />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <!-- Subvista B: Centro de Herramientas (Tools) integrado dentro del IDE -->
+            <Grid IsVisible="{Binding MostrarCentroTools}" RowDefinitions="Auto,Auto,*" Background="{DynamicResource FondoBaseBrush}" Margin="16">
+              <!-- Cabecera Tools -->
+              <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                <StackPanel Grid.Column="0" Spacing="2">
+                  <TextBlock Text="Centro de Herramientas (Tools)" FontSize="20" FontWeight="Bold" />
+                  <TextBlock Text="Motores, SDKs, compiladores detectados y complementos activos en Xynex Code Editor."
+                             FontSize="12"
+                             Foreground="{DynamicResource TextoSecundarioBrush}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                  <Button Classes="ToolbarBtn" Content="Re-escanear equipo" Click="AlReescanearTools" />
+                  <Button Classes="PrimaryBtn" Content="Instalar addon..." Click="AlInstalarAddonTools" />
+                  <Button Classes="ToolbarBtn" Content="Volver al editor" Click="AlCerrarCentroTools" />
+                </StackPanel>
+              </Grid>
+
+              <!-- Filtros Tools -->
+              <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
+                <TextBox Grid.Column="0"
+                         Text="{Binding FiltroTextoTools}"
+                         Watermark="Buscar herramienta, lenguaje, compilador o requisito..."
+                         Margin="0,0,10,0" />
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding CategoriasTools}"
+                          SelectedItem="{Binding CategoriaToolSeleccionada}"
+                          Width="185"
+                          Margin="0,0,10,0" />
+                <CheckBox Grid.Column="2"
+                          IsChecked="{Binding SoloToolsInstalados}"
+                          Content="Solo instalados / activos"
+                          VerticalAlignment="Center" />
+              </Grid>
+
+              <!-- Maestro-Detalle Tools -->
+              <Grid Grid.Row="2" ColumnDefinitions="1.1*,14,1*">
+                <Border Grid.Column="0"
+                        Background="{DynamicResource FondoSuperficieBrush}"
+                        BorderBrush="{DynamicResource BordeSutilBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="8">
+                  <ListBox ItemsSource="{Binding ToolsFiltrados}"
+                           SelectedItem="{Binding ToolSeleccionado}"
+                           Background="Transparent">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="models:ElementoTool">
+                        <StackPanel Spacing="3" Margin="6,5">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="1" Text="{Binding EstadoInstalacion}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" Margin="8,0,0,0" />
+                          </Grid>
+                          <TextBlock FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}">
+                            <Run Text="{Binding CategoriaTexto}" />
+                            <Run Text=" · v" />
+                            <Run Text="{Binding Version}" />
+                          </TextBlock>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="{DynamicResource FondoSuperficieBrush}"
+                        BorderBrush="{DynamicResource BordeSutilBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="18">
+                  <ScrollViewer>
+                    <StackPanel Spacing="10">
+                      <StackPanel DataContext="{Binding ToolSeleccionado}" Spacing="8">
+                        <TextBlock Text="{Binding Nombre, FallbackValue='Selecciona una herramienta', TargetNullValue='Selecciona una herramienta'}" FontSize="17" FontWeight="Bold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Descripcion}" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                        <Separator Background="{DynamicResource BordeSutilBrush}" Margin="0,4" />
+                        <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Categoría: " /><Run Text="{Binding CategoriaTexto}" /></TextBlock>
+                        <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Versión: " /><Run Text="{Binding Version}" /></TextBlock>
+                        <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Autor / Firma: " /><Run Text="{Binding Autor}" /></TextBlock>
+                        <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Compatibilidad: " /><Run Text="{Binding Compatibilidad}" /></TextBlock>
+                        <TextBlock FontSize="12" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Requisitos: " /><Run Text="{Binding Requisitos}" /></TextBlock>
+                        <TextBlock FontSize="12" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Dependencias: " /><Run Text="{Binding Dependencias}" /></TextBlock>
+                        <TextBlock FontSize="12" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Permisos: " /><Run Text="{Binding PermisosRequeridos}" /></TextBlock>
+                        <TextBlock FontSize="12" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Verificación: " /><Run Text="{Binding HashVerificacion}" /></TextBlock>
+                        <TextBlock FontSize="12"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Estado: " /><Run Foreground="{DynamicResource AcentoPrimarioBrush}" FontWeight="SemiBold" Text="{Binding EstadoInstalacion}" /></TextBlock>
+                        <TextBlock FontSize="11.5" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Capacidades del lenguaje: " /><Run Text="{Binding ResumenCapacidades}" /></TextBlock>
+                        <TextBlock FontSize="11.5" TextWrapping="Wrap"><Run Foreground="{DynamicResource TextoSecundarioBrush}" Text="Origen / Documentación: " /><Run Text="{Binding FuenteOficial}" /></TextBlock>
+                      </StackPanel>
+
+                      <TextBlock IsVisible="{Binding ToolSeleccionadoTieneQueFalta}"
+                                 Text="{Binding ToolSeleccionado.QueFaltaTexto}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource AdvertenciaColorBrush}"
+                                 TextWrapping="Wrap" />
+
+                      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding ToolSeleccionadoTienePaqueteIntegrado}" Margin="0,4,0,0">
+                        <Button Classes="PrimaryBtn"
+                                Content="{Binding ToolSeleccionadoTextoInstalar}"
+                                Click="AlInstalarPaqueteIntegradoTool" />
+                      </StackPanel>
+
+                      <StackPanel IsVisible="{Binding ToolSeleccionadoTieneCmdGuiado}" Spacing="4" Margin="0,4,0,0">
+                        <TextBlock Text="Comando recomendado:" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" />
+                        <TextBlock Text="{Binding ToolSeleccionado.ComandoInstalacionGuiada}" FontSize="11.5" FontFamily="JetBrains Mono, Consolas, monospace" Foreground="{DynamicResource AcentoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+
+                      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding ToolSeleccionadoEsAddon}" Margin="0,6,0,0">
+                        <Button Classes="PrimaryBtn"
+                                Content="{Binding ToolSeleccionadoTextoBotonActivar}"
+                                Command="{Binding ComandoAlternarToolAddon}" />
+                        <Button Classes="StopBtn"
+                                Content="Desinstalar"
+                                IsVisible="{Binding ToolSeleccionadoDesinstalable}"
+                                Click="AlDesinstalarToolSeleccionado" />
+                      </StackPanel>
+
+                      <!-- Dependencias del proyecto actual -->
+                      <Border IsVisible="{Binding TieneDependenciasProyecto}"
+                              Background="{DynamicResource FondoPanelBrush}"
+                              BorderBrush="{DynamicResource BordeSutilBrush}"
+                              BorderThickness="1"
+                              CornerRadius="6"
+                              Padding="12"
+                              Margin="0,10,0,0">
+                        <StackPanel Spacing="6">
+                          <TextBlock Text="DEPENDENCIAS DEL PROYECTO ACTUAL" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                          <ItemsControl ItemsSource="{Binding DependenciasProyectoDetectadas}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DependenciaProyectoItem">
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,3">
+                                  <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding Nombre}" FontSize="12" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding ArchivoManifiesto}" FontSize="10.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                                  </StackPanel>
+                                  <Button Grid.Column="1" Classes="PrimaryBtn" Padding="8,3" FontSize="11" Content="Instalar" Click="AlInstalarDependenciaProyecto" Tag="{Binding}" />
+                                </Grid>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </Border>
+                    </StackPanel>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <!-- Panel inferior colapsable y redimensionable -->
+          <Grid Grid.Row="1" IsVisible="{Binding MostrarPanelInferior}" RowDefinitions="4,245">
+            <GridSplitter Grid.Row="0" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Rows" />
+            <Border Grid.Row="1" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,1,0,0">
+              <Grid RowDefinitions="Auto,*">
+                <!-- Cabecera de pestañas inferiores -->
+                <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="10,0">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsConsolaActiva}" Content="CONSOLA" Click="AlTabConsola" />
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsProblemasActiva}" Click="AlTabProblemas">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                          <TextBlock Text="PROBLEMAS" />
+                          <TextBlock Text="{Binding TotalProblemas}" Foreground="{DynamicResource ErrorColorBrush}" FontWeight="Bold" />
+                        </StackPanel>
+                      </Button>
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsTerminalActiva}" Content="TERMINAL" Click="AlTabTerminal" />
+                      <Button Classes="DockTabBtn" Classes.Activo="{Binding EsRegistroActiva}" Content="REGISTRO" Click="AlTabRegistro" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                      <Button Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Limpiar" Click="AlLimpiarPanelInferior" />
+                      <Button Classes="ToolbarBtn" Padding="7,2" FontSize="11" Content="×" Click="AlAlternarPanelInferior" ToolTip.Tip="Ocultar panel inferior (Ctrl+J)" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <!-- Contenido 1: Consola -->
+                <Grid Grid.Row="1" IsVisible="{Binding EsConsolaActiva}" RowDefinitions="*,Auto">
+                  <ListBox Grid.Row="0"
+                           x:Name="ListaConsola"
+                           ItemsSource="{Binding Consola.Mensajes}"
+                           Background="Transparent"
+                           Padding="8,4">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="models:MensajeConsola">
+                        <TextBlock FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Foreground="{Binding ColorHex}">
+                          <Run Text="{Binding Prefijo}" />
+                          <Run Text="{Binding Texto}" />
+                        </TextBlock>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+
+                  <Border Grid.Row="1"
+                          IsVisible="{Binding Consola.EsperandoEntrada}"
+                          Background="{DynamicResource FondoSuperficieBrush}"
+                          BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+                          BorderThickness="0,1,0,0"
+                          Padding="8,6">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <TextBlock Grid.Column="0"
+                                 Text="{Binding Consola.IndicadorEntrada}"
+                                 Foreground="{DynamicResource ExitoColorBrush}"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"
+                                 FontSize="12" />
+                      <TextBox Grid.Column="1"
+                               x:Name="TxtEntradaConsola"
+                               Margin="8,0"
+                               Text="{Binding Consola.EntradaUsuario}"
+                               Background="{DynamicResource FondoEditorBrush}"
+                               Foreground="{DynamicResource TextoPrincipalBrush}"
+                               BorderBrush="{DynamicResource BordeSutilBrush}"
+                               FontFamily="JetBrains Mono, Consolas, monospace"
+                               KeyDown="AlTeclaEntradaConsola" />
+                      <Button Grid.Column="2" Classes="RunBtn" Content="Enviar" Command="{Binding Consola.ComandoEnviarEntrada}" />
+                    </Grid>
+                  </Border>
+                </Grid>
+
+                <!-- Contenido 2: Problemas -->
+                <ListBox Grid.Row="1"
+                         x:Name="ListaProblemas"
+                         IsVisible="{Binding EsProblemasActiva}"
+                         ItemsSource="{Binding Problemas}"
+                         Background="Transparent"
+                         Padding="8,4"
+                         DoubleTapped="AlDobleClicProblema">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ProblemaCodigo">
+                      <Grid ColumnDefinitions="Auto,Auto,*" Margin="2,3">
+                        <TextBlock Grid.Column="0" Text="{Binding Codigo}" FontWeight="Bold" FontSize="11.5" Foreground="{DynamicResource ErrorColorBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding UbicacionTexto}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="2" Text="{Binding Mensaje}" FontSize="12" TextWrapping="Wrap" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Contenido 3: Terminal real multi-sesión -->
+                <Grid Grid.Row="1" IsVisible="{Binding EsTerminalActiva}" RowDefinitions="Auto,Auto,*,Auto">
+                  <!-- Barra de sesiones + modalidad -->
+                  <Border Grid.Row="0" Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="8,3">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <ListBox Grid.Column="0"
+                               ItemsSource="{Binding SesionesTerminal}"
+                               SelectedItem="{Binding SesionTerminalActiva}"
+                               Background="Transparent"
+                               Padding="0">
+                        <ListBox.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="4" />
+                          </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                          <DataTemplate x:DataType="models:SesionTerminalTab">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="4,1">
+                              <TextBlock Text="{Binding Titulo}" FontSize="11" VerticalAlignment="Center" />
+                              <Button Content="×"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Padding="3,0"
+                                      FontSize="12"
+                                      Click="AlCerrarSesionTerminalClick"
+                                      Tag="{Binding}" />
+                            </StackPanel>
+                          </DataTemplate>
+                        </ListBox.ItemTemplate>
+                      </ListBox>
+
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <ComboBox ItemsSource="{Binding ModalidadesTerminalDisponibles}"
+                                  SelectedItem="{Binding ModalidadTerminalSeleccionada}"
+                                  FontSize="11"
+                                  Height="26"
+                                  Width="130" />
+                        <Button Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="+ Nueva" Command="{Binding ComandoNuevaTerminal}" />
+                        <Button Classes="StopBtn" Padding="8,2" FontSize="11" Content="Detener" Command="{Binding ComandoDetenerTerminal}" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+
+                  <!-- Comandos recomendados -->
+                  <Border Grid.Row="1" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="8,3">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="Sugeridos:" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+                      <ItemsControl ItemsSource="{Binding ComandosRecomendadosTerminal}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="6" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Button Classes="ToolbarBtn" Padding="6,1" FontSize="10.5" Content="{Binding}" Click="AlEjecutarComandoRecomendado" Tag="{Binding}" />
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Salida de sesión activa -->
+                  <ListBox Grid.Row="2"
+                           x:Name="ListaTerminal"
+                           ItemsSource="{Binding LineasTerminalActiva}"
+                           Background="{DynamicResource FondoEditorBrush}"
+                           Padding="8,4">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="models:LineaTerminalItem">
+                        <TextBlock Text="{Binding Texto}"
+                                   Foreground="{Binding ColorHex}"
+                                   FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                                   FontSize="12"
+                                   TextWrapping="Wrap" />
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+
+                  <!-- Entrada de comandos -->
+                  <Border Grid.Row="3" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,1,0,0" Padding="8,5">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <TextBlock Grid.Column="0" Text="$ " FontFamily="JetBrains Mono, Consolas, monospace" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" />
+                      <TextBox Grid.Column="1"
+                               x:Name="TxtComandoTerminal"
+                               Margin="4,0,8,0"
+                               Text="{Binding ComandoTerminal}"
+                               Watermark="Escribe un comando (Enter ejecuta, ↑/↓ navega historial)..."
+                               FontFamily="JetBrains Mono, Consolas, monospace"
+                               KeyDown="AlTeclaTerminal" />
+                      <Button Grid.Column="2" Classes="PrimaryBtn" Content="Ejecutar" Command="{Binding ComandoEnviarTerminal}" />
+                    </Grid>
+                  </Border>
+                </Grid>
+
+                <!-- Contenido 4: Registro de actividad -->
+                <ListBox Grid.Row="1"
+                         IsVisible="{Binding EsRegistroActiva}"
+                         ItemsSource="{Binding RegistroActividad}"
+                         Background="Transparent"
+                         Padding="8,4">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:EntradaRegistro">
+                      <Grid ColumnDefinitions="Auto,Auto,*" Margin="2,2">
+                        <TextBlock Grid.Column="0" Text="{Binding HoraTexto}" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding Categoria}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="2" Text="{Binding Mensaje}" FontSize="12" TextWrapping="Wrap" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Grid>
+            </Border>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <!-- C. NOTIFICACIÓN DISCRETA (TOAST) -->
+      <Border IsVisible="{Binding MostrarNotificacion}"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Margin="0,0,20,18"
+              Background="{DynamicResource FondoBarraBrush}"
+              BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="14,10"
+              MaxWidth="380">
+        <TextBlock Text="{Binding TextoNotificacion}" FontSize="12.5" TextWrapping="Wrap" Foreground="{DynamicResource TextoPrincipalBrush}" />
+      </Border>
+    </Grid>
+
+    <!-- ==================== 3. BARRA DE ESTADO ==================== -->
+    <Border Grid.Row="2"
+            Background="{DynamicResource FondoBarraBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="12,4">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <TextBlock Text="{Binding EstadoBarra}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding EstaEjecutando}" Width="70" Height="4" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Button Grid.Column="1"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="6,1"
+                Margin="0,0,12,0"
+                Click="AlTabProblemas">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="Errores:" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <TextBlock Text="{Binding TotalProblemas}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource ErrorColorBrush}" />
+          </StackPanel>
+        </Button>
+
+        <TextBlock Grid.Column="2" Text="{Binding ArchivoActivo.Lenguaje, FallbackValue='Sin archivo'}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <TextBlock Grid.Column="3" Text="{Binding PosicionCursor}" FontSize="11" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+
+        <Button Grid.Column="4"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="6,1"
+                Margin="0,0,10,0"
+                Click="AlCambiarTemaRapido"
+                ToolTip.Tip="Clic para cambiar tema visual">
+          <TextBlock Text="{Binding NombreTemaActual}" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+        </Button>
+
+        <TextBlock Grid.Column="5" Text="v5.0.0" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

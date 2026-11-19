@@ -1,0 +1,11 @@
+Xynex Code Editor y Lenguaje de Programación Cibao (Ecosistema Cibao/Alba)
+Copyright 2026 Jaderson Liriano / CynexStudios (https://github.com/CynexStudios)
+
+Este producto incluye software desarrollado por Jaderson Liriano (CynexStudios)
+para Xynex Code Editor y Cibao Programming Language.
+
+Componentes de terceros incluidos / referenciados bajo sus respectivas licencias:
+- Avalonia UI (https://avaloniaui.net/) — Licencia MIT
+- AvaloniaEdit (https://github.com/AvaloniaUI/AvaloniaEdit) — Licencia MIT
+- .NET Runtime & SDK (https://dotnet.microsoft.com/) — Licencia MIT
+- xUnit (utilizado únicamente en proyectos de pruebas) — Licencia Apache 2.0

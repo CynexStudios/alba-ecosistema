@@ -1,0 +1,183 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:Alba.IDE.Models"
+        x:Class="Alba.IDE.Views.DialogoAsistenteCreacion"
+        Title="Asistente de Creación — Xynex Code Editor 5.0"
+        Width="860"
+        Height="610"
+        MinWidth="740"
+        MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+    <!-- Cabecera y selector de Modalidad -->
+    <StackPanel Grid.Row="0" Spacing="12">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="3">
+          <TextBlock Text="Crear en Xynex Code Editor" FontSize="19" FontWeight="Bold" />
+          <TextBlock Text="Elige la modalidad, el lenguaje disponible en tu equipo y una plantilla lista para trabajar."
+                     FontSize="12.5"
+                     Foreground="{DynamicResource TextoSecundarioBrush}" />
+        </StackPanel>
+        <Button Grid.Column="1"
+                Classes="ToolbarBtn"
+                Content="Re-escanear SDKs"
+                VerticalAlignment="Top"
+                Click="AlReescanearEntornos" />
+      </Grid>
+
+      <!-- Modalidad tripartita -->
+      <Grid ColumnDefinitions="*,10,*,10,*">
+        <Button Grid.Column="0" x:Name="BtnModProyecto" Classes="CardBtn" Click="AlSeleccionarModalidadProyecto">
+          <StackPanel Spacing="2">
+            <TextBlock Text="Proyecto completo" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+            <TextBlock Text="Carpeta estructurada, manifiesto y múltiples archivos." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Button>
+
+        <Button Grid.Column="2" x:Name="BtnModPrograma" Classes="CardBtn" Click="AlSeleccionarModalidadPrograma">
+          <StackPanel Spacing="2">
+            <TextBlock Text="Programa directo" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+            <TextBlock Text="Archivo ejecutable inmediato sin estructura pesada." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Button>
+
+        <Button Grid.Column="4" x:Name="BtnModArchivo" Classes="CardBtn" Click="AlSeleccionarModalidadArchivo">
+          <StackPanel Spacing="2">
+            <TextBlock Text="Archivo independiente" FontSize="13.5" FontWeight="SemiBold" />
+            <TextBlock Text="Archivo de código suelto en la carpeta que elijas." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Button>
+      </Grid>
+    </StackPanel>
+
+    <!-- Cuerpo: Lenguajes + Plantillas + Configuración -->
+    <Grid Grid.Row="1" ColumnDefinitions="240,14,*" Margin="0,16">
+      <!-- Lista de Lenguajes con estado real -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource FondoSuperficieBrush}"
+              BorderBrush="{DynamicResource BordeSutilBrush}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="10">
+        <Grid RowDefinitions="Auto,*">
+          <TextBlock Grid.Row="0"
+                     Text="LENGUAJES Y ENTORNOS"
+                     FontSize="10.5"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource TextoApagadoBrush}"
+                     Margin="4,2,4,8" />
+          <ListBox Grid.Row="1"
+                   x:Name="ListaLenguajes"
+                   Background="Transparent"
+                   SelectionChanged="AlSeleccionarLenguaje">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="models:EstadoEntornoLenguaje">
+                <StackPanel Spacing="2" Margin="4,4">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="1" Text="{Binding ExtensionPrincipal}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  </Grid>
+                  <TextBlock Text="{Binding EstadoResumen}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Border>
+
+      <!-- Derecha: Plantillas + Campos -->
+      <Grid Grid.Column="2" RowDefinitions="*,Auto">
+        <Border Grid.Row="0"
+                Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Grid.Row="0"
+                       x:Name="TxtTituloPlantillas"
+                       Text="PLANTILLAS DISPONIBLES"
+                       FontSize="10.5"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource TextoApagadoBrush}"
+                       Margin="2,0,0,8" />
+            <ListBox Grid.Row="1"
+                     x:Name="ListaPlantillas"
+                     Background="Transparent"
+                     SelectionChanged="AlSeleccionarPlantilla">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="models:PlantillaCreacion">
+                  <Border Background="{DynamicResource FondoPanelBrush}"
+                          BorderBrush="{DynamicResource BordeSutilBrush}"
+                          BorderThickness="1"
+                          CornerRadius="6"
+                          Padding="10"
+                          Margin="0,3">
+                    <StackPanel Spacing="3">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="13" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{Binding ArchivoPrincipalSugerido}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                      </Grid>
+                      <TextBlock Text="{Binding Descripcion}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding EtiquetaEstado}" FontSize="10.5" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Grid>
+        </Border>
+
+        <!-- Formulario Nombre / Ruta / Git -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="14"
+                Margin="0,12,0,0">
+          <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="130,*">
+              <TextBlock Grid.Column="0" Text="Nombre:" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox Grid.Column="1" x:Name="TxtNombre" TextChanged="AlCambiarTextoResumen" Watermark="Nombre del proyecto, programa o archivo..." />
+            </Grid>
+
+            <Grid ColumnDefinitions="130,*,Auto">
+              <TextBlock Grid.Column="0" Text="Ubicación:" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox Grid.Column="1" x:Name="TxtCarpetaDestino" TextChanged="AlCambiarTextoResumen" Margin="0,0,8,0" />
+              <Button Grid.Column="2" Classes="ToolbarBtn" Content="Examinar..." Click="AlExaminarCarpeta" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+              <CheckBox Grid.Column="0"
+                        x:Name="ChkInicializarGit"
+                        Content="Inicializar repositorio Git local (git init) al crear el proyecto"
+                        FontSize="12" />
+              <TextBlock Grid.Column="1"
+                         x:Name="TxtAdvertenciaSdk"
+                         FontSize="11.5"
+                         Foreground="{DynamicResource AdvertenciaColorBrush}"
+                         VerticalAlignment="Center" />
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Grid>
+
+    <!-- Acciones finales -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+      <TextBlock Grid.Column="0"
+                 x:Name="TxtResumenCreacion"
+                 FontSize="12"
+                 Foreground="{DynamicResource TextoSecundarioBrush}"
+                 VerticalAlignment="Center"
+                 TextTrimming="CharacterEllipsis" />
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+        <Button Classes="ToolbarBtn" Content="Cancelar" Click="AlCancelar" />
+        <Button x:Name="BtnCrearConfirmar" Classes="PrimaryBtn" Content="Crear ahora" IsDefault="True" Click="AlConfirmarCreacion" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</Window>

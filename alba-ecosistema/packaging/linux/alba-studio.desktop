@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Xynex Code Editor
+GenericName=IDE Cibao y Políglota
+Comment=IDE nativo profesional y lenguaje de programación Cibao v5.0.0
+Exec=xynex %F
+Icon=xynex-code-editor
+Terminal=false
+Categories=Development;IDE;
+MimeType=text/x-cibao;text/x-alba;
+StartupWMClass=Alba.IDE
+Keywords=Xynex;Cibao;Alba;IDE;Programacion;Desarrollo;CynexStudios;

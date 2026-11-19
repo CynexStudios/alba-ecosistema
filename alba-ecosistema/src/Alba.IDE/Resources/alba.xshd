@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxDefinition name="Cibao" extensions=".cibao;.alb" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <Color name="Comentario" foreground="#6A9955" fontStyle="italic" />
+  <Color name="Cadena" foreground="#CE9178" />
+  <Color name="Numero" foreground="#B5CEA8" />
+  <Color name="PalabraControl" foreground="#C586C0" fontWeight="bold" />
+  <Color name="PalabraDeclaracion" foreground="#569CD6" fontWeight="bold" />
+  <Color name="TipoDato" foreground="#4EC9B0" />
+  <Color name="ValorEspecial" foreground="#569CD6" />
+  <Color name="FuncionIntegrada" foreground="#DCDCAA" />
+  <Color name="OperadorLogico" foreground="#C586C0" />
+  <Color name="Delimitador" foreground="#94A3B8" />
+
+  <RuleSet name="ExpresionInterpolada" ignoreCase="false">
+    <Rule color="Numero">\b\d+(\.\d+)?\b</Rule>
+  </RuleSet>
+
+  <RuleSet>
+    <Span color="Comentario" begin="#" />
+    <Span color="Comentario" multiline="true" begin="/\*" end="\*/" />
+
+    <!-- Cadenas interpoladas de Cibao 5.0 ($"..." y $'...') -->
+    <Span color="Cadena">
+      <Begin>\$"</Begin>
+      <End>"</End>
+      <RuleSet>
+        <Span begin="\\" end="." />
+        <Span color="Delimitador" begin="\{" end="\}" ruleSet="ExpresionInterpolada" />
+      </RuleSet>
+    </Span>
+    <Span color="Cadena">
+      <Begin>\$'</Begin>
+      <End>'</End>
+      <RuleSet>
+        <Span begin="\\" end="." />
+        <Span color="Delimitador" begin="\{" end="\}" ruleSet="ExpresionInterpolada" />
+      </RuleSet>
+    </Span>
+
+    <!-- Cadenas estándar -->
+    <Span color="Cadena">
+      <Begin>"</Begin>
+      <End>"</End>
+      <RuleSet>
+        <Span begin="\\" end="." />
+      </RuleSet>
+    </Span>
+    <Span color="Cadena">
+      <Begin>'</Begin>
+      <End>'</End>
+      <RuleSet>
+        <Span begin="\\" end="." />
+      </RuleSet>
+    </Span>
+
+    <Keywords color="PalabraDeclaracion">
+      <Word>variable</Word>
+      <Word>constante</Word>
+      <Word>funcion</Word>
+      <Word>clase</Word>
+      <Word>extiende</Word>
+      <Word>constructor</Word>
+      <Word>publico</Word>
+      <Word>privado</Word>
+      <Word>nuevo</Word>
+      <Word>este</Word>
+      <Word>super</Word>
+      <Word>importar</Word>
+      <Word>desde</Word>
+      <Word>como</Word>
+      <Word>modulo</Word>
+      <Word>exportar</Word>
+    </Keywords>
+
+    <Keywords color="PalabraControl">
+      <Word>si</Word>
+      <Word>sino</Word>
+      <Word>sino_si</Word>
+      <Word>elegir</Word>
+      <Word>caso</Word>
+      <Word>defecto</Word>
+      <Word>mientras</Word>
+      <Word>para</Word>
+      <Word>en</Word>
+      <Word>retornar</Word>
+      <Word>romper</Word>
+      <Word>continuar</Word>
+      <Word>intentar</Word>
+      <Word>capturar</Word>
+      <Word>finalmente</Word>
+      <Word>lanzar</Word>
+    </Keywords>
+
+    <Keywords color="TipoDato">
+      <Word>entero</Word>
+      <Word>decimal</Word>
+      <Word>texto</Word>
+      <Word>booleano</Word>
+      <Word>lista</Word>
+      <Word>diccionario</Word>
+      <Word>vacio</Word>
+    </Keywords>
+
+    <Keywords color="ValorEspecial">
+      <Word>verdadero</Word>
+      <Word>falso</Word>
+      <Word>nulo</Word>
+    </Keywords>
+
+    <Keywords color="OperadorLogico">
+      <Word>y</Word>
+      <Word>o</Word>
+      <Word>no</Word>
+      <Word>es</Word>
+    </Keywords>
+
+    <Keywords color="FuncionIntegrada">
+      <Word>imprimir</Word>
+      <Word>leer</Word>
+      <Word>rango</Word>
+      <Word>longitud</Word>
+      <Word>tipo_de</Word>
+      <Word>convertir_entero</Word>
+      <Word>convertir_decimal</Word>
+      <Word>convertir_texto</Word>
+      <Word>agregar</Word>
+      <Word>eliminar</Word>
+      <Word>raiz</Word>
+      <Word>abs</Word>
+      <Word>redondear</Word>
+      <Word>piso</Word>
+      <Word>techo</Word>
+      <Word>minimo</Word>
+      <Word>maximo</Word>
+      <Word>seno</Word>
+      <Word>coseno</Word>
+      <Word>tangente</Word>
+      <Word>logaritmo</Word>
+      <Word>aleatorio</Word>
+      <Word>pi</Word>
+      <Word>euler</Word>
+      <Word>mayusculas</Word>
+      <Word>minusculas</Word>
+      <Word>recortar</Word>
+      <Word>dividir</Word>
+      <Word>unir</Word>
+      <Word>reemplazar</Word>
+      <Word>contiene</Word>
+      <Word>empieza_con</Word>
+      <Word>termina_con</Word>
+      <Word>subtexto</Word>
+      <Word>mapear</Word>
+      <Word>filtrar</Word>
+      <Word>reducir</Word>
+      <Word>ordenar</Word>
+      <Word>invertir</Word>
+      <Word>contiene_elemento</Word>
+      <Word>indice_de</Word>
+      <Word>claves</Word>
+      <Word>valores</Word>
+      <Word>contiene_clave</Word>
+      <Word>eliminar_clave</Word>
+      <Word>json_a_texto</Word>
+      <Word>texto_a_json</Word>
+      <Word>leer_archivo</Word>
+      <Word>escribir_archivo</Word>
+      <Word>agregar_linea_archivo</Word>
+      <Word>existe_archivo</Word>
+      <Word>tiempo_actual_ms</Word>
+      <Word>fecha_actual</Word>
+      <Word>esperar_ms</Word>
+    </Keywords>
+
+    <Rule color="Numero">\b\d+(\.\d+)?\b</Rule>
+    <Rule color="Delimitador">[\{\}\[\]\(\),.:;\?]</Rule>
+  </RuleSet>
+</SyntaxDefinition>

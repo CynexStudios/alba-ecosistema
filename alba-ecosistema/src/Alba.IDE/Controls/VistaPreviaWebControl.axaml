@@ -1,0 +1,110 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:Alba.IDE.Models"
+             x:Class="Alba.IDE.Controls.VistaPreviaWebControl"
+             Background="{DynamicResource FondoPanelBrush}"
+             Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- Barra de navegación Web integrada -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource FondoBarraBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="8,6">
+      <StackPanel Spacing="6">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+          <Button Grid.Column="0" Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="↻" Click="AlRecargarPreview" ToolTip.Tip="Recargar vista previa" Margin="0,0,6,0" />
+          <TextBox Grid.Column="1"
+                   x:Name="TxtUrlWeb"
+                   IsReadOnly="True"
+                   FontSize="11.5"
+                   FontFamily="JetBrains Mono, Consolas, monospace"
+                   Margin="0,0,6,0" />
+          <Button Grid.Column="2" Classes="PrimaryBtn" Padding="8,3" FontSize="11" Content="Navegador real" Click="AlAbrirNavegadorExterno" ToolTip.Tip="Abrir URL local Live Server en tu navegador" Margin="0,0,4,0" />
+          <Button Grid.Column="3" Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="×" Click="AlCerrarPreview" ToolTip.Tip="Cerrar vista previa Web" />
+        </Grid>
+
+        <!-- Selector de dispositivo y auto-recarga -->
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <Button x:Name="BtnModoEscritorio" Classes="ToolbarBtn" Padding="7,2" FontSize="10.5" Content="Escritorio" Click="AlModoEscritorio" />
+            <Button x:Name="BtnModoTablet" Classes="ToolbarBtn" Padding="7,2" FontSize="10.5" Content="Tablet 768" Click="AlModoTablet" />
+            <Button x:Name="BtnModoMovil" Classes="ToolbarBtn" Padding="7,2" FontSize="10.5" Content="Móvil 390" Click="AlModoMovil" />
+          </StackPanel>
+          <CheckBox Grid.Column="1"
+                    x:Name="ChkAutoRecarga"
+                    IsChecked="True"
+                    Content="Auto-recarga"
+                    FontSize="11"
+                    VerticalAlignment="Center" />
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <!-- Lienzo de vista previa responsiva -->
+    <ScrollViewer Grid.Row="1"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  Background="{DynamicResource FondoBaseBrush}"
+                  Padding="12">
+      <Border x:Name="MarcoViewport"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Top"
+              BorderBrush="{DynamicResource BordeSutilBrush}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="16"
+              MinHeight="260">
+        <StackPanel Spacing="10">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0"
+                       x:Name="TxtTituloPaginaWeb"
+                       FontSize="11"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource AcentoPrimarioBrush}" />
+            <TextBlock Grid.Column="1"
+                       x:Name="TxtDimensionesViewport"
+                       FontSize="10.5"
+                       Foreground="{DynamicResource TextoApagadoBrush}" />
+          </Grid>
+          <Separator Background="{DynamicResource BordeSutilBrush}" />
+          <StackPanel x:Name="ContenedorPreviewDom" Spacing="8" />
+        </StackPanel>
+      </Border>
+    </ScrollViewer>
+
+    <!-- Consola y errores Web capturados -->
+    <Border Grid.Row="2"
+            Background="{DynamicResource FondoSuperficieBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="8,6">
+      <Grid RowDefinitions="Auto,Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+          <TextBlock Grid.Column="0"
+                     x:Name="TxtTituloConsolaWeb"
+                     Text="CONSOLA WEB Y ERRORES (0)"
+                     FontSize="10"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource TextoApagadoBrush}"
+                     VerticalAlignment="Center" />
+          <Button Grid.Column="1" Classes="ToolbarBtn" Padding="6,1" FontSize="10" Content="Limpiar" Click="AlLimpiarConsolaWeb" />
+        </Grid>
+        <ListBox Grid.Row="1"
+                 x:Name="ListaConsolaWeb"
+                 MaxHeight="120"
+                 Background="Transparent">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="models:MensajeConsolaWeb">
+              <TextBlock Text="{Binding Resumen}"
+                         Foreground="{Binding ColorHex}"
+                         FontFamily="JetBrains Mono, Consolas, monospace"
+                         FontSize="11"
+                         TextWrapping="Wrap" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

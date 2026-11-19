@@ -1,0 +1,164 @@
+name: Release Multiplataforma (Xynex Code Editor & Cibao 5.0)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión semántica a empaquetar (sin 'v')"
+        required: true
+        default: "5.0.0"
+      incluir_macos:
+        description: "Incluir compilación opcional para macOS (.dmg)"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Instalador Windows x64 (.exe + .zip)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Determinar versión
+        id: ver
+        shell: pwsh
+        run: |
+          $v = "${{ github.event.inputs.version }}"
+          if ([string]::IsNullOrWhiteSpace($v)) {
+            $v = "${{ github.ref_name }}".TrimStart('v')
+          }
+          echo "version=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Ejecutar pruebas unitarias
+        run: dotnet test AlbaEcosistema.sln -c Release --verbosity normal
+
+      - name: Instalar Inno Setup 6
+        run: choco install innosetup -y
+
+      - name: Compilar Host C++20 y empaquetar instalador .exe + .zip portable
+        shell: pwsh
+        run: |
+          cmake --preset windows-auto
+          cmake --build --preset windows-auto --target alba-host
+          ./packaging/windows/build-windows-installer.ps1 -Version "${{ steps.ver.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-windows
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+  build-linux:
+    name: Paquetes Linux (.deb, .rpm, .AppImage, .tar.gz)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Determinar versión
+        id: ver
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ]; then VER="${GITHUB_REF_NAME#v}"; fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Ejecutar pruebas unitarias
+        run: dotnet test AlbaEcosistema.sln -c Release --verbosity normal
+
+      - name: Instalar herramientas de empaquetado Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm dpkg-dev wget
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O /tmp/appimagetool || true
+          if [ -f /tmp/appimagetool ]; then chmod +x /tmp/appimagetool; fi
+
+      - name: Generar .deb, .rpm, .AppImage y .tar.gz
+        env:
+          APPIMAGETOOL: /tmp/appimagetool
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+        run: |
+          chmod +x packaging/linux/build-linux-packages.sh
+          ./packaging/linux/build-linux-packages.sh "${{ steps.ver.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-linux
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.AppImage
+            dist/*.tar.gz
+
+  build-macos:
+    name: Paquetes macOS opcionales (.dmg)
+    if: github.event_name == 'workflow_dispatch' && inputs.incluir_macos
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Determinar versión
+        id: ver
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ]; then VER="${GITHUB_REF_NAME#v}"; fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Ejecutar pruebas unitarias
+        run: dotnet test AlbaEcosistema.sln -c Release
+
+      - name: Generar .app y .dmg (Apple Silicon arm64 e Intel x64)
+        run: |
+          chmod +x packaging/macos/build-macos-dmg.sh
+          ./packaging/macos/build-macos-dmg.sh "${{ steps.ver.outputs.version }}" "arm64"
+          ./packaging/macos/build-macos-dmg.sh "${{ steps.ver.outputs.version }}" "x64"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-macos
+          path: dist/*.dmg
+
+  publish-release:
+    name: Publicar Release en GitHub
+    needs: [build-windows, build-linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar artefactos generados
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Generar checksums SHA-256
+        run: |
+          cd release-assets
+          sha256sum * > SHA256SUMS.txt
+
+      - name: Crear GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Xynex Code Editor & Cibao ${{ github.ref_name }}"
+          generate_release_notes: true
+          files: release-assets/*

@@ -1,0 +1,74 @@
+name: CI Multiplataforma (Xynex Code Editor & Cibao 5.0)
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      incluir_macos:
+        description: "Ejecutar validación opcional en macOS (sujeto a capacidad de runner)"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Obtener código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restaurar solución .NET
+        run: dotnet restore AlbaEcosistema.sln
+
+      - name: Compilar solución .NET (Release)
+        run: dotnet build AlbaEcosistema.sln -c Release --no-restore
+
+      - name: Ejecutar pruebas unitarias .NET
+        run: dotnet test AlbaEcosistema.sln -c Release --no-build --verbosity normal
+
+      - name: Compilar Host Nativo C++20 y pruebas CTest (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake --preset linux-release
+          cmake --build --preset linux-release --target alba-host alba_native_smoke
+          ctest --test-dir build/linux-release --output-on-failure -R AlbaNativeHostSmokeTest
+
+      - name: Compilar Host Nativo C++20 y pruebas CTest (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake --preset windows-auto
+          cmake --build --preset windows-auto --target alba-host alba_native_smoke
+          ctest --test-dir build/windows-auto -C Release --output-on-failure -R AlbaNativeHostSmokeTest
+
+  build-macos-opcional:
+    name: Build & Test (macOS opcional)
+    if: github.event_name == 'workflow_dispatch' && inputs.incluir_macos
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - run: dotnet restore AlbaEcosistema.sln
+      - run: dotnet build AlbaEcosistema.sln -c Release --no-restore
+      - run: dotnet test AlbaEcosistema.sln -c Release --no-build --verbosity normal
+      - run: |
+          cmake --preset macos-arm64-release
+          cmake --build --preset macos-arm64-release --target alba-host alba_native_smoke
+          ctest --test-dir build/macos-arm64-release --output-on-failure -R AlbaNativeHostSmokeTest

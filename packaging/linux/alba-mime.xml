@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="text/x-alba">
-    <comment>Programa en lenguaje Alba</comment>
-    <glob pattern="*.alb"/>
-  </mime-type>
-</mime-info>

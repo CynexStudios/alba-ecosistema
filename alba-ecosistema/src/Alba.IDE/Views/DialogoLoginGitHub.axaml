@@ -1,0 +1,121 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Alba.IDE.Views.DialogoLoginGitHub"
+        Title="Conectar con GitHub — Xynex Code Editor 5.0"
+        Width="560"
+        Height="510"
+        MinWidth="500"
+        MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+    <!-- Cabecera -->
+    <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,14">
+      <TextBlock Text="Iniciar sesión en GitHub" FontSize="19" FontWeight="Bold" />
+      <TextBlock Text="Tus credenciales se guardan cifradas únicamente en tu equipo (fuera de cualquier repositorio o proyecto)."
+                 FontSize="12"
+                 Foreground="{DynamicResource TextoSecundarioBrush}"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+
+    <!-- Pestañas de método de autenticación -->
+    <TabControl Grid.Row="1">
+      <!-- Método 1: Token Personal (PAT) -->
+      <TabItem Header="Token Personal (PAT)">
+        <StackPanel Spacing="12" Margin="4,12">
+          <Border Background="{DynamicResource FondoSuperficieBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="12">
+            <StackPanel Spacing="6">
+              <TextBlock Text="Permisos recomendados al generar tu token:" FontSize="12" FontWeight="SemiBold" />
+              <TextBlock Text="· repo (crear, clonar y publicar repositorios públicos o privados)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBlock Text="· read:user y user:email (mostrar tu perfil y firmar commits)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <Button Classes="ToolbarBtn"
+                      Content="Abrir creación de token en GitHub (navegador)"
+                      HorizontalAlignment="Left"
+                      Margin="0,4,0,0"
+                      Click="AlAbrirPaginaTokens" />
+            </StackPanel>
+          </Border>
+
+          <StackPanel Spacing="6">
+            <TextBlock Text="Personal Access Token (ghp_... o github_pat_...):" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <TextBox x:Name="TxtTokenPat"
+                     PasswordChar="•"
+                     Watermark="Pega aquí tu token de GitHub..." />
+          </StackPanel>
+
+          <Button x:Name="BtnConectarPat"
+                  Classes="PrimaryBtn"
+                  Content="Verificar y conectar con Token"
+                  HorizontalAlignment="Left"
+                  Click="AlConectarConPat" />
+        </StackPanel>
+      </TabItem>
+
+      <!-- Método 2: OAuth Device Flow -->
+      <TabItem Header="OAuth Device Flow">
+        <StackPanel Spacing="12" Margin="4,12">
+          <TextBlock Text="Inicia sesión en el navegador oficial de GitHub mediante Device Flow ingresando el Client ID de tu GitHub App / OAuth App."
+                     FontSize="12"
+                     Foreground="{DynamicResource TextoSecundarioBrush}"
+                     TextWrapping="Wrap" />
+
+          <StackPanel Spacing="6">
+            <TextBlock Text="Client ID de OAuth App en GitHub:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0"
+                       x:Name="TxtClientIdOAuth"
+                       Watermark="Ej: Iv1.xxxxxxxxxxxx o Ov23li..."
+                       Margin="0,0,8,0" />
+              <Button Grid.Column="1"
+                      x:Name="BtnIniciarDeviceFlow"
+                      Classes="PrimaryBtn"
+                      Content="Generar código"
+                      Click="AlIniciarDeviceFlow" />
+            </Grid>
+          </StackPanel>
+
+          <Border x:Name="PanelCodigoDeviceFlow"
+                  IsVisible="False"
+                  Background="{DynamicResource FondoSuperficieBrush}"
+                  BorderBrush="{DynamicResource AcentoPrimarioBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="1. Copia este código de verificación:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <TextBlock x:Name="TxtCodigoUsuario"
+                           FontFamily="JetBrains Mono, Consolas, monospace"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                <Button Classes="ToolbarBtn" Content="Copiar" Click="AlCopiarCodigoDevice" />
+                <Button Classes="PrimaryBtn" Content="Abrir github.com/login/device" Click="AlAbrirUrlDeviceFlow" />
+              </StackPanel>
+              <TextBlock x:Name="TxtEstadoPolling"
+                         Text="Esperando autorización en el navegador..."
+                         FontSize="11.5"
+                         Foreground="{DynamicResource AcentoSecundarioBrush}" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+
+    <!-- Estado inferior + Cancelar -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,12,0,0">
+      <TextBlock Grid.Column="0"
+                 x:Name="TxtMensajeEstado"
+                 FontSize="12"
+                 Foreground="{DynamicResource AdvertenciaColorBrush}"
+                 VerticalAlignment="Center"
+                 TextWrapping="Wrap" />
+      <Button Grid.Column="1" Classes="ToolbarBtn" Content="Cancelar" Click="AlCancelar" />
+    </Grid>
+  </Grid>
+</Window>

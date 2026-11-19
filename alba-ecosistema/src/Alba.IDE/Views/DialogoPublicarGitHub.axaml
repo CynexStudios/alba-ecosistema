@@ -1,0 +1,141 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:Alba.IDE.Models"
+        x:Class="Alba.IDE.Views.DialogoPublicarGitHub"
+        Title="Publicar proyecto en GitHub — Xynex Code Editor 5.0"
+        Width="740"
+        Height="640"
+        MinWidth="660"
+        MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+    <!-- Cabecera -->
+    <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+      <TextBlock Text="Publicar proyecto en GitHub" FontSize="19" FontWeight="Bold" />
+      <TextBlock x:Name="TxtResumenCuenta"
+                 FontSize="12"
+                 Foreground="{DynamicResource AcentoPrimarioBrush}" />
+    </StackPanel>
+
+    <!-- Contenido -->
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Spacing="12">
+        <!-- Datos del repositorio -->
+        <Border Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="14">
+          <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="155,*">
+              <TextBlock Grid.Column="0" Text="Nombre repositorio:" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox Grid.Column="1" x:Name="TxtNombreRepo" Watermark="mi-proyecto-cibao" />
+            </Grid>
+
+            <Grid ColumnDefinitions="155,*">
+              <TextBlock Grid.Column="0" Text="Descripción:" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox Grid.Column="1" x:Name="TxtDescripcionRepo" Watermark="Descripción opcional del repositorio..." />
+            </Grid>
+
+            <Grid ColumnDefinitions="155,*">
+              <TextBlock Grid.Column="0" Text="Commit inicial:" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox Grid.Column="1" x:Name="TxtCommitInicial" Text="Publicación inicial desde Xynex Code Editor 5.0" />
+            </Grid>
+
+            <Grid ColumnDefinitions="155,*">
+              <TextBlock Grid.Column="0" Text="Visibilidad:" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="18">
+                <RadioButton x:Name="RadPublico" GroupName="VisibilidadGitHub" Content="Público" IsChecked="True" />
+                <RadioButton x:Name="RadPrivado" GroupName="VisibilidadGitHub" Content="Privado" />
+              </StackPanel>
+            </Grid>
+
+            <CheckBox x:Name="ChkGenerarGitIgnore"
+                      IsChecked="True"
+                      Content="Generar o reforzar .gitignore automático (.env, claves, bin/, obj/, node_modules/)"
+                      FontSize="12" />
+          </StackPanel>
+        </Border>
+
+        <!-- Revisión de secretos -->
+        <Border Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="14">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+              <TextBlock Grid.Column="0"
+                         x:Name="TxtTituloSecretos"
+                         Text="ANÁLISIS DE SECRETOS Y ARCHIVOS SENSIBLES"
+                         FontSize="11"
+                         FontWeight="Bold"
+                         Foreground="{DynamicResource TextoApagadoBrush}"
+                         VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="ToolbarBtn" Padding="8,3" FontSize="11" Content="Generar .gitignore ahora" Click="AlGenerarGitIgnoreAhora" Margin="0,0,6,0" />
+              <Button Grid.Column="2" Classes="ToolbarBtn" Padding="8,3" FontSize="11" Content="Re-escanear" Click="AlReescanear" />
+            </Grid>
+
+            <TextBlock x:Name="TxtEstadoSecretos" FontSize="12" TextWrapping="Wrap" />
+
+            <ListBox x:Name="ListaAlertasSecretos"
+                     MaxHeight="135"
+                     Background="Transparent">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="models:HallazgoSecretoGit">
+                  <TextBlock Text="{Binding Resumen}"
+                             FontSize="11.5"
+                             Foreground="{DynamicResource ErrorColorBrush}"
+                             TextWrapping="Wrap" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+        </Border>
+
+        <!-- Archivos detectados para publicar -->
+        <Border Background="{DynamicResource FondoSuperficieBrush}"
+                BorderBrush="{DynamicResource BordeSutilBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="14">
+          <StackPanel Spacing="6">
+            <TextBlock x:Name="TxtTituloArchivos"
+                       Text="ARCHIVOS A PUBLICAR"
+                       FontSize="11"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource TextoApagadoBrush}" />
+            <ListBox x:Name="ListaArchivosPublicar"
+                     MaxHeight="145"
+                     Background="Transparent">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}" FontSize="11.5" FontFamily="JetBrains Mono, Consolas, monospace" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Barra inferior de estado y confirmación explícita -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,14,0,0">
+      <TextBlock Grid.Column="0"
+                 x:Name="TxtProgreso"
+                 FontSize="12"
+                 Foreground="{DynamicResource AdvertenciaColorBrush}"
+                 VerticalAlignment="Center"
+                 TextWrapping="Wrap" />
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Classes="ToolbarBtn" Content="Cancelar" Click="AlCancelar" />
+        <Button x:Name="BtnPublicarConfirmar"
+                Classes="PrimaryBtn"
+                Content="Confirmar y publicar en GitHub"
+                Click="AlConfirmarPublicacion" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</Window>
