@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/branding/banner-github.png" alt="Xynex Code Editor &amp; Cibao 5.0 — CynexStudios" width="100%" />
+  <img src="alba-ecosistema/assets/branding/banner-github.png" alt="Xynex Code Editor &amp; Cibao 5.0 — CynexStudios" width="100%" />
 </p>
 
 <h1 align="center">Xynex Code Editor &amp; Cibao Programming Language (v5.0.0)</h1>
