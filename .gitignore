@@ -1,8 +1,35 @@
-node_modules/
+# Compilación .NET y CMake
+bin/
+obj/
 build/
 dist/
-coverage/
+out/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+
+# Artefactos y paquetes locales
+*.exe
+*.dll
+*.pdb
+*.so
+*.dylib
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+*.zip
+*.tar.gz
+!assets/icons/*.ico
+!assets/icons/*.icns
+
+# Archivos temporales de sistema operativo
 .DS_Store
-*.log
-.env*
-!.env.example
+Thumbs.db
+Desktop.ini
+__pycache__/
+*.pyc
+TestResults/
