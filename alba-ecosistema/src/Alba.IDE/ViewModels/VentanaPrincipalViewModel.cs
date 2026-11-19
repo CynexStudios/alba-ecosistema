@@ -107,6 +107,7 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     private bool _hayActualizacionDisponible;
     private string _versionDisponibleTexto = string.Empty;
     private InformacionActualizacion? _ultimaInfoActualizacion;
+    private string? _rutaPaqueteActualizacionListo;
 
     public ObservableCollection<NodoProyecto> NodosExplorador { get; } = [];
     public ObservableCollection<ArchivoAbierto> PestanasAbiertas { get; } = [];
@@ -605,6 +606,8 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     }
 
     public InformacionActualizacion? UltimaInfoActualizacion => _ultimaInfoActualizacion;
+    public string? RutaPaqueteActualizacionListo => _rutaPaqueteActualizacionListo;
+    public event Action<InformacionActualizacion>? ActualizacionListaParaInstalar;
 
     public int TotalProblemas => Problemas.Count;
     public bool SinProyectosRecientes => ProyectosRecientes.Count == 0;
@@ -1787,14 +1790,35 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         InformacionActualizacion info = await _gestorActualizaciones.ComprobarAsync();
         _ultimaInfoActualizacion = info;
 
+        if (info.HayActualizacion &&
+            info.PuedeInstalarDirectamente &&
+            Configuracion.DescargarActualizacionesAutomaticamente)
+        {
+            ResultadoDescargaActualizacion descarga = await _gestorActualizaciones.DescargarYVerificarAsync(info);
+            if (descarga.Exito)
+            {
+                _rutaPaqueteActualizacionListo = descarga.RutaArchivo;
+            }
+        }
+
         Dispatcher.UIThread.Post(() =>
         {
             HayActualizacionDisponible = info.HayActualizacion;
-            VersionDisponibleTexto = info.HayActualizacion ? $"Disponible v{info.VersionDisponible}" : string.Empty;
+            VersionDisponibleTexto = info.HayActualizacion
+                ? (!string.IsNullOrWhiteSpace(_rutaPaqueteActualizacionListo)
+                    ? $"⬇ Instalar v{info.VersionDisponible}"
+                    : $"⬇ Actualizar a v{info.VersionDisponible}")
+                : string.Empty;
+
             RegistrarActividad("Actualizaciones", info.MensajeEstado);
             if (!silencioso || info.HayActualizacion)
             {
                 MostrarToast(info.MensajeEstado);
+            }
+
+            if (info.HayActualizacion)
+            {
+                ActualizacionListaParaInstalar?.Invoke(info);
             }
         });
     }

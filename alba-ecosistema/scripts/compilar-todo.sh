@@ -15,4 +15,10 @@ dotnet test AlbaEcosistema.sln -c Release --no-build --verbosity normal
 chmod +x packaging/linux/build-linux-packages.sh
 ./packaging/linux/build-linux-packages.sh "${VERSION}"
 
+if command -v makepkg >/dev/null 2>&1; then
+    echo "==> Entorno Arch Linux / CachyOS detectado: generando paquete nativo .pkg.tar.zst..."
+    chmod +x packaging/arch/build-arch-package.sh
+    ./packaging/arch/build-arch-package.sh "${VERSION}"
+fi
+
 echo "=== Empaquetado Linux completado en '${REPO_ROOT}/dist' ==="

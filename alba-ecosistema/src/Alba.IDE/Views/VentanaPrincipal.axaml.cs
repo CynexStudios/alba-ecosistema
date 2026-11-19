@@ -17,6 +17,8 @@ public partial class VentanaPrincipal : Window
 {
     private readonly VentanaPrincipalViewModel _vm;
     private INotifyCollectionChanged? _suscripcionTerminalLineas;
+    private VentanaActualizacion? _ventanaActualizadorActiva;
+    private bool _actualizadorInicioMostrado;
 
     public VentanaPrincipal() : this(null)
     {
@@ -115,6 +117,16 @@ public partial class VentanaPrincipal : Window
         {
             _vm.GuardarEstadoSesion();
             _vm.Dispose();
+        };
+
+        _vm.ActualizacionListaParaInstalar += info =>
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (!IsVisible || _actualizadorInicioMostrado || _ventanaActualizadorActiva is not null) return;
+                _actualizadorInicioMostrado = true;
+                AbrirActualizadorIntegrado(info);
+            });
         };
 
         if (_vm.Configuracion.ComprobarActualizacionesAlIniciar)
@@ -500,7 +512,7 @@ public partial class VentanaPrincipal : Window
             new() { Id = "tema", Titulo = "Alternar tema visual", Categoria = "Apariencia", Ejecutar = () => _vm.AlternarTemaRapido() },
             new() { Id = "configuracion", Titulo = "Abrir Configuración", Categoria = "IDE", Ejecutar = () => AlAbrirConfiguracion(this, new RoutedEventArgs()) },
             new() { Id = "docs", Titulo = "Abrir Documentación de Cibao", Categoria = "Ayuda", Ejecutar = () => AlAbrirDocumentacion(this, new RoutedEventArgs()) },
-            new() { Id = "actualizaciones", Titulo = "Comprobar actualizaciones en GitHub", Categoria = "Ayuda", Ejecutar = () => _ = _vm.ComprobarActualizacionesAsync() },
+            new() { Id = "actualizaciones", Titulo = "Abrir actualizador integrado (GitHub Releases)", Categoria = "Ayuda", Ejecutar = () => AbrirActualizadorIntegrado(_vm.UltimaInfoActualizacion) },
             new() { Id = "inicio", Titulo = "Ir a Pantalla de Inicio", Categoria = "Vista", Ejecutar = () => _vm.MostrarPantallaInicio = true }
         };
 
@@ -534,7 +546,25 @@ public partial class VentanaPrincipal : Window
     private void AlAlternarPanelInferior(object? sender, RoutedEventArgs e) => _vm.MostrarPanelInferior = !_vm.MostrarPanelInferior;
     private void AlCambiarTemaRapido(object? sender, RoutedEventArgs e) => _vm.AlternarTemaRapido();
     private void AlVerificarProyecto(object? sender, RoutedEventArgs e) => _vm.VerificarTodoElProyecto();
-    private void AlComprobarActualizaciones(object? sender, RoutedEventArgs e) => _ = _vm.ComprobarActualizacionesAsync();
+    private void AlComprobarActualizaciones(object? sender, RoutedEventArgs e) => AbrirActualizadorIntegrado(_vm.UltimaInfoActualizacion);
+
+    private void AbrirActualizadorIntegrado(InformacionActualizacion? info)
+    {
+        if (_ventanaActualizadorActiva is not null)
+        {
+            _ventanaActualizadorActiva.Activate();
+            return;
+        }
+
+        var ventana = new VentanaActualizacion(
+            _vm,
+            info,
+            _vm.RutaPaqueteActualizacionListo,
+            solicitarCierreApp: () => Dispatcher.UIThread.Post(() => Close()));
+        _ventanaActualizadorActiva = ventana;
+        ventana.Closed += (_, _) => _ventanaActualizadorActiva = null;
+        ventana.ShowDialog(this);
+    }
 
     private void AlAlternarVistaWeb(object? sender, RoutedEventArgs e)
     {

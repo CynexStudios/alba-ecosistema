@@ -23,6 +23,8 @@ jobs:
   build-windows:
     name: Instalador Windows x64 (.exe + .zip)
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +38,7 @@ jobs:
         run: |
           $v = "${{ github.event.inputs.version }}"
           if ([string]::IsNullOrWhiteSpace($v)) {
-            $v = "${{ github.ref_name }}".TrimStart('v')
+            $v = "${{ github.ref_name }}".TrimStart('v', 'V')
           }
           echo "version=$v" >> $env:GITHUB_OUTPUT
 
@@ -63,6 +65,8 @@ jobs:
   build-linux:
     name: Paquetes Linux (.deb, .rpm, .AppImage, .tar.gz)
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -104,6 +108,49 @@ jobs:
             dist/*.AppImage
             dist/*.tar.gz
 
+  build-arch:
+    name: Paquete Nativo Arch Linux / CachyOS (.pkg.tar.zst)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determinar versión
+        id: ver
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ]; then VER="${GITHUB_REF_NAME#v}"; fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Compilar y empaquetar nativamente en Arch Linux
+        run: |
+          mkdir -p "${GITHUB_WORKSPACE}/dist"
+          HOST_UID="$(id -u)"
+          HOST_GID="$(id -g)"
+          docker run --rm \
+            -e VERSION="${{ steps.ver.outputs.version }}" \
+            -e HOST_UID="${HOST_UID}" \
+            -e HOST_GID="${HOST_GID}" \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            archlinux:latest \
+            bash -lc '
+              set -euo pipefail
+              pacman-key --init
+              pacman -Sy --noconfirm archlinux-keyring
+              pacman -Syu --noconfirm --needed base-devel dotnet-sdk-8.0 cmake gcc zstd
+              useradd -m -s /bin/bash builder
+              cp -a /work /tmp/arch-src
+              chown -R builder:builder /tmp/arch-src
+              su - builder -c "cd /tmp/arch-src && dotnet test AlbaEcosistema.sln -c Release --verbosity minimal && chmod +x packaging/arch/build-arch-package.sh && ./packaging/arch/build-arch-package.sh \"$VERSION\""
+              mkdir -p /work/dist
+              cp /tmp/arch-src/dist/*.pkg.tar.zst /work/dist/
+              chown "${HOST_UID}:${HOST_GID}" /work/dist/*.pkg.tar.zst
+            '
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-arch
+          path: dist/*.pkg.tar.zst
+
   build-macos:
     name: Paquetes macOS opcionales (.dmg)
     if: github.event_name == 'workflow_dispatch' && inputs.incluir_macos
@@ -139,11 +186,20 @@ jobs:
 
   publish-release:
     name: Publicar Release en GitHub
-    needs: [build-windows, build-linux]
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-windows, build-linux, build-arch]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolver etiqueta de Release
+        id: rel
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v${{ needs.build-windows.outputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Descargar artefactos generados
         uses: actions/download-artifact@v4
@@ -156,9 +212,11 @@ jobs:
           cd release-assets
           sha256sum * > SHA256SUMS.txt
 
-      - name: Crear GitHub Release
+      - name: Publicar o adjuntar instaladores en GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Xynex Code Editor & Cibao ${{ github.ref_name }}"
+          tag_name: ${{ steps.rel.outputs.tag }}
+          name: "Xynex Code Editor & Cibao ${{ steps.rel.outputs.tag }}"
           generate_release_notes: true
+          make_latest: true
           files: release-assets/*

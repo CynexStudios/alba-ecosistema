@@ -29,7 +29,7 @@ ln -sf "alba" "${STAGE_DIR}/cli/cibao"
 
 # 2. Compilar host nativo C++20 si g++ está disponible
 if command -v g++ >/dev/null 2>&1; then
-    g++ -std=c++20 -O2 -DALBA_PLATFORM_LINUX=1 "${REPO_ROOT}/native-launcher/src/main.cpp" -o "${STAGE_DIR}/alba-host"
+    g++ -std=c++20 -O2 -static-libstdc++ -static-libgcc -DALBA_PLATFORM_LINUX=1 "${REPO_ROOT}/native-launcher/src/main.cpp" -o "${STAGE_DIR}/alba-host"
     chmod +x "${STAGE_DIR}/alba-host"
 fi
 

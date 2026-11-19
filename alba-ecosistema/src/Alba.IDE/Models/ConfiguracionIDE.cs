@@ -33,6 +33,7 @@ public sealed class ConfiguracionIDE
     public int IntervaloGuardadoSegundos { get; set; } = 15;
     public bool RestaurarUltimaSesion { get; set; } = true;
     public bool ComprobarActualizacionesAlIniciar { get; set; } = true;
+    public bool DescargarActualizacionesAutomaticamente { get; set; }
     public bool MostrarPanelLateral { get; set; } = true;
     public bool MostrarPanelInferior { get; set; } = true;
 

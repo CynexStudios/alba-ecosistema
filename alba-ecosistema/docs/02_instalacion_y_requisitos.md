@@ -52,16 +52,29 @@ ctest --preset linux-release
 
 - **Windows (Inno Setup 6 + ZIP portable):**
   `.\packaging\windows\build-windows-installer.ps1 -Version 5.0.0`
-- **Linux (`.tar.gz`, `.deb`, `.rpm` y `.AppImage`):**
+- **Arch Linux / CachyOS (`.pkg.tar.zst` nativo con `pacman`):**
+  ```bash
+  # Instalar desde GitHub Releases:
+  sudo pacman -U XynexCodeEditor-5.0.0-arch-cachyos-x86_64.pkg.tar.zst
+
+  # O compilar nativamente desde código fuente:
+  ./packaging/arch/build-arch-package.sh 5.0.0
+  # También disponible con makepkg directo:
+  cd packaging/arch && makepkg -si
+  ```
+- **Otras distros Linux (`.tar.gz`, `.deb`, `.rpm` y `.AppImage`):**
   `./packaging/linux/build-linux-packages.sh 5.0.0`
 - **macOS (opcional bajo demanda):**
   `./packaging/macos/build-macos-dmg.sh 5.0.0 arm64`
 
 ### Publicación automática desde GitHub Actions
 Si no cuentas con herramientas de empaquetado local:
-1. Sube tus cambios a GitHub.
+1. Sube tus cambios a GitHub (asegurándote de incluir la carpeta oculta `.github/workflows/`).
 2. Crea una etiqueta/Release `v5.0.0` (o lanza **Release Multiplataforma** desde **Actions → Run workflow**).
-3. El flujo generará y adjuntará automáticamente `XynexCodeEditor-5.0.0-win-x64-setup.exe`, `portable.zip`, `.deb`, `.rpm`, `.AppImage`, `.tar.gz` y `SHA256SUMS.txt`.
+3. El flujo generará y adjuntará automáticamente `XynexCodeEditor-5.0.0-win-x64-setup.exe`, `portable.zip`, `arch-cachyos-x86_64.pkg.tar.zst`, `.deb`, `.rpm`, `.AppImage`, `.tar.gz` y `SHA256SUMS.txt`.
+
+### Actualizador integrado en Xynex Code Editor
+Desde **Ayuda → Comprobar actualizaciones...**, la barra de estado o **Ajustes → Actualizaciones**, el IDE detecta nuevas versiones en GitHub Releases, selecciona automáticamente el paquete de tu sistema operativo (`.exe`, `.zip`, `.pkg.tar.zst`, `.deb`, `.rpm`, `.AppImage` o `.tar.gz`), verifica su firma **SHA-256**, aplica la actualización y reinicia el editor conservando tus ajustes y proyectos.
 
 ---
 

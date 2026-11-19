@@ -48,6 +48,7 @@ public partial class VentanaConfiguracion : Window
         NumIntervaloGuardado.Value = _vm.Configuracion.IntervaloGuardadoSegundos;
         ChkRestaurarSesion.IsChecked = _vm.Configuracion.RestaurarUltimaSesion;
         ChkComprobarActualizaciones.IsChecked = _vm.Configuracion.ComprobarActualizacionesAlIniciar;
+        ChkDescargarActualizacionesAuto.IsChecked = _vm.Configuracion.DescargarActualizacionesAutomaticamente;
 
         var atajos = _vm.Configuracion.AtajosTeclado;
         TxtAtajoGuardar.Text = atajos.GetValueOrDefault("Guardar", "Ctrl+S");
@@ -103,6 +104,28 @@ public partial class VentanaConfiguracion : Window
         }
     }
 
+    private async void AlAbrirActualizadorIntegrado(object? sender, RoutedEventArgs e)
+    {
+        if (_vm is null) return;
+        var dlg = new VentanaActualizacion(
+            _vm,
+            _vm.UltimaInfoActualizacion,
+            _vm.RutaPaqueteActualizacionListo,
+            solicitarCierreApp: () =>
+            {
+                if (Owner is Window owner)
+                {
+                    Close(false);
+                    owner.Close();
+                }
+                else
+                {
+                    Close(false);
+                }
+            });
+        await dlg.ShowDialog(this);
+    }
+
     private async void AlAbrirReleases(object? sender, RoutedEventArgs e)
     {
         if (Uri.TryCreate(_urlReleases, UriKind.Absolute, out Uri? uri))
@@ -141,6 +164,7 @@ public partial class VentanaConfiguracion : Window
         cfg.IntervaloGuardadoSegundos = (int)(NumIntervaloGuardado.Value ?? 15);
         cfg.RestaurarUltimaSesion = ChkRestaurarSesion.IsChecked == true;
         cfg.ComprobarActualizacionesAlIniciar = ChkComprobarActualizaciones.IsChecked == true;
+        cfg.DescargarActualizacionesAutomaticamente = ChkDescargarActualizacionesAuto.IsChecked == true;
 
         cfg.AtajosTeclado["Guardar"] = TxtAtajoGuardar.Text?.Trim() ?? "Ctrl+S";
         cfg.AtajosTeclado["Ejecutar"] = TxtAtajoEjecutar.Text?.Trim() ?? "F5";

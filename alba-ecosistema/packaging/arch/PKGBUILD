@@ -1,0 +1,96 @@
+# Maintainer: Jaderson Liriano (CynexStudios) <https://github.com/CynexStudios/alba-ecosistema>
+pkgname=xynex-code-editor
+pkgver=5.0.0
+pkgrel=1
+pkgdesc="Xynex Code Editor e interprete nativo del lenguaje Cibao (.cibao / .alb)"
+arch=('x86_64')
+url="https://github.com/CynexStudios/alba-ecosistema"
+license=('MIT')
+depends=(
+  'libx11'
+  'libice'
+  'libsm'
+  'fontconfig'
+  'freetype2'
+  'icu'
+  'openssl'
+  'zlib'
+  'gcc-libs'
+  'krb5'
+)
+makedepends=('dotnet-sdk-8.0' 'cmake' 'gcc')
+optdepends=(
+  'git: integracion nativa con Git y GitHub desde el IDE'
+  'python: ejecucion integrada de proyectos Python'
+  'nodejs: ejecucion de utilidades JavaScript y web'
+)
+provides=('alba-studio' 'cibao')
+conflicts=('alba-studio')
+options=('!strip' '!debug')
+
+_repo_root="${XYNEX_REPO_ROOT:-${startdir}/../..}"
+
+build() {
+  local rid="linux-x64"
+  local stage_dir="${srcdir}/stage-${rid}"
+
+  rm -rf "${stage_dir}"
+  mkdir -p "${stage_dir}/ide" "${stage_dir}/cli"
+
+  export DOTNET_CLI_TELEMETRY_OPTOUT=1
+  export DOTNET_NOLOGO=1
+
+  dotnet publish "${_repo_root}/src/Alba.IDE/Alba.IDE.csproj" \
+    -c Release -r "${rid}" --self-contained true \
+    -o "${stage_dir}/ide" --nologo
+
+  dotnet publish "${_repo_root}/src/Alba.CLI/Alba.CLI.csproj" \
+    -c Release -r "${rid}" --self-contained true \
+    -o "${stage_dir}/cli" --nologo
+
+  chmod +x "${stage_dir}/ide/Alba.IDE" "${stage_dir}/cli/alba"
+  ln -sf "alba" "${stage_dir}/cli/cibao"
+
+  if command -v g++ >/dev/null 2>&1; then
+    g++ -std=c++20 -O2 -DALBA_PLATFORM_LINUX=1 \
+      "${_repo_root}/native-launcher/src/main.cpp" \
+      -o "${stage_dir}/alba-host"
+    chmod +x "${stage_dir}/alba-host"
+  fi
+}
+
+package() {
+  local rid="linux-x64"
+  local stage_dir="${srcdir}/stage-${rid}"
+
+  install -d "${pkgdir}/opt/xynex-code-editor" \
+             "${pkgdir}/usr/bin" \
+             "${pkgdir}/usr/share/applications" \
+             "${pkgdir}/usr/share/mime/packages" \
+             "${pkgdir}/usr/share/icons/hicolor/256x256/apps" \
+             "${pkgdir}/usr/share/icons/hicolor/128x128/apps" \
+             "${pkgdir}/usr/share/licenses/${pkgname}"
+
+  cp -a "${stage_dir}/"* "${pkgdir}/opt/xynex-code-editor/"
+  cp -a "${_repo_root}/addons" "${pkgdir}/opt/xynex-code-editor/addons"
+  cp -a "${_repo_root}/docs" "${pkgdir}/opt/xynex-code-editor/docs"
+  cp -a "${_repo_root}/examples" "${pkgdir}/opt/xynex-code-editor/examples"
+
+  ln -sf /opt/xynex-code-editor/ide/Alba.IDE "${pkgdir}/usr/bin/xynex"
+  ln -sf /opt/xynex-code-editor/ide/Alba.IDE "${pkgdir}/usr/bin/alba-studio"
+  ln -sf /opt/xynex-code-editor/cli/alba "${pkgdir}/usr/bin/cibao"
+  ln -sf /opt/xynex-code-editor/cli/alba "${pkgdir}/usr/bin/alba"
+
+  install -m644 "${_repo_root}/packaging/linux/alba-studio.desktop" \
+    "${pkgdir}/usr/share/applications/xynex-code-editor.desktop"
+  install -m644 "${_repo_root}/packaging/linux/alba-mime.xml" \
+    "${pkgdir}/usr/share/mime/packages/cibao-mime.xml"
+  install -m644 "${_repo_root}/assets/icons/alba-studio-256.png" \
+    "${pkgdir}/usr/share/icons/hicolor/256x256/apps/xynex-code-editor.png"
+  install -m644 "${_repo_root}/assets/icons/alba-studio-128.png" \
+    "${pkgdir}/usr/share/icons/hicolor/128x128/apps/xynex-code-editor.png"
+
+  if [ -f "${_repo_root}/LICENSE" ]; then
+    install -m644 "${_repo_root}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  fi
+}

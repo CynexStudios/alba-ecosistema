@@ -1122,13 +1122,23 @@
             BorderBrush="{DynamicResource BordeSutilBrush}"
             BorderThickness="0,1,0,0"
             Padding="12,4">
-      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto">
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
           <TextBlock Text="{Binding EstadoBarra}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
           <ProgressBar IsIndeterminate="True" IsVisible="{Binding EstaEjecutando}" Width="70" Height="4" VerticalAlignment="Center" />
         </StackPanel>
 
         <Button Grid.Column="1"
+                Classes="PrimaryBtn"
+                Padding="8,2"
+                FontSize="11"
+                Margin="0,0,10,0"
+                IsVisible="{Binding HayActualizacionDisponible}"
+                Content="{Binding VersionDisponibleTexto}"
+                Click="AlComprobarActualizaciones"
+                ToolTip.Tip="Abrir actualizador integrado" />
+
+        <Button Grid.Column="2"
                 Background="Transparent"
                 BorderThickness="0"
                 Padding="6,1"
@@ -1140,10 +1150,10 @@
           </StackPanel>
         </Button>
 
-        <TextBlock Grid.Column="2" Text="{Binding ArchivoActivo.Lenguaje, FallbackValue='Sin archivo'}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
-        <TextBlock Grid.Column="3" Text="{Binding PosicionCursor}" FontSize="11" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <TextBlock Grid.Column="3" Text="{Binding ArchivoActivo.Lenguaje, FallbackValue='Sin archivo'}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <TextBlock Grid.Column="4" Text="{Binding PosicionCursor}" FontSize="11" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
 
-        <Button Grid.Column="4"
+        <Button Grid.Column="5"
                 Background="Transparent"
                 BorderThickness="0"
                 Padding="6,1"
@@ -1153,7 +1163,7 @@
           <TextBlock Text="{Binding NombreTemaActual}" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
         </Button>
 
-        <TextBlock Grid.Column="5" Text="v5.0.0" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="6" Text="v5.0.0" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
       </Grid>
     </Border>
   </Grid>

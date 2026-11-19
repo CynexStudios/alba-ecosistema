@@ -156,9 +156,11 @@
             <StackPanel Spacing="10">
               <TextBlock Text="Xynex Code Editor v5.0.0 — Cibao Programming Language · CynexStudios" FontSize="15" FontWeight="Bold" />
               <TextBlock x:Name="TxtRutaDatosUsuario" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-              <CheckBox x:Name="ChkComprobarActualizaciones" Content="Comprobar actualizaciones automáticamente al iniciar (nunca descarga sin tu permiso)" />
+              <CheckBox x:Name="ChkComprobarActualizaciones" Content="Comprobar actualizaciones automáticamente al iniciar" />
+              <CheckBox x:Name="ChkDescargarActualizacionesAuto" Content="Descargar actualizaciones automáticamente en segundo plano cuando haya una nueva versión" />
               <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Classes="PrimaryBtn" Content="Comprobar actualizaciones ahora" Click="AlComprobarActualizaciones" />
+                <Button Classes="PrimaryBtn" Content="Abrir actualizador integrado..." Click="AlAbrirActualizadorIntegrado" />
+                <Button Classes="ToolbarBtn" Content="Comprobar ahora" Click="AlComprobarActualizaciones" />
                 <Button Classes="ToolbarBtn" Content="Abrir página de Releases en GitHub" Click="AlAbrirReleases" />
               </StackPanel>
               <TextBlock x:Name="TxtEstadoActualizacion" FontSize="12" Foreground="{DynamicResource AcentoPrimarioBrush}" TextWrapping="Wrap" />
