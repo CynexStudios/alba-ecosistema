@@ -573,7 +573,7 @@ public sealed partial class Interprete
                 ValorAlba candidato = EvaluarExpresion(valExpr, entorno);
                 if (objetivo.EsIgualA(candidato))
                 {
-                    EjecutarBloque(caso.Cuerpo, new Entorno(entorno));
+                    EjecutarBloque(caso.Bloque, new Entorno(entorno));
                     return;
                 }
             }
@@ -772,7 +772,7 @@ public sealed partial class Interprete
 
             case ExprComprobacionTipo comp:
             {
-                ValorAlba valor = EvaluarExpresion(comp.Objetivo, entorno);
+                ValorAlba valor = EvaluarExpresion(comp.Valor, entorno);
                 bool coincide = comp.TipoEsperado.Nombre == "nulo"
                     ? valor.Tipo == TipoValorAlba.Nulo
                     : valor.Tipo != TipoValorAlba.Nulo && valor.EsCompatibleConAnotacion(comp.TipoEsperado.Nombre);
