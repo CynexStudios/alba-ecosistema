@@ -101,9 +101,9 @@ public partial class DialogoPublicarGitHub : Window
                 ServicioGit.GenerarGitIgnore(_rutaProyecto);
             }
 
-            TxtProgreso.Text = $"2/4 Creando repositorio '{nombreRepo}' en GitHub...";
+            TxtProgreso.Text = $"2/4 Creando o enlazando repositorio '{nombreRepo}' en GitHub...";
             bool esPrivado = RadPrivado.IsChecked == true;
-            var (creadoOk, msgCrear, repo) = await _servicioGitHub.CrearRepositorioAsync(
+            var (creadoOk, msgCrear, repo, yaExistia) = await _servicioGitHub.CrearOEnlazarRepositorioAsync(
                 nombreRepo,
                 TxtDescripcionRepo.Text ?? string.Empty,
                 esPrivado);
@@ -114,7 +114,12 @@ public partial class DialogoPublicarGitHub : Window
                 return;
             }
 
-            TxtProgreso.Text = "3/4 Inicializando Git local y creando commit...";
+            if (yaExistia)
+            {
+                TxtProgreso.Text = $"2/4 Enlazado a repositorio existente '{repo.NombreCompleto}'...";
+            }
+
+            TxtProgreso.Text = "3/4 Preparando Git local y creando commit...";
             EstadoRepositorioGit estado = await _servicioGit.ObtenerEstadoAsync(_rutaProyecto);
             if (!estado.EsRepositorio)
             {
@@ -126,9 +131,15 @@ public partial class DialogoPublicarGitHub : Window
                 }
             }
 
-            await _servicioGit.PrepararTodoAsync(_rutaProyecto);
+            var prepRes = await _servicioGit.PrepararTodoAsync(_rutaProyecto);
+            if (!prepRes.Exito)
+            {
+                TxtProgreso.Text = $"No se pudieron preparar los archivos: {prepRes.Mensaje}";
+                return;
+            }
+
             string commitMsg = string.IsNullOrWhiteSpace(TxtCommitInicial.Text)
-                ? "Publicación inicial desde Xynex Code Editor 5.0"
+                ? "Publicación desde Xynex Code Editor 9.0"
                 : TxtCommitInicial.Text.Trim();
 
             CuentaGitHub? cuenta = _servicioGitHub.CuentaActual;
@@ -136,13 +147,36 @@ public partial class DialogoPublicarGitHub : Window
                 ? cuenta.Email
                 : (cuenta is not null ? $"{cuenta.Login}@users.noreply.github.com" : null);
 
-            await _servicioGit.CrearCommitAsync(_rutaProyecto, commitMsg, cuenta?.Nombre ?? cuenta?.Login, email);
+            ResultadoOperacionGit commitRes = await _servicioGit.CrearCommitAsync(
+                _rutaProyecto,
+                commitMsg,
+                cuenta?.Nombre ?? cuenta?.Login,
+                email);
+
+            if (!commitRes.Exito)
+            {
+                bool sinCambiosPendientes = commitRes.Salida.Contains("nothing to commit", StringComparison.OrdinalIgnoreCase) ||
+                                            commitRes.Salida.Contains("nothing added to commit", StringComparison.OrdinalIgnoreCase);
+                EstadoRepositorioGit estadoTrasCommit = await _servicioGit.ObtenerEstadoAsync(_rutaProyecto);
+                if (!(sinCambiosPendientes && estadoTrasCommit.Historial.Count > 0))
+                {
+                    TxtProgreso.Text = $"No se pudo crear el commit: {commitRes.Mensaje}";
+                    return;
+                }
+            }
 
             TxtProgreso.Text = "4/4 Configurando origin y subiendo archivos a GitHub...";
-            await _servicioGit.ConfigurarRemotoOriginAsync(_rutaProyecto, repo.CloneUrl);
+            ResultadoOperacionGit remoteRes = await _servicioGit.ConfigurarRemotoOriginAsync(_rutaProyecto, repo.CloneUrl);
+            if (!remoteRes.Exito)
+            {
+                TxtProgreso.Text = $"No se pudo configurar el remoto origin: {remoteRes.Mensaje}";
+                return;
+            }
 
             EstadoRepositorioGit estadoFinal = await _servicioGit.ObtenerEstadoAsync(_rutaProyecto);
-            string rama = string.IsNullOrWhiteSpace(estadoFinal.RamaActual) ? "main" : estadoFinal.RamaActual;
+            string rama = string.IsNullOrWhiteSpace(estadoFinal.RamaActual) || estadoFinal.RamaActual == "HEAD"
+                ? "main"
+                : estadoFinal.RamaActual;
             var pushRes = await _servicioGit.PushAsync(
                 _rutaProyecto,
                 rama,
@@ -151,7 +185,7 @@ public partial class DialogoPublicarGitHub : Window
 
             if (!pushRes.Exito)
             {
-                TxtProgreso.Text = $"Repositorio creado, pero falló push: {pushRes.Mensaje}";
+                TxtProgreso.Text = $"Repositorio listo, pero falló push: {pushRes.Mensaje}";
                 return;
             }
 

@@ -108,8 +108,38 @@ public sealed class Fase3GitHubYToolsTests : IDisposable
                 };
             }
 
+            if (req.Method == HttpMethod.Get && ruta == "/repos/CynexStudios/alba-ecosistema")
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                        {
+                          "id": 101,
+                          "name": "alba-ecosistema",
+                          "full_name": "CynexStudios/alba-ecosistema",
+                          "description": "Cibao & Xynex Code Editor",
+                          "private": false,
+                          "clone_url": "https://github.com/CynexStudios/alba-ecosistema.git",
+                          "html_url": "https://github.com/CynexStudios/alba-ecosistema",
+                          "default_branch": "main",
+                          "language": "C#",
+                          "updated_at": "2026-11-19T10:00:00Z"
+                        }
+                        """, Encoding.UTF8, "application/json")
+                };
+            }
+
             if (req.Method == HttpMethod.Post && ruta == "/user/repos")
             {
+                string bodyReq = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult() ?? string.Empty;
+                if (bodyReq.Contains("\"alba-ecosistema\"", StringComparison.Ordinal))
+                {
+                    return new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+                    {
+                        Content = new StringContent("""{"message":"Repository creation failed.","errors":[{"message":"name already exists on this account"}]}""", Encoding.UTF8, "application/json")
+                    };
+                }
+
                 return new HttpResponseMessage(HttpStatusCode.Created)
                 {
                     Content = new StringContent("""
@@ -150,6 +180,12 @@ public sealed class Fase3GitHubYToolsTests : IDisposable
         Assert.NotNull(crearRes.Repositorio);
         Assert.True(crearRes.Repositorio!.EsPrivado);
         Assert.Equal("CynexStudios/mi-app-cibao", crearRes.Repositorio!.NombreCompleto);
+
+        var enlazarRes = await github.CrearOEnlazarRepositorioAsync("alba-ecosistema", "Existente", esPrivado: false);
+        Assert.True(enlazarRes.Exito);
+        Assert.True(enlazarRes.YaExistia);
+        Assert.NotNull(enlazarRes.Repositorio);
+        Assert.Equal("CynexStudios/alba-ecosistema", enlazarRes.Repositorio!.NombreCompleto);
 
         github.CerrarSesion();
         Assert.False(github.EstaConectado);

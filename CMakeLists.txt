@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(AlbaEcosistema
-    VERSION 5.0.0
+    VERSION 9.0.0
     DESCRIPTION "Ecosistema de programacion Cibao y Xynex Code Editor (Motor, CLI, IDE y Addons)"
     LANGUAGES CXX
 )
@@ -134,7 +134,7 @@ endif()
 set(CPACK_PACKAGE_NAME "XynexCodeEditor")
 set(CPACK_PACKAGE_VENDOR "CynexStudios")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xynex Code Editor 5.0 — Lenguaje Cibao e IDE multiplataforma")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xynex Code Editor 9.0 — Lenguaje Cibao e IDE multiplataforma")
 
 if(WIN32)
     set(CPACK_GENERATOR "ZIP")

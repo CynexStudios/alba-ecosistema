@@ -7,7 +7,7 @@ namespace Alba.CLI;
 
 public static class Program
 {
-    private const string VersionAlba = "Cibao v5.0.0 (compatible con .cibao y .alb)";
+    private const string VersionAlba = "Cibao v9.0.0 (compatible con .cibao y .alb)";
 
     public static int Main(string[] args)
     {

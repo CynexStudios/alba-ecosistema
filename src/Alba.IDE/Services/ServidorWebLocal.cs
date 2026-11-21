@@ -151,7 +151,7 @@ public sealed class ServidorWebLocal : IDisposable
                         Origen = "HTTP 404",
                         Mensaje = $"Archivo no encontrado: /{rel}"
                     });
-                    await EnviarRespuestaAsync(stream, "404 Not Found", "text/plain; charset=utf-8", $"404 - No encontrado: {rel}"u8.ToArray());
+                    await EnviarRespuestaAsync(stream, "404 Not Found", "text/plain; charset=utf-8", Encoding.UTF8.GetBytes($"404 - No encontrado: {rel}"));
                     return;
                 }
 

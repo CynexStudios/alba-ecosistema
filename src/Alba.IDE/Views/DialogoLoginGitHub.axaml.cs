@@ -25,7 +25,7 @@ public partial class DialogoLoginGitHub : Window
 
     private void AlAbrirPaginaTokens(object? sender, RoutedEventArgs e)
     {
-        AbrirNavegador("https://github.com/settings/tokens/new?scopes=repo,read:user,user:email&description=Xynex%20Code%20Editor%205");
+        AbrirNavegador("https://github.com/settings/tokens/new?scopes=repo,read:user,user:email&description=Xynex%20Code%20Editor%209.0");
     }
 
     private async void AlConectarConPat(object? sender, RoutedEventArgs e)

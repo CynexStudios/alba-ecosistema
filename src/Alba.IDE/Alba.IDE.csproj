@@ -12,7 +12,7 @@
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <AssemblyName>Alba.IDE</AssemblyName>
     <RootNamespace>Alba.IDE</RootNamespace>
-    <ApplicationIcon>Assets\alba-studio.ico</ApplicationIcon>
+    <ApplicationIcon>Assets/alba-studio.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

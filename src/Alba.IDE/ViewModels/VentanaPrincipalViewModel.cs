@@ -1943,15 +1943,74 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
 
     public async Task PushGitAsync()
     {
-        if (string.IsNullOrWhiteSpace(RutaProyectoActual)) return;
+        if (string.IsNullOrWhiteSpace(RutaProyectoActual))
+        {
+            MostrarToast("Abre una carpeta de proyecto primero.");
+            return;
+        }
+
         EstaOperandoGit = true;
         try
         {
-            string rama = string.IsNullOrWhiteSpace(EstadoGit.RamaActual) ? "main" : EstadoGit.RamaActual;
+            EstadoRepositorioGit estadoActual = await _servicioGit.ObtenerEstadoAsync(RutaProyectoActual);
+            if (!estadoActual.GitInstalado)
+            {
+                EstadoOperacionGitTexto = "Git no está instalado en el sistema.";
+                MostrarToast(EstadoOperacionGitTexto);
+                return;
+            }
+            if (!estadoActual.EsRepositorio)
+            {
+                EstadoOperacionGitTexto = "Esta carpeta no es un repositorio Git. Pulsa 'Inicializar Git' o 'Publicar' primero.";
+                MostrarToast(EstadoOperacionGitTexto);
+                return;
+            }
+
+            // Si el usuario escribió un mensaje de commit o aún no existe primer commit y hay archivos nuevos, prepara y crea el commit automáticamente antes del push.
+            bool sinCommitInicial = estadoActual.Historial.Count == 0 && estadoActual.Cambios.Count > 0;
+            bool tieneMensajeListo = !string.IsNullOrWhiteSpace(MensajeCommitGit) && estadoActual.Cambios.Count > 0;
+            if (sinCommitInicial || tieneMensajeListo)
+            {
+                await _servicioGit.PrepararTodoAsync(RutaProyectoActual);
+                string msgCommit = !string.IsNullOrWhiteSpace(MensajeCommitGit)
+                    ? MensajeCommitGit.Trim()
+                    : "Publicación desde Xynex Code Editor 9.0";
+                string? email = !string.IsNullOrWhiteSpace(CuentaGitHubActual?.Email)
+                    ? CuentaGitHubActual.Email
+                    : (CuentaGitHubActual is not null ? $"{CuentaGitHubActual.Login}@users.noreply.github.com" : null);
+
+                var commitRes = await _servicioGit.CrearCommitAsync(
+                    RutaProyectoActual,
+                    msgCommit,
+                    CuentaGitHubActual?.Nombre ?? CuentaGitHubActual?.Login,
+                    email);
+
+                if (!commitRes.Exito)
+                {
+                    EstadoOperacionGitTexto = commitRes.Mensaje;
+                    MostrarToast(commitRes.Mensaje);
+                    return;
+                }
+                MensajeCommitGit = string.Empty;
+                estadoActual = await _servicioGit.ObtenerEstadoAsync(RutaProyectoActual);
+            }
+
+            if (string.IsNullOrWhiteSpace(estadoActual.RemotoOrigin))
+            {
+                EstadoOperacionGitTexto = "No hay remoto 'origin' configurado. Usa 'Publicar' para crear o enlazar tu repositorio en GitHub.";
+                MostrarToast(EstadoOperacionGitTexto);
+                return;
+            }
+
+            string rama = string.IsNullOrWhiteSpace(estadoActual.RamaActual) || estadoActual.RamaActual == "HEAD"
+                ? "main"
+                : estadoActual.RamaActual;
+
             var res = await _servicioGit.PushAsync(
                 RutaProyectoActual,
                 rama,
                 _servicioGitHub.ObtenerTokenTemporalParaGit());
+
             EstadoOperacionGitTexto = res.Mensaje;
             RegistrarActividad("Git", res.Mensaje);
             MostrarToast(res.Mensaje);
@@ -1965,7 +2024,12 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
 
     public async Task PullGitAsync()
     {
-        if (string.IsNullOrWhiteSpace(RutaProyectoActual)) return;
+        if (string.IsNullOrWhiteSpace(RutaProyectoActual))
+        {
+            MostrarToast("Abre una carpeta de proyecto primero.");
+            return;
+        }
+
         EstaOperandoGit = true;
         try
         {

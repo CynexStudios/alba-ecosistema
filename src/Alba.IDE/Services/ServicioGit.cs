@@ -207,6 +207,17 @@ public sealed class ServicioGit
         string? tokenGitHub = null,
         bool fijarUpstream = true)
     {
+        // Verifica que exista el remoto origin configurado
+        var remoteCheck = await EjecutarGitAsync(rutaProyecto, ["remote", "get-url", "origin"]);
+        if (remoteCheck.ExitCode != 0 || string.IsNullOrWhiteSpace(remoteCheck.Stdout))
+        {
+            return new ResultadoOperacionGit
+            {
+                Exito = false,
+                Mensaje = "No hay un remoto 'origin' configurado. Usa el botón 'Publicar' para crear o enlazar el repositorio en GitHub."
+            };
+        }
+
         // Verifica que exista al menos un commit antes de intentar push
         var headCheck = await EjecutarGitAsync(rutaProyecto, ["rev-parse", "--verify", "HEAD"]);
         if (headCheck.ExitCode != 0)
@@ -234,6 +245,18 @@ public sealed class ServicioGit
         }
 
         string err = res.Stderr ?? string.Empty;
+        if (EsErrorAutenticacionGit(err))
+        {
+            return new ResultadoOperacionGit
+            {
+                Exito = false,
+                Mensaje = string.IsNullOrWhiteSpace(tokenGitHub)
+                    ? "GitHub requiere autenticación para hacer Push. Conecta tu cuenta en el panel 'Git y GitHub' con permiso 'repo'."
+                    : "GitHub rechazó la autenticación del Push. Verifica que tu token tenga permiso 'repo' o vuelve a iniciar sesión en GitHub.",
+                Salida = err
+            };
+        }
+
         if (err.Contains("non-fast-forward", StringComparison.OrdinalIgnoreCase) ||
             err.Contains("fetch first", StringComparison.OrdinalIgnoreCase) ||
             err.Contains("rejected", StringComparison.OrdinalIgnoreCase))
@@ -242,10 +265,25 @@ public sealed class ServicioGit
             AnadirHeaderAuthTemporal(rebaseArgs, tokenGitHub);
             rebaseArgs.Add("pull");
             rebaseArgs.Add("--rebase");
+            rebaseArgs.Add("--autostash");
             rebaseArgs.Add("origin");
             rebaseArgs.Add(ramaDestino);
 
             var rebaseRes = await EjecutarGitAsync(rutaProyecto, rebaseArgs, timeoutMs: 45_000);
+            if (rebaseRes.ExitCode != 0 &&
+                (rebaseRes.Stderr?.Contains("unrelated histories", StringComparison.OrdinalIgnoreCase) == true))
+            {
+                var allowUnrelatedArgs = new List<string>();
+                AnadirHeaderAuthTemporal(allowUnrelatedArgs, tokenGitHub);
+                allowUnrelatedArgs.Add("pull");
+                allowUnrelatedArgs.Add("--rebase");
+                allowUnrelatedArgs.Add("--autostash");
+                allowUnrelatedArgs.Add("--allow-unrelated-histories");
+                allowUnrelatedArgs.Add("origin");
+                allowUnrelatedArgs.Add(ramaDestino);
+                rebaseRes = await EjecutarGitAsync(rutaProyecto, allowUnrelatedArgs, timeoutMs: 45_000);
+            }
+
             if (rebaseRes.ExitCode == 0)
             {
                 var retryRes = await EjecutarGitAsync(rutaProyecto, args, timeoutMs: 45_000);
@@ -260,7 +298,7 @@ public sealed class ServicioGit
             {
                 Exito = false,
                 Mensaje = "El remoto tiene cambios más recientes y el rebase automático encontró conflictos. Haz Pull primero y resuelve conflictos antes del Push.",
-                Salida = err
+                Salida = string.Join(Environment.NewLine, new[] { err.Trim(), rebaseRes.Stderr?.Trim() }.Where(s => !string.IsNullOrWhiteSpace(s)))
             };
         }
 
@@ -269,12 +307,44 @@ public sealed class ServicioGit
 
     public async Task<ResultadoOperacionGit> PullAsync(string rutaProyecto, string? tokenGitHub = null)
     {
+        var remoteCheck = await EjecutarGitAsync(rutaProyecto, ["remote", "get-url", "origin"]);
+        if (remoteCheck.ExitCode != 0 || string.IsNullOrWhiteSpace(remoteCheck.Stdout))
+        {
+            return new ResultadoOperacionGit
+            {
+                Exito = false,
+                Mensaje = "No hay un remoto 'origin' configurado para hacer Pull."
+            };
+        }
+
         var args = new List<string>();
         AnadirHeaderAuthTemporal(args, tokenGitHub);
         args.Add("pull");
 
-        var res = await EjecutarGitAsync(rutaProyecto, args);
+        var res = await EjecutarGitAsync(rutaProyecto, args, timeoutMs: 45_000);
+        if (res.ExitCode != 0 && EsErrorAutenticacionGit(res.Stderr))
+        {
+            return new ResultadoOperacionGit
+            {
+                Exito = false,
+                Mensaje = string.IsNullOrWhiteSpace(tokenGitHub)
+                    ? "GitHub requiere autenticación para hacer Pull. Conecta tu cuenta en el panel 'Git y GitHub'."
+                    : "GitHub rechazó la autenticación del Pull. Verifica tu token e intenta de nuevo.",
+                Salida = res.Stderr ?? string.Empty
+            };
+        }
+
         return ConstruirResultado(res, "Actualizaciones descargadas (pull).");
+    }
+
+    private static bool EsErrorAutenticacionGit(string? stderr)
+    {
+        if (string.IsNullOrWhiteSpace(stderr)) return false;
+        return stderr.Contains("could not read Username", StringComparison.OrdinalIgnoreCase) ||
+               stderr.Contains("Authentication failed", StringComparison.OrdinalIgnoreCase) ||
+               stderr.Contains("Permission denied", StringComparison.OrdinalIgnoreCase) ||
+               stderr.Contains("returned error: 403", StringComparison.OrdinalIgnoreCase) ||
+               stderr.Contains("terminal prompts disabled", StringComparison.OrdinalIgnoreCase);
     }
 
     public async Task<(ResultadoOperacionGit Resultado, string RutaClonada)> ClonarRepositorioAsync(

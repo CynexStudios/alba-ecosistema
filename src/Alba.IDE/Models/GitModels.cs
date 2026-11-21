@@ -101,7 +101,7 @@ public sealed class SolicitudPublicacionGitHub
     public string Descripcion { get; init; } = string.Empty;
     public bool EsPrivado { get; init; }
     public bool GenerarGitIgnore { get; init; } = true;
-    public string MensajeCommitInicial { get; init; } = "Publicación inicial desde Xynex Code Editor 5.0";
+    public string MensajeCommitInicial { get; init; } = "Publicación inicial desde Xynex Code Editor 9.0";
 }
 
 public sealed class ResultadoOperacionGit

@@ -288,6 +288,72 @@ public sealed class ServicioGitHub : IDisposable
         }
     }
 
+    public async Task<(bool Exito, string Mensaje, RepositorioGitHub? Repositorio)> ObtenerRepositorioAsync(
+        string propietario,
+        string nombreRepo)
+    {
+        if (!EstaConectado)
+        {
+            return (false, "Inicia sesión en GitHub primero.", null);
+        }
+
+        if (string.IsNullOrWhiteSpace(propietario) || string.IsNullOrWhiteSpace(nombreRepo))
+        {
+            return (false, "Propietario y nombre del repositorio son obligatorios.", null);
+        }
+
+        try
+        {
+            string url = $"https://api.github.com/repos/{Uri.EscapeDataString(propietario.Trim())}/{Uri.EscapeDataString(nombreRepo.Trim())}";
+            using var req = new HttpRequestMessage(HttpMethod.Get, url);
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _tokenActivo);
+            req.Headers.TryAddWithoutValidation("X-GitHub-Api-Version", "2022-11-28");
+
+            using HttpResponseMessage resp = await _http.SendAsync(req);
+            string json = await resp.Content.ReadAsStringAsync();
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                return (false, $"No se pudo obtener '{propietario}/{nombreRepo}' (HTTP {(int)resp.StatusCode}): {ExtraerMensajeError(json)}", null);
+            }
+
+            using JsonDocument doc = JsonDocument.Parse(json);
+            RepositorioGitHub repo = ParsearRepositorio(doc.RootElement);
+            return (true, $"Repositorio '{repo.NombreCompleto}' encontrado en GitHub.", repo);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Error consultando repositorio en GitHub: {ex.Message}", null);
+        }
+    }
+
+    public async Task<(bool Exito, string Mensaje, RepositorioGitHub? Repositorio, bool YaExistia)> CrearOEnlazarRepositorioAsync(
+        string nombre,
+        string descripcion,
+        bool esPrivado)
+    {
+        var (creadoOk, msgCrear, repoCreado) = await CrearRepositorioAsync(nombre, descripcion, esPrivado);
+        if (creadoOk && repoCreado is not null)
+        {
+            return (true, msgCrear, repoCreado, false);
+        }
+
+        string? login = CuentaActual?.Login;
+        if (!string.IsNullOrWhiteSpace(login) &&
+            (msgCrear.Contains("422", StringComparison.Ordinal) ||
+             msgCrear.Contains("already exists", StringComparison.OrdinalIgnoreCase) ||
+             msgCrear.Contains("Creation failed", StringComparison.OrdinalIgnoreCase)))
+        {
+            var (encontradoOk, _, repoExistente) = await ObtenerRepositorioAsync(login, nombre);
+            if (encontradoOk && repoExistente is not null)
+            {
+                return (true, $"Repositorio existente '{repoExistente.NombreCompleto}' enlazado para subir archivos.", repoExistente, true);
+            }
+        }
+
+        return (false, msgCrear, null, false);
+    }
+
     public async Task<byte[]?> DescargarAvatarAsync(string? avatarUrl)
     {
         if (string.IsNullOrWhiteSpace(avatarUrl) || !Uri.TryCreate(avatarUrl, UriKind.Absolute, out Uri? uri))

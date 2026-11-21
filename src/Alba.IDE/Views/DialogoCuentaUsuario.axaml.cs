@@ -7,7 +7,7 @@ namespace Alba.IDE.Views;
 
 public partial class DialogoCuentaUsuario : Window
 {
-    private sealed record ElementoPerfilIAVista(
+    public sealed record ElementoPerfilIAVista(
         int Id,
         string NombrePerfil,
         string EtiquetaModelo,
