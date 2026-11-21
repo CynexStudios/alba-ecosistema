@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Alba.Engine.Diagnostics;
@@ -547,6 +548,111 @@ public sealed partial class Interprete
             }
             return ValorAlba.Nulo;
         });
+
+        // --- Cibao 9.0: Colecciones avanzadas, tipos y seguridad ---
+        RegistrarNativa("encontrar", (args, u) =>
+        {
+            ExigirAridad("encontrar", args, 2, u);
+            List<ValorAlba> lista = ExigirLista(args[0], "encontrar", u);
+            return EncontrarEnLista(lista, args[1], u);
+        });
+
+        RegistrarNativa("alguno", (args, u) =>
+        {
+            ExigirAridad("alguno", args, 2, u);
+            List<ValorAlba> lista = ExigirLista(args[0], "alguno", u);
+            return AlgunoEnLista(lista, args[1], u);
+        });
+
+        RegistrarNativa("todos", (args, u) =>
+        {
+            ExigirAridad("todos", args, 2, u);
+            List<ValorAlba> lista = ExigirLista(args[0], "todos", u);
+            return TodosEnLista(lista, args[1], u);
+        });
+
+        RegistrarNativa("unicos", (args, u) =>
+        {
+            ExigirAridad("unicos", args, 1, u);
+            List<ValorAlba> lista = ExigirLista(args[0], "unicos", u);
+            return UnicosDeLista(lista);
+        });
+
+        RegistrarNativa("cortar", (args, u) =>
+        {
+            if (args.Count is < 2 or > 3)
+                throw CrearError("ALB-E011", TipoError.Ejecucion, u, "'cortar' acepta (lista, inicio) o (lista, inicio, fin).");
+            List<ValorAlba> lista = ExigirLista(args[0], "cortar", u);
+            int inicio = (int)ExigirEntero(args[1], "cortar", u);
+            int fin = args.Count == 3 ? (int)ExigirEntero(args[2], "cortar", u) : lista.Count;
+            return CortarLista(lista, inicio, fin);
+        });
+
+        RegistrarNativa("es_numero", (args, u) =>
+        {
+            ExigirAridad("es_numero", args, 1, u);
+            return ValorAlba.CrearBooleano(args[0].EsNumero);
+        });
+
+        RegistrarNativa("es_texto", (args, u) =>
+        {
+            ExigirAridad("es_texto", args, 1, u);
+            return ValorAlba.CrearBooleano(args[0].Tipo == TipoValorAlba.Texto);
+        });
+
+        RegistrarNativa("es_lista", (args, u) =>
+        {
+            ExigirAridad("es_lista", args, 1, u);
+            return ValorAlba.CrearBooleano(args[0].Tipo == TipoValorAlba.Lista);
+        });
+
+        RegistrarNativa("es_diccionario", (args, u) =>
+        {
+            ExigirAridad("es_diccionario", args, 1, u);
+            return ValorAlba.CrearBooleano(args[0].Tipo == TipoValorAlba.Diccionario);
+        });
+
+        RegistrarNativa("es_nulo", (args, u) =>
+        {
+            ExigirAridad("es_nulo", args, 1, u);
+            return ValorAlba.CrearBooleano(args[0].Tipo == TipoValorAlba.Nulo);
+        });
+
+        RegistrarNativa("sha256", (args, u) =>
+        {
+            ExigirAridad("sha256", args, 1, u);
+            string entrada = ExigirTexto(args[0], "sha256", u);
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(entrada));
+            return ValorAlba.CrearTexto(Convert.ToHexString(hash).ToLowerInvariant());
+        });
+
+        RegistrarNativa("uuid", (args, u) =>
+        {
+            ExigirAridad("uuid", args, 0, u);
+            return ValorAlba.CrearTexto(Guid.NewGuid().ToString("D"));
+        });
+
+        RegistrarNativa("base64_codificar", (args, u) =>
+        {
+            ExigirAridad("base64_codificar", args, 1, u);
+            string entrada = ExigirTexto(args[0], "base64_codificar", u);
+            return ValorAlba.CrearTexto(Convert.ToBase64String(Encoding.UTF8.GetBytes(entrada)));
+        });
+
+        RegistrarNativa("base64_decodificar", (args, u) =>
+        {
+            ExigirAridad("base64_decodificar", args, 1, u);
+            string b64 = ExigirTexto(args[0], "base64_decodificar", u);
+            try
+            {
+                byte[] bytes = Convert.FromBase64String(b64);
+                return ValorAlba.CrearTexto(Encoding.UTF8.GetString(bytes));
+            }
+            catch (FormatException)
+            {
+                throw CrearError("ALB-E014", TipoError.Ejecucion, u, "Cadena Base64 inválida en 'base64_decodificar'.");
+            }
+        });
     }
 
     // --- Métodos integrados por punto (OOP ligera sobre tipos primitivos/colecciones) ---
@@ -620,6 +726,34 @@ public sealed partial class Interprete
             {
                 ExigirAridad("reducir", args, 2, u);
                 return ReducirLista(lista, args[0], args[1], u);
+            })),
+            "encontrar" => ValorAlba.CrearFuncionNativa(new FuncionNativaAlba("lista.encontrar", (args, u) =>
+            {
+                ExigirAridad("encontrar", args, 1, u);
+                return EncontrarEnLista(lista, args[0], u);
+            })),
+            "alguno" => ValorAlba.CrearFuncionNativa(new FuncionNativaAlba("lista.alguno", (args, u) =>
+            {
+                ExigirAridad("alguno", args, 1, u);
+                return AlgunoEnLista(lista, args[0], u);
+            })),
+            "todos" => ValorAlba.CrearFuncionNativa(new FuncionNativaAlba("lista.todos", (args, u) =>
+            {
+                ExigirAridad("todos", args, 1, u);
+                return TodosEnLista(lista, args[0], u);
+            })),
+            "unicos" => ValorAlba.CrearFuncionNativa(new FuncionNativaAlba("lista.unicos", (args, u) =>
+            {
+                ExigirAridad("unicos", args, 0, u);
+                return UnicosDeLista(lista);
+            })),
+            "cortar" => ValorAlba.CrearFuncionNativa(new FuncionNativaAlba("lista.cortar", (args, u) =>
+            {
+                if (args.Count is < 1 or > 2)
+                    throw CrearError("ALB-E011", TipoError.Ejecucion, u, "'lista.cortar' acepta (inicio) o (inicio, fin).");
+                int inicio = (int)ExigirEntero(args[0], "cortar", u);
+                int fin = args.Count == 2 ? (int)ExigirEntero(args[1], "cortar", u) : lista.Count;
+                return CortarLista(lista, inicio, fin);
             })),
             _ => throw CrearError("ALB-E009", TipoError.Ejecucion, ubicacion,
                 $"La lista no posee ningún método o propiedad llamado '{miembro}'.")
@@ -700,7 +834,11 @@ public sealed partial class Interprete
         };
     }
 
-    private ValorAlba ResolverMiembroDiccionario(Dictionary<string, ValorAlba> dict, string miembro, UbicacionFuente ubicacion)
+    private ValorAlba ResolverMiembroDiccionario(
+        Dictionary<string, ValorAlba> dict,
+        string miembro,
+        UbicacionFuente ubicacion,
+        bool esOpcional = false)
     {
         if (dict.TryGetValue(miembro, out ValorAlba? valor))
         {
@@ -734,9 +872,84 @@ public sealed partial class Interprete
                 ExigirAridad("eliminar", args, 1, u);
                 return ValorAlba.CrearBooleano(dict.Remove(ExigirTexto(args[0], "eliminar", u)));
             })),
+            _ when esOpcional => ValorAlba.Nulo,
             _ => throw CrearError("ALB-E009", TipoError.Ejecucion, ubicacion,
                 $"El diccionario no contiene la clave ni el método '{miembro}'.")
         };
+    }
+
+    private ValorAlba EncontrarEnLista(List<ValorAlba> lista, ValorAlba predicado, UbicacionFuente u)
+    {
+        foreach (ValorAlba el in lista)
+        {
+            ValorAlba coincide = InvocarCallable(predicado, [el], u);
+            if (coincide.Tipo != TipoValorAlba.Booleano)
+            {
+                throw CrearError("ALB-T004", TipoError.Tipo, u,
+                    $"El predicado de 'encontrar' debe retornar 'booleano', retornó '{coincide.ObtenerNombreTipo()}'.");
+            }
+            if (coincide.ComoBooleano())
+            {
+                return el;
+            }
+        }
+        return ValorAlba.Nulo;
+    }
+
+    private ValorAlba AlgunoEnLista(List<ValorAlba> lista, ValorAlba predicado, UbicacionFuente u)
+    {
+        foreach (ValorAlba el in lista)
+        {
+            ValorAlba coincide = InvocarCallable(predicado, [el], u);
+            if (coincide.Tipo != TipoValorAlba.Booleano)
+            {
+                throw CrearError("ALB-T004", TipoError.Tipo, u,
+                    $"El predicado de 'alguno' debe retornar 'booleano', retornó '{coincide.ObtenerNombreTipo()}'.");
+            }
+            if (coincide.ComoBooleano())
+            {
+                return ValorAlba.Verdadero;
+            }
+        }
+        return ValorAlba.Falso;
+    }
+
+    private ValorAlba TodosEnLista(List<ValorAlba> lista, ValorAlba predicado, UbicacionFuente u)
+    {
+        foreach (ValorAlba el in lista)
+        {
+            ValorAlba coincide = InvocarCallable(predicado, [el], u);
+            if (coincide.Tipo != TipoValorAlba.Booleano)
+            {
+                throw CrearError("ALB-T004", TipoError.Tipo, u,
+                    $"El predicado de 'todos' debe retornar 'booleano', retornó '{coincide.ObtenerNombreTipo()}'.");
+            }
+            if (!coincide.ComoBooleano())
+            {
+                return ValorAlba.Falso;
+            }
+        }
+        return ValorAlba.Verdadero;
+    }
+
+    private static ValorAlba UnicosDeLista(List<ValorAlba> lista)
+    {
+        var resultado = new List<ValorAlba>();
+        foreach (ValorAlba el in lista)
+        {
+            if (!resultado.Any(x => x.EsIgualA(el)))
+            {
+                resultado.Add(el);
+            }
+        }
+        return ValorAlba.CrearLista(resultado);
+    }
+
+    private static ValorAlba CortarLista(List<ValorAlba> lista, int inicio, int fin)
+    {
+        int start = Math.Clamp(inicio, 0, lista.Count);
+        int end = Math.Clamp(fin, start, lista.Count);
+        return ValorAlba.CrearLista(lista.GetRange(start, end - start));
     }
 
     private ValorAlba MapearLista(List<ValorAlba> lista, ValorAlba transformador, UbicacionFuente u)
@@ -860,6 +1073,29 @@ public sealed partial class Interprete
                 exp["escribir"] = exp["escribir_archivo"];
                 exp["existe"] = exp["existe_archivo"];
                 return new ModuloAlba("archivos", exp);
+
+            case "seguridad":
+                AgregarExportNativa(exp, "sha256");
+                AgregarExportNativa(exp, "uuid");
+                AgregarExportNativa(exp, "base64_codificar");
+                AgregarExportNativa(exp, "base64_decodificar");
+                return new ModuloAlba("seguridad", exp);
+
+            case "colecciones":
+                AgregarExportNativa(exp, "mapear");
+                AgregarExportNativa(exp, "filtrar");
+                AgregarExportNativa(exp, "reducir");
+                AgregarExportNativa(exp, "ordenar");
+                AgregarExportNativa(exp, "invertir");
+                AgregarExportNativa(exp, "encontrar");
+                AgregarExportNativa(exp, "alguno");
+                AgregarExportNativa(exp, "todos");
+                AgregarExportNativa(exp, "unicos");
+                AgregarExportNativa(exp, "cortar");
+                AgregarExportNativa(exp, "contiene_elemento");
+                AgregarExportNativa(exp, "indice_de");
+                AgregarExportNativa(exp, "rango");
+                return new ModuloAlba("colecciones", exp);
 
             default:
                 return null;

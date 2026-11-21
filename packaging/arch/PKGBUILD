@@ -1,8 +1,8 @@
 # Maintainer: Jaderson Liriano (CynexStudios) <https://github.com/CynexStudios/alba-ecosistema>
 pkgname=xynex-code-editor
-pkgver=5.0.0
+pkgver=9.0.0
 pkgrel=1
-pkgdesc="Xynex Code Editor e interprete nativo del lenguaje Cibao (.cibao / .alb)"
+pkgdesc="Xynex Code Editor 9.0 e interprete nativo del lenguaje Cibao (.cibao / .alb)"
 arch=('x86_64')
 url="https://github.com/CynexStudios/alba-ecosistema"
 license=('MIT')
@@ -14,6 +14,7 @@ depends=(
   'freetype2'
   'icu'
   'openssl'
+  'sqlite'
   'zlib'
   'gcc-libs'
   'krb5'
@@ -50,6 +51,13 @@ build() {
 
   chmod +x "${stage_dir}/ide/Alba.IDE" "${stage_dir}/cli/alba"
   ln -sf "alba" "${stage_dir}/cli/cibao"
+
+  cat > "${stage_dir}/xynex.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec /opt/xynex-code-editor/ide/Alba.IDE "$@"
+EOF
+  chmod +x "${stage_dir}/xynex.sh"
 
   if command -v g++ >/dev/null 2>&1; then
     g++ -std=c++20 -O2 -DALBA_PLATFORM_LINUX=1 \

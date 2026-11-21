@@ -6,7 +6,7 @@ namespace Alba.IDE.Services;
 /// </summary>
 public static class RutasUsuarioAlba
 {
-    public const string VersionActual = "5.0.0";
+    public const string VersionActual = "9.0.0";
     public const string NombreIde = "Xynex Code Editor";
     public const string NombreLenguaje = "Cibao";
     public const string RepositorioGitHub = "CynexStudios/alba-ecosistema";
@@ -26,6 +26,9 @@ public static class RutasUsuarioAlba
 
     public static string ObtenerArchivoConfiguracion() =>
         Path.Combine(ObtenerDirectorioDatosUsuario(), "configuracion.json");
+
+    public static string ObtenerArchivoBaseDatosUsuarios() =>
+        Path.Combine(ObtenerDirectorioDatosUsuario(), "xynex_accounts.db");
 
     public static string ObtenerArchivoRecientes() =>
         Path.Combine(ObtenerDirectorioDatosUsuario(), "recientes.json");

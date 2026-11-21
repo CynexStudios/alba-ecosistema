@@ -1,4 +1,4 @@
-name: Release Multiplataforma (Xynex Code Editor & Cibao 5.0)
+name: Release Multiplataforma (Xynex Code Editor & Cibao 9.0)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       version:
         description: "Versión semántica a empaquetar (sin 'v')"
         required: true
-        default: "5.0.0"
+        default: "9.0.0"
       incluir_macos:
         description: "Incluir compilación opcional para macOS (.dmg)"
         type: boolean
@@ -43,7 +43,7 @@ jobs:
           echo "version=$v" >> $env:GITHUB_OUTPUT
 
       - name: Ejecutar pruebas unitarias
-        run: dotnet test tests/Alba.Engine.Tests/Alba.Engine.Tests.csproj -c Release --verbosity normal
+        run: dotnet test AlbaEcosistema.sln -c Release --verbosity normal
 
       - name: Instalar Inno Setup 6
         run: choco install innosetup -y
@@ -82,12 +82,12 @@ jobs:
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Ejecutar pruebas unitarias
-        run: dotnet test tests/Alba.Engine.Tests/Alba.Engine.Tests.csproj -c Release --verbosity normal
+        run: dotnet test AlbaEcosistema.sln -c Release --verbosity normal
 
       - name: Instalar herramientas de empaquetado Linux
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm dpkg-dev wget
+          sudo apt-get install -y rpm dpkg-dev wget squashfs-tools file
           wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O /tmp/appimagetool || true
           if [ -f /tmp/appimagetool ]; then chmod +x /tmp/appimagetool; fi
 
@@ -135,12 +135,13 @@ jobs:
             bash -lc '
               set -euo pipefail
               pacman-key --init
-              pacman -Sy --noconfirm archlinux-keyring
-              pacman -Syu --noconfirm --needed base-devel dotnet-sdk-8.0 cmake gcc zstd
+              pacman-key --populate archlinux
+              pacman -Sy --noconfirm --disable-download-timeout archlinux-keyring
+              pacman -Syu --noconfirm --disable-download-timeout --needed base-devel dotnet-sdk-8.0 cmake gcc zstd sqlite libx11 libice libsm fontconfig freetype2 icu openssl zlib krb5
               useradd -m -s /bin/bash builder
               cp -a /work /tmp/arch-src
               chown -R builder:builder /tmp/arch-src
-              su - builder -c "cd /tmp/arch-src && dotnet test tests/Alba.Engine.Tests/Alba.Engine.Tests.csproj -c Release --verbosity minimal && chmod +x packaging/arch/build-arch-package.sh && ./packaging/arch/build-arch-package.sh \"$VERSION\""
+              su - builder -c "cd /tmp/arch-src && dotnet test AlbaEcosistema.sln -c Release --verbosity minimal && chmod +x packaging/arch/build-arch-package.sh && ./packaging/arch/build-arch-package.sh \"$VERSION\""
               mkdir -p /work/dist
               cp /tmp/arch-src/dist/*.pkg.tar.zst /work/dist/
               chown "${HOST_UID}:${HOST_GID}" /work/dist/*.pkg.tar.zst
@@ -171,7 +172,7 @@ jobs:
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Ejecutar pruebas unitarias
-        run: dotnet test tests/Alba.Engine.Tests/Alba.Engine.Tests.csproj -c Release
+        run: dotnet test AlbaEcosistema.sln -c Release
 
       - name: Generar .app y .dmg (Apple Silicon arm64 e Intel x64)
         run: |

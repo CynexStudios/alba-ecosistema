@@ -1,8 +1,8 @@
-; Script de Inno Setup 6 para Xynex Code Editor & Cibao v5.0.0 (Windows x64)
+; Script de Inno Setup 6 para Xynex Code Editor & Cibao v9.0.0 (Windows x64)
 ; Genera un instalador gráfico completo sin requerir .NET SDK previo en el equipo destino.
 
 #ifndef MyAppVersion
-  #define MyAppVersion "5.0.0"
+  #define MyAppVersion "9.0.0"
 #endif
 #ifndef SourceStageDir
   #define SourceStageDir "..\..\dist\stage-win-x64"
@@ -58,6 +58,7 @@ Source: "{#SourceStageDir}\alba-host.exe"; DestDir: "{app}"; Flags: ignoreversio
 
 [Icons]
 Name: "{group}\Xynex Code Editor"; Filename: "{app}\ide\Alba.IDE.exe"; IconFilename: "{app}\ide\Alba.IDE.exe"
+Name: "{group}\Documentación Interactiva HTML"; Filename: "{app}\docs\html\documentacion_cibao.html"
 Name: "{group}\Manual del Lenguaje Cibao"; Filename: "{app}\docs\03_manual_del_lenguaje.md"
 Name: "{group}\Desinstalar Xynex Code Editor"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Xynex Code Editor"; Filename: "{app}\ide\Alba.IDE.exe"; Tasks: desktopicon

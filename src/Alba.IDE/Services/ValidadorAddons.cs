@@ -27,6 +27,12 @@ public static class ValidadorAddons
         "py",
         "dotnet",
         "node",
+        "ts-node",
+        "tsc",
+        "browser",
+        "cibao",
+        "go",
+        "rustc",
         "gcc",
         "g++",
         "clang++"

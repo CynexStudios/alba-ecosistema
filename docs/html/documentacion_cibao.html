@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentación Oficial Cibao Code 9.0 &amp; Xynex Code Editor 9.0</title>
+  <style>
+    :root {
+      --bg: #18181b;
+      --surface: #222226;
+      --panel: #1e1e1e;
+      --border: #34343c;
+      --text: #e4e4e7;
+      --muted: #a1a1aa;
+      --accent: #007acc;
+      --accent-soft: #4fc1ff;
+      --green: #4ec9b0;
+      --purple: #c586c0;
+      --orange: #ce9178;
+      --yellow: #dcdcaa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: 100vh;
+    }
+    aside {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    .search {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      transition: background 0.15s, color 0.15s;
+    }
+    nav a:hover, nav a.active {
+      background: #2a2d36;
+      color: var(--accent-soft);
+    }
+    main {
+      padding: 34px 44px;
+      max-width: 1020px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1b2838 0%, #222226 65%, #1c192b 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 30px;
+      margin-bottom: 28px;
+    }
+    .hero h1 { margin: 0 0 8px 0; font-size: 28px; color: #ffffff; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.6; }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 26px;
+      margin-bottom: 24px;
+    }
+    h2 { margin-top: 0; color: var(--accent-soft); font-size: 21px; }
+    h3 { color: var(--green); font-size: 15.5px; margin: 18px 0 8px; }
+    p, li { color: var(--text); line-height: 1.65; font-size: 14.5px; }
+    code {
+      font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+      background: #141418;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--yellow);
+      font-size: 13px;
+    }
+    .code-wrap {
+      position: relative;
+      margin: 12px 0;
+    }
+    pre {
+      margin: 0;
+      background: #121216;
+      border: 1px solid #2e2e36;
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+      font-size: 13.2px;
+      line-height: 1.55;
+      color: #d4d4d4;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #2b2b34;
+      color: #e4e4e7;
+      border: 1px solid #454552;
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      text-align: left;
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--accent-soft); background: #1c1c21; }
+    @media (max-width: 860px) {
+      body { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      main { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand">
+      <strong style="font-size:16px;color:#fff;">Cibao Code</strong>
+      <span class="badge">v9.0.0</span>
+    </div>
+    <input id="buscador" class="search" type="search" placeholder="Filtrar tema o palabra clave..." />
+    <nav id="menu">
+      <a href="#intro" class="active">1. Inicio y Filosofía 9.0</a>
+      <a href="#hola-mundo">2. Primer Programa y Salida</a>
+      <a href="#variables-tipos">3. Variables y 7 Tipos de Datos</a>
+      <a href="#operadores">4. Operadores y Rangos</a>
+      <a href="#control">5. Condicionales y Ciclos</a>
+      <a href="#funciones">6. Funciones y Lambdas (=>)</a>
+      <a href="#colecciones">7. Listas, Diccionarios y JSON</a>
+      <a href="#poo">8. Clases, Herencia y Módulos</a>
+      <a href="#stdlib">9. Biblioteca Estándar Completa</a>
+      <a href="#ide-ia">10. Xynex IDE, Bot Tutor, IA y Addons</a>
+      <a href="#linux-win">11. Instalación Windows, Arch y CachyOS</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <h1>Manual Oficial de Cibao Code 9.0 &amp; Xynex Code Editor 9.0</h1>
+      <p>Documentación creada completamente desde cero para la versión 9.0. Aprende el lenguaje Cibao paso a paso en español, domina todos los tipos de datos, POO, ejecución multi-lenguaje (Python, HTML, CSS, JS, TS, C#, C++), Agente IA conectado a tu propia API y seguridad integrada.</p>
+    </div>
+
+    <section id="intro" class="doc-section">
+      <h2>1. Inicio y Filosofía 9.0</h2>
+      <p><strong>Cibao Code 9.0</strong> es un lenguaje de programación moderno escrito en español, claro para principiantes y potente para aplicaciones reales. Su extensión oficial es <code>.cibao</code> (y mantiene 100% compatibilidad con proyectos anteriores <code>.alb</code>).</p>
+      <ul>
+        <li><strong>Sin carpetas obligatorias:</strong> Desde Xynex 9.0 puedes pulsar <em>Archivo Sin Carpeta</em>, escribir tu programa al instante y ejecutarlo con <code>F5</code> sin crear proyectos ni rutas primero.</li>
+        <li><strong>Multi-lenguaje nativo:</strong> Ejecuta y analiza errores en tiempo real para Cibao, Python, HTML5, CSS3, JavaScript, TypeScript, JSON, C# y C++20.</li>
+        <li><strong>Bot Tutor + Agente IA propio:</strong> Aprende desde cero con el Bot Tutor integrado y conecta tu propia cuenta o clave de IA (Ollama local gratuita, Google Gemini, OpenAI o Claude) en la bóveda cifrada.</li>
+      </ul>
+    </section>
+
+    <section id="hola-mundo" class="doc-section">
+      <h2>2. Tu Primer Programa y Salida por Consola</h2>
+      <p>En Cibao 9.0 no necesitas una función principal obligatoria para empezar. Usa <code>mostrar(...)</code> o <code>imprimir(...)</code>, y lee datos del usuario con <code>leer()</code>.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+<pre>// Comentario de una línea
+/* Comentario de
+   múltiples líneas */
+
+mostrar("¡Hola Mundo desde Cibao Code 9.0!")
+variable nombre = leer("¿Cómo te llamas? ")
+imprimir($"Encantado de verte, {nombre}. Versión actual: {9.0}")</pre>
+      </div>
+      <p><strong>Cadenas multilínea:</strong> Usa triple comilla <code>"""..."""</code> o bloques interpolados <code>$"""..."""</code> para escribir plantillas o textos largos.</p>
+    </section>
+
+    <section id="variables-tipos" class="doc-section">
+      <h2>3. Variables, Constantes y los 7 Tipos de Datos</h2>
+      <p>Declara valores mutables con <code>variable</code> y fijos con <code>constante</code>. El anotado de tipo con <code>: tipo</code> es opcional gracias a la inferencia dinámica.</p>
+      <table>
+        <thead><tr><th>Tipo Cibao</th><th>Descripción</th><th>Ejemplo válido</th></tr></thead>
+        <tbody>
+          <tr><td><code>entero</code></td><td>Números enteros con o sin signo</td><td><code>variable edad: entero = 21</code></td></tr>
+          <tr><td><code>decimal</code></td><td>Números de punto flotante</td><td><code>variable precio: decimal = 49.95</code></td></tr>
+          <tr><td><code>texto</code></td><td>Cadenas UTF-8 e interpolación</td><td><code>variable saludo: texto = $"Hola {edad}"</code></td></tr>
+          <tr><td><code>booleano</code></td><td>Valores lógicos binarios</td><td><code>variable activo: booleano = verdadero</code> (o <code>falso</code>)</td></tr>
+          <tr><td><code>lista</code></td><td>Arreglos dinámicos indexados</td><td><code>variable nums: lista = [10, 20, 30]</code></td></tr>
+          <tr><td><code>diccionario</code></td><td>Mapas clave-valor y JSON nativo</td><td><code>variable cfg: diccionario = { tema: "vs-pro" }</code></td></tr>
+          <tr><td><code>nulo</code></td><td>Ausencia explícita de valor</td><td><code>variable sinDato = nulo</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="operadores" class="doc-section">
+      <h2>4. Operadores Modernos, Rangos e Incrementos (Novedades 9.0)</h2>
+      <ul>
+        <li><strong>Aritméticos y potencia:</strong> <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>, y potencia directa <code>**</code> (ej: <code>2 ** 8 == 256</code>).</li>
+        <li><strong>Asignación compuesta y unarios:</strong> <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>x++</code>, <code>x--</code>.</li>
+        <li><strong>Rangos nativos:</strong> <code>1..5</code> genera <code>[1, 2, 3, 4]</code> (exclusivo); <code>1..=5</code> genera <code>[1, 2, 3, 4, 5]</code> (inclusivo).</li>
+        <li><strong>Seguridad contra nulos:</strong> Acceso seguro <code>usuario?.perfil?.nombre</code> y coalescencia nula <code>valor ?? "respaldo"</code>.</li>
+        <li><strong>Comprobación de tipo en ejecución:</strong> <code>si dato es lista { ... }</code>.</li>
+        <li><strong>Lógicos en español y simbólicos:</strong> <code>y</code> / <code>&amp;&amp;</code>, <code>o</code> / <code>||</code>, <code>no</code> / <code>!</code>.</li>
+      </ul>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+<pre>variable potencia = 2 ** 10
+variable perfil = { direccion: nulo }
+variable ciudad = perfil?.direccion?.ciudad ?? "Santo Domingo"
+variable pasos = 1..=4   // [1, 2, 3, 4]
+variable esLista = pasos es lista
+mostrar($"2^10={potencia}, ciudad={ciudad}, pasos={esLista}")</pre>
+      </div>
+    </section>
+
+    <section id="control" class="doc-section">
+      <h2>5. Condicionales, Elegir/Caso y Ciclos</h2>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+<pre>// Condicional si / sino_si / sino
+variable nota = 88
+si nota >= 90 {
+    mostrar("Sobresaliente")
+} sino_si nota >= 70 {
+    mostrar("Aprobado")
+} sino {
+    mostrar("Requiere práctica")
+}
+
+// Selector múltiple elegir / caso / defecto
+variable comando = "compilar"
+elegir comando {
+    caso "iniciar", "arrancar":
+        mostrar("Iniciando sistema...")
+    caso "compilar" {
+        mostrar("Compilación 9.0 lista")
+    }
+    defecto:
+        mostrar("Comando desconocido")
+}
+
+// Ciclos para / mientras / repetir / detener / continuar
+para indice en 1..=5 {
+    si indice == 3 { continuar }
+    mostrar($"Iteración {indice}")
+}
+
+variable vidas = 3
+mientras vidas > 0 {
+    vidas--
+}</pre>
+      </div>
+    </section>
+
+    <section id="funciones" class="doc-section">
+      <h2>6. Funciones, Expresiones Lambda Flecha (<code>=></code>) y Clausuras</h2>
+      <p>En Cibao 9.0 puedes declarar funciones completas, funciones cortas en una línea con <code>=></code> y lambdas anónimas muy compactas.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+<pre>funcion multiplicar(a: entero, b: entero = 2): entero {
+    retornar a * b
+}
+
+// Forma concisa con flecha =>
+funcion cuadrado(x: entero): entero => x * x
+
+variable datos = 1..=6
+variable paresDobles = datos
+    .filtrar(x => x % 2 == 0)
+    .mapear((x) => x * 10)
+
+mostrar($"cuadrado(7)={cuadrado(7)} | pares={unir(paresDobles, ', ')}")</pre>
+      </div>
+    </section>
+
+    <section id="colecciones" class="doc-section">
+      <h2>7. Listas, Diccionarios y Métodos de Punto</h2>
+      <p>Las listas y diccionarios incorporan métodos encadenables y soporte directo para JSON.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+<pre>variable frutas = ["mango", "chinola", "guineo"]
+frutas.agregar("lechoza")
+frutas.ordenar()
+
+para nombre, idx en frutas {
+    mostrar($"{idx}: {nombre.mayusculas()}")
+}
+
+variable usuario = { nombre: "Carlos", rol: "Dev" }
+usuario["activo"] = verdadero
+variable textoJson = json_a_texto(usuario)
+mostrar(textoJson)</pre>
+      </div>
+    </section>
+
+    <section id="poo" class="doc-section">
+      <h2>8. Clases, Herencia, Encapsulación, Errores y Módulos</h2>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+<pre>clase Vehiculo {
+    publico marca: texto
+    privado kilometraje: entero = 0
+
+    constructor(marca: texto) {
+        este.marca = marca
+    }
+
+    publico funcion avanzar(km: entero) {
+        este.kilometraje += km
+    }
+
+    publico funcion describir(): texto {
+        retornar $"{este.marca} ({este.kilometraje} km)"
+    }
+}
+
+clase Electrico extiende Vehiculo {
+    publico bateria: entero
+    constructor(marca: texto, bateria: entero) {
+        super(marca)
+        este.bateria = bateria
+    }
+}
+
+intentar {
+    variable auto = nuevo Electrico("Xynex EV", 98)
+    auto.avanzar(120)
+    mostrar(auto.describir())
+} capturar (error) {
+    mostrar($"Ocurrió una incidencia: {error}")
+} finalmente {
+    mostrar("Bloque finalizado.")
+}</pre>
+      </div>
+      <h3>Importar Módulos Estándar y Archivos Locales</h3>
+      <p>Usa <code>importar "matematicas" como mat</code>, <code>importar "texto"</code>, <code>importar "json"</code>, <code>importar "archivos"</code> o un módulo relativo <code>importar "./utilidades.cibao" como u</code>.</p>
+    </section>
+
+    <section id="stdlib" class="doc-section">
+      <h2>9. Biblioteca Estándar Integrada</h2>
+      <ul>
+        <li><strong>Consola y Conversión:</strong> <code>mostrar</code>, <code>imprimir</code>, <code>leer</code>, <code>tipo_de</code>, <code>es_nulo</code>, <code>a_entero</code>, <code>a_decimal</code>, <code>a_texto</code>, <code>a_booleano</code>.</li>
+        <li><strong>Texto:</strong> <code>longitud</code>, <code>mayusculas</code>, <code>minusculas</code>, <code>recortar</code>, <code>dividir</code>, <code>unir</code>, <code>reemplazar</code>, <code>contiene</code>, <code>empieza_con</code>, <code>termina_con</code>.</li>
+        <li><strong>Colecciones:</strong> <code>agregar</code>, <code>insertar</code>, <code>eliminar</code>, <code>filtrar</code>, <code>mapear</code>, <code>reducir</code>, <code>ordenar</code>, <code>invertir</code>, <code>buscar</code>, <code>claves</code>, <code>valores</code>.</li>
+        <li><strong>Matemáticas y Sistema:</strong> <code>raiz</code>, <code>potencia</code>, <code>abs</code>, <code>redondear</code>, <code>piso</code>, <code>techo</code>, <code>aleatorio</code>, <code>tiempo_actual</code>, <code>esperar</code>, <code>hash_sha256</code>.</li>
+        <li><strong>Archivos y JSON:</strong> <code>leer_archivo</code>, <code>escribir_archivo</code>, <code>existe_archivo</code>, <code>texto_a_json</code>, <code>json_a_texto</code>.</li>
+      </ul>
+    </section>
+
+    <section id="ide-ia" class="doc-section">
+      <h2>10. Xynex IDE 9.0: Bot Tutor, Agente IA, Addons API y Ajustes</h2>
+      <ul>
+        <li><strong>Bot Tutor Cibao 9.0:</strong> Panel derecho con 8 lecciones interactivas (Hola Mundo, Variables, Todos los Tipos, Condicionales, Ciclos/Rangos, Funciones/Lambdas, Clases, Errores). Pulsa <em>Insertar en Editor</em> y <em>Probar (F5)</em>.</li>
+        <li><strong>Agente IA Propio:</strong> Crea tu cuenta local en SQLite (contraseñas PBKDF2-SHA512 con bloqueo ante fuerza bruta) y guarda tus credenciales en la bóveda cifrada AES-256-GCM / DPAPI para usar Ollama local, Google Gemini, OpenAI, Groq, DeepSeek o Claude sin compartir claves externas.</li>
+        <li><strong>Tienda de Addons Online (API):</strong> Descarga e instala extensiones y definiciones de lenguaje en 1 clic sin descargas manuales.</li>
+        <li><strong>IntelliSense + Detectores de Error Nativos:</strong> Ventana de autocompletado de alto contraste y detección instantánea de errores para Cibao, Python, HTML, CSS, JavaScript, TypeScript, JSON, C# y C++.</li>
+        <li><strong>Ajustes Completos:</strong> Cambia fuente, tamaño, color personalizado de fondo/texto, colores por token de sintaxis, paneles y actualización automática silenciosa.</li>
+      </ul>
+    </section>
+
+    <section id="linux-win" class="doc-section">
+      <h2>11. Instalación Multiplataforma y Actualizador Automático</h2>
+      <p>Cada release oficial publica instaladores y portables nativos:</p>
+      <ul>
+        <li><strong>Windows x64:</strong> Instalador <code>setup.exe</code> con asistente moderno y versión portable <code>.zip</code>.</li>
+        <li><strong>Arch Linux / CachyOS:</strong> Paquete nativo <code>.pkg.tar.zst</code> instalable vía <code>pacman -U</code> y versión portable <code>.tar.gz</code>.</li>
+        <li><strong>Ubuntu / Debian / Mint &amp; Fedora:</strong> Paquetes nativos <code>.deb</code>, <code>.rpm</code>, <code>.AppImage</code> y <code>.tar.gz</code>.</li>
+        <li><strong>Actualizador Automático Silencioso:</strong> Al detectar una nueva release con firma <code>SHA-256</code> válida, Xynex 9.0 descarga y aplica la actualización automáticamente sin fricción.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const buscador = document.getElementById('buscador');
+    const secciones = Array.from(document.querySelectorAll('.doc-section'));
+    buscador.addEventListener('input', () => {
+      const q = buscador.value.trim().toLowerCase();
+      secciones.forEach(s => {
+        s.style.display = (!q || s.innerText.toLowerCase().includes(q)) ? 'block' : 'none';
+      });
+    });
+
+    function copiar(btn) {
+      const code = btn.nextElementSibling.innerText;
+      navigator.clipboard?.writeText(code);
+      const orig = btn.innerText;
+      btn.innerText = '¡Copiado!';
+      setTimeout(() => btn.innerText = orig, 1400);
+    }
+  </script>
+</body>
+</html>

@@ -91,7 +91,7 @@ public sealed class ServicioEjecucion
             ".cpp" or ".cc" or ".cxx" => await EjecutarCppAsync(rutaArchivo, registrarMensaje, cancellationToken),
             ".html" or ".htm" => AbrirHtmlEnVistaIntegrada(rutaArchivo, registrarMensaje),
             ".js" or ".mjs" => await EjecutarConRuntimeSimpleAsync("node", [rutaArchivo], rutaArchivo, "Node.js", registrarMensaje, cancellationToken),
-            ".ts" => await EjecutarConRuntimeSimpleAsync("ts-node", [rutaArchivo], rutaArchivo, "ts-node / TypeScript", registrarMensaje, cancellationToken),
+            ".ts" => await EjecutarTypeScriptAsync(rutaArchivo, registrarMensaje, cancellationToken),
             ".go" => await EjecutarConRuntimeSimpleAsync("go", ["run", rutaArchivo], rutaArchivo, "Go", registrarMensaje, cancellationToken),
             ".java" => await EjecutarConRuntimeSimpleAsync("java", [rutaArchivo], rutaArchivo, "Java (JDK 11+)", registrarMensaje, cancellationToken),
             ".php" => await EjecutarConRuntimeSimpleAsync("php", [rutaArchivo], rutaArchivo, "PHP", registrarMensaje, cancellationToken),
@@ -99,6 +99,60 @@ public sealed class ServicioEjecucion
             ".rs" => await EjecutarRustAsync(rutaArchivo, registrarMensaje, cancellationToken),
             _ => ReportarNoSoportado(extension, registrarMensaje)
         };
+    }
+
+    private static async Task<bool> EjecutarTypeScriptAsync(
+        string rutaArchivo,
+        Action<TipoMensajeConsola, string> registrarMensaje,
+        CancellationToken cancellationToken)
+    {
+        string cwd = Path.GetDirectoryName(rutaArchivo) ?? Directory.GetCurrentDirectory();
+        var (tsNodeOk, exitTsNode) = await EjecutarProcesoStreamingAsync("ts-node", [rutaArchivo], cwd, registrarMensaje, cancellationToken);
+        if (tsNodeOk)
+        {
+            return exitTsNode == 0;
+        }
+
+        string tempDir = Path.Combine(Path.GetTempPath(), $"xynex_ts_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            registrarMensaje(TipoMensajeConsola.Sistema, "Compilando TypeScript con tsc...");
+            var (tscOk, exitTsc) = await EjecutarProcesoStreamingAsync(
+                "tsc",
+                [rutaArchivo, "--outDir", tempDir, "--target", "ES2022", "--module", "commonjs"],
+                cwd,
+                registrarMensaje,
+                cancellationToken);
+
+            if (!tscOk)
+            {
+                registrarMensaje(TipoMensajeConsola.Error, "No se detectó 'ts-node' ni 'tsc' (TypeScript) en el PATH del sistema.");
+                return false;
+            }
+            if (exitTsc != 0)
+            {
+                return false;
+            }
+
+            string jsGenerado = Path.Combine(tempDir, Path.GetFileNameWithoutExtension(rutaArchivo) + ".js");
+            if (!File.Exists(jsGenerado))
+            {
+                return false;
+            }
+
+            var (nodeOk, exitNode) = await EjecutarProcesoStreamingAsync("node", [jsGenerado], cwd, registrarMensaje, cancellationToken);
+            if (!nodeOk)
+            {
+                registrarMensaje(TipoMensajeConsola.Error, "TypeScript compiló bien, pero falta Node.js ('node') para ejecutarlo.");
+                return false;
+            }
+            return exitNode == 0;
+        }
+        finally
+        {
+            try { Directory.Delete(tempDir, recursive: true); } catch { }
+        }
     }
 
     private static async Task<bool> EjecutarConRuntimeSimpleAsync(

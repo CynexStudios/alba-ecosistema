@@ -36,9 +36,10 @@ public sealed record ModalidadTerminalOpcion(ModalidadTerminal Modalidad, string
 public sealed record DependenciaProyectoItem(string Nombre, string ArchivoManifiesto, string ComandoInstalacion);
 
 /// <summary>
-/// ViewModel principal de Xynex Code Editor 5.0 (lenguaje Cibao y ecosistema multi-lenguaje).
-/// Coordina bienvenida, creación tripartita, proyectos y archivos independientes, diagnóstico en vivo,
-/// consola, multi-terminal, Centro de Tools integrado, temas y actualizaciones.
+/// ViewModel principal de Xynex Code Editor 9.0 (Cibao Code 9.0 y ecosistema multi-lenguaje).
+/// Coordina bienvenida, creación sin carpeta o en proyecto, Bot Tutor Cibao 9.0,
+/// Agente IA conectado con credenciales propias cifradas, diagnóstico en vivo,
+/// consola, multi-terminal, Centro de Tools, Addons API, temas y actualizador automático.
 /// </summary>
 public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
 {
@@ -58,13 +59,17 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     private readonly ServicioGit _servicioGit;
     private readonly ProveedorLenguajeIde _proveedorLenguajeIde;
     private readonly ServidorWebLocal _servidorWebLocal;
+    private readonly ServicioBaseDatosUsuarios _baseDatosUsuarios;
+    private readonly ServicioAgenteIA _servicioAgenteIA;
+    private readonly TutorCibaoService _tutorService;
     private readonly DispatcherTimer _timerAutoguardado;
     private DispatcherTimer? _timerDebounceDiagnostico;
     private DispatcherTimer? _timerNotificacion;
+    private int _contadorSinCarpeta = 1;
 
     private string? _rutaProyectoActual;
     private ArchivoAbierto? _archivoActivo;
-    private string _estadoBarra = $"Xynex Code Editor v{RutasUsuarioAlba.VersionActual} listo";
+    private string _estadoBarra = $"Xynex Code Editor {RutasUsuarioAlba.VersionActual} listo";
     private string _posicionCursor = "Ln 1, Col 1";
     private bool _estaEjecutando;
     private CancellationTokenSource? _ctsEjecucion;
@@ -72,6 +77,9 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     private bool _mostrarPantallaInicio = true;
     private bool _mostrarBarraLateral = true;
     private bool _mostrarPanelInferior = true;
+    private bool _mostrarPanelAsistente = true;
+    private bool _mostrarBarraEstado = true;
+    private int _pestanaDerechaActiva;
     private bool _mostrarCentroTools;
     private bool _mostrarVistaPreviaWeb;
     private string _rutaHtmlVistaPrevia = string.Empty;
@@ -89,6 +97,15 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     private CategoriaToolOpcion _categoriaToolSeleccionada;
     private bool _soloToolsInstalados;
     private ElementoTool? _toolSeleccionado;
+
+    private CuentaUsuario? _cuentaActiva;
+    private PerfilIAConectado? _perfilIAActivo;
+    private string _consultaUsuarioIA = string.Empty;
+    private bool _estaConsultandoIA;
+    private int _indiceLeccionTutor;
+    private string _preguntaTutorBot = string.Empty;
+    private string _respuestaTutorBot = "¡Hola! Soy tu Bot Tutor de Cibao Code 9.0. Elige una lección abajo, pulsa 'Insertar en Editor' y ejecuta con F5.";
+    private string _estadoRetoTutor = "Listo: inserta la Lección 1 y pulsa Ejecutar (F5).";
 
     private CuentaGitHub? _cuentaGitHubActual;
     private Bitmap? _avatarGitHub;
@@ -128,6 +145,8 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     public ObservableCollection<string> RamasGit { get; } = [];
     public ObservableCollection<string> ComandosRecomendadosTerminal { get; } = [];
     public ObservableCollection<AddonCargado> AddonsInstalados { get; } = [];
+    public ObservableCollection<PerfilIAConectado> PerfilesIAUsuario { get; } = [];
+    public ObservableCollection<MensajeChatIA> MensajesChatIA { get; } = [];
     public ConsolaViewModel Consola { get; } = new();
 
     public IReadOnlyList<CategoriaToolOpcion> CategoriasTools { get; } =
@@ -605,17 +624,150 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         private set => SetProperty(ref _versionDisponibleTexto, value);
     }
 
+    public bool MostrarPanelAsistente
+    {
+        get => _mostrarPanelAsistente;
+        set
+        {
+            if (SetProperty(ref _mostrarPanelAsistente, value))
+            {
+                Configuracion.MostrarPanelAsistente = value;
+                _gestorConfiguracion.GuardarConfiguracion();
+            }
+        }
+    }
+
+    public bool MostrarBarraEstado
+    {
+        get => _mostrarBarraEstado;
+        set
+        {
+            if (SetProperty(ref _mostrarBarraEstado, value))
+            {
+                Configuracion.MostrarBarraEstado = value;
+                _gestorConfiguracion.GuardarConfiguracion();
+            }
+        }
+    }
+
+    public int PestanaDerechaActiva
+    {
+        get => _pestanaDerechaActiva;
+        set
+        {
+            if (SetProperty(ref _pestanaDerechaActiva, value))
+            {
+                OnPropertyChanged(nameof(EsTutorActivo));
+                OnPropertyChanged(nameof(EsAgenteIAActivo));
+            }
+        }
+    }
+
+    public bool EsTutorActivo => PestanaDerechaActiva == 0;
+    public bool EsAgenteIAActivo => PestanaDerechaActiva == 1;
+
+    public ServicioBaseDatosUsuarios BaseDatosUsuarios => _baseDatosUsuarios;
+
+    public CuentaUsuario? CuentaActiva
+    {
+        get => _cuentaActiva;
+        private set
+        {
+            if (SetProperty(ref _cuentaActiva, value))
+            {
+                OnPropertyChanged(nameof(TieneCuentaActiva));
+                OnPropertyChanged(nameof(TextoCuentaBadge));
+            }
+        }
+    }
+
+    public bool TieneCuentaActiva => CuentaActiva is not null;
+    public string TextoCuentaBadge => CuentaActiva is not null
+        ? $"@{CuentaActiva.NombreUsuario}"
+        : "Cuenta / Conectar IA";
+
+    public PerfilIAConectado? PerfilIAActivo
+    {
+        get => _perfilIAActivo;
+        set
+        {
+            if (SetProperty(ref _perfilIAActivo, value))
+            {
+                if (value is not null)
+                {
+                    _baseDatosUsuarios.ActivarPerfilIA(CuentaActiva?.Id ?? 0, value.Id);
+                }
+                OnPropertyChanged(nameof(TienePerfilIAActivo));
+                OnPropertyChanged(nameof(TextoEstadoIA));
+            }
+        }
+    }
+
+    public bool TienePerfilIAActivo => PerfilIAActivo is not null;
+    public string TextoEstadoIA => PerfilIAActivo is not null
+        ? $"{PerfilIAActivo.NombrePerfil} · {PerfilIAActivo.Modelo}"
+        : "Sin IA propia conectada (pulsa 'Conectar tu IA')";
+
+    public string ConsultaUsuarioIA
+    {
+        get => _consultaUsuarioIA;
+        set => SetProperty(ref _consultaUsuarioIA, value);
+    }
+
+    public bool EstaConsultandoIA
+    {
+        get => _estaConsultandoIA;
+        private set => SetProperty(ref _estaConsultandoIA, value);
+    }
+
+    public IReadOnlyList<LeccionTutorCibao> LeccionesTutor => _tutorService.Lecciones;
+
+    public int IndiceLeccionTutor
+    {
+        get => _indiceLeccionTutor;
+        set
+        {
+            int clamped = Math.Clamp(value, 0, _tutorService.Lecciones.Count - 1);
+            if (SetProperty(ref _indiceLeccionTutor, clamped))
+            {
+                OnPropertyChanged(nameof(LeccionTutorActual));
+                EstadoRetoTutor = $"Reto: {LeccionTutorActual.Reto}";
+            }
+        }
+    }
+
+    public LeccionTutorCibao LeccionTutorActual => _tutorService.Lecciones[Math.Clamp(_indiceLeccionTutor, 0, _tutorService.Lecciones.Count - 1)];
+
+    public string PreguntaTutorBot
+    {
+        get => _preguntaTutorBot;
+        set => SetProperty(ref _preguntaTutorBot, value);
+    }
+
+    public string RespuestaTutorBot
+    {
+        get => _respuestaTutorBot;
+        set => SetProperty(ref _respuestaTutorBot, value);
+    }
+
+    public string EstadoRetoTutor
+    {
+        get => _estadoRetoTutor;
+        set => SetProperty(ref _estadoRetoTutor, value);
+    }
+
     public InformacionActualizacion? UltimaInfoActualizacion => _ultimaInfoActualizacion;
     public string? RutaPaqueteActualizacionListo => _rutaPaqueteActualizacionListo;
     public event Action<InformacionActualizacion>? ActualizacionListaParaInstalar;
+    public event Action? SolicitarCierrePorActualizacionAutomatica;
 
     public int TotalProblemas => Problemas.Count;
     public bool SinProyectosRecientes => ProyectosRecientes.Count == 0;
     public bool SinArchivosRecientes => ArchivosRecientes.Count == 0;
 
     public string TituloVentana => ArchivoActivo is not null
-        ? $"{ArchivoActivo.TituloPestana} — {NombreProyectoActual} — Xynex Code Editor v{VersionApp}"
-        : (TieneProyectoAbierto ? $"{NombreProyectoActual} — Xynex Code Editor v{VersionApp}" : $"Xynex Code Editor v{VersionApp}");
+        ? $"{ArchivoActivo.TituloPestana} — {NombreProyectoActual} — Xynex Code Editor {VersionApp}"
+        : (TieneProyectoAbierto ? $"{NombreProyectoActual} — Xynex Code Editor {VersionApp}" : $"Xynex Code Editor {VersionApp}");
 
     public RelayCommand ComandoGuardar { get; }
     public RelayCommand ComandoGuardarTodo { get; }
@@ -632,6 +784,7 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     public RelayCommand ComandoAlternarToolAddon { get; }
 
     public event Action<ProblemaCodigo>? SolicitarIrAProblema;
+    public event Action<ArchivoAbierto>? SolicitarGuardarBorradorComo;
     public event Action<string, string, string?>? SolicitarActualizarVistaWeb;
     public event Action<MensajeConsolaWeb>? LogWebRecibido;
     public Func<bool>? ConsultarAutoRecargaWeb { get; set; }
@@ -652,6 +805,9 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         _servicioGit = new ServicioGit();
         _proveedorLenguajeIde = new ProveedorLenguajeIde(_gestorAddons, _detectorEntornos);
         _servidorWebLocal = new ServidorWebLocal();
+        _baseDatosUsuarios = new ServicioBaseDatosUsuarios();
+        _servicioAgenteIA = new ServicioAgenteIA();
+        _tutorService = new TutorCibaoService();
         _servicioEjecucion = new ServicioEjecucion(_gestorAddons);
         _servicioDiagnostico = new ServicioDiagnosticoEnVivo();
         ServicioAutocompletado = new ServicioAutocompletado(_gestorAddons);
@@ -727,6 +883,8 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
 
         _mostrarBarraLateral = Configuracion.MostrarPanelLateral;
         _mostrarPanelInferior = Configuracion.MostrarPanelInferior;
+        _mostrarPanelAsistente = Configuracion.MostrarPanelAsistente;
+        _mostrarBarraEstado = Configuracion.MostrarBarraEstado;
 
         _gestorTemas.AplicarTema(Configuracion.TemaId, Configuracion);
         RecargarListaAddons();
@@ -734,6 +892,11 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         SincronizarEntornosSinBloquear();
         AplicarFiltroTools();
         ActualizarComandosRecomendadosTerminal();
+        RecargarEstadoCuentaEIA();
+
+        MensajesChatIA.Add(new MensajeChatIA(
+            "agente",
+            "Agente IA listo. Conecta tu propia API (Ollama local gratuita, Google Gemini, OpenAI o Claude) en 'Cuenta / Conectar IA' para generar, corregir y explicar código directo en el editor."));
 
         _timerAutoguardado = new DispatcherTimer
         {
@@ -741,14 +904,14 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         };
         _timerAutoguardado.Tick += (_, _) =>
         {
-            if (Configuracion.GuardadoAutomatico && PestanasAbiertas.Any(p => p.TieneCambiosSinGuardar))
+            if (Configuracion.GuardadoAutomatico && PestanasAbiertas.Any(p => !p.EsBorradorSinRuta && p.TieneCambiosSinGuardar))
             {
                 GuardarTodos(silencioso: true);
             }
         };
         _timerAutoguardado.Start();
 
-        RegistrarActividad("Inicio", $"Xynex Code Editor v{VersionApp} iniciado (Motor Cibao activo).");
+        RegistrarActividad("Inicio", $"Xynex Code Editor {VersionApp} iniciado (Motor Cibao 9.0 activo).");
         _ = RefrescarEntornosYToolsAsync();
         _ = RestaurarSesionGitHubAsync();
         _ = RefrescarGitAsync();
@@ -773,18 +936,27 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         if (Configuracion.RestaurarUltimaSesion)
         {
             bool restauroAlgo = false;
+            string? dirEjemplos = RutasUsuarioAlba.BuscarDirectorioInstalacion("examples");
 
-            if (!string.IsNullOrWhiteSpace(_gestorConfiguracion.Sesion.UltimoProyecto) &&
-                Directory.Exists(_gestorConfiguracion.Sesion.UltimoProyecto))
+            string? ultimoProyecto = _gestorConfiguracion.Sesion.UltimoProyecto;
+            bool esCarpetaEjemplos = !string.IsNullOrWhiteSpace(dirEjemplos) &&
+                                     !string.IsNullOrWhiteSpace(ultimoProyecto) &&
+                                     Path.GetFullPath(ultimoProyecto).Equals(Path.GetFullPath(dirEjemplos), StringComparison.OrdinalIgnoreCase);
+
+            if (!string.IsNullOrWhiteSpace(ultimoProyecto) &&
+                !esCarpetaEjemplos &&
+                Directory.Exists(ultimoProyecto))
             {
-                AbrirCarpetaProyecto(_gestorConfiguracion.Sesion.UltimoProyecto, restaurarPestanas: true);
+                AbrirCarpetaProyecto(ultimoProyecto, restaurarPestanas: true);
                 restauroAlgo = true;
             }
             else if (_gestorConfiguracion.Sesion.ArchivosIndependientes.Count > 0)
             {
                 foreach (string ruta in _gestorConfiguracion.Sesion.ArchivosIndependientes)
                 {
-                    if (File.Exists(ruta))
+                    if (File.Exists(ruta) &&
+                        (string.IsNullOrWhiteSpace(dirEjemplos) ||
+                         !Path.GetFullPath(ruta).StartsWith(Path.GetFullPath(dirEjemplos), StringComparison.OrdinalIgnoreCase)))
                     {
                         AbrirArchivo(ruta, registrarReciente: false);
                         restauroAlgo = true;
@@ -799,6 +971,34 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         }
 
         MostrarPantallaInicio = true;
+    }
+
+    public ArchivoAbierto CrearArchivoSinCarpeta(string extension = ".cibao", string? contenidoOpcional = null, string? nombrePersonalizado = null)
+    {
+        string ext = string.IsNullOrWhiteSpace(extension) ? ".cibao" : (extension.StartsWith('.') ? extension : "." + extension);
+        int numero = _contadorSinCarpeta++;
+        string nombreBase = string.IsNullOrWhiteSpace(nombrePersonalizado)
+            ? $"codigo_{numero}"
+            : Path.GetFileNameWithoutExtension(nombrePersonalizado);
+        string nombreArchivo = string.IsNullOrWhiteSpace(nombrePersonalizado)
+            ? $"{nombreBase}{ext}"
+            : (Path.HasExtension(nombrePersonalizado) ? nombrePersonalizado : $"{nombrePersonalizado}{ext}");
+
+        string contenido = contenidoOpcional ?? ServicioCreacion.GenerarPlantillaRapidaPorExtension(ext, nombreBase);
+        string rutaVirtual = Path.Combine("sin-carpeta", nombreArchivo);
+        string lenguaje = DetectarNombreLenguaje(nombreArchivo);
+
+        var borrador = new ArchivoAbierto(rutaVirtual, contenido, lenguaje, esBorradorSinRuta: true);
+        PestanasAbiertas.Add(borrador);
+        ArchivosIndependientes.Add(borrador);
+        OnPropertyChanged(nameof(TieneArchivosIndependientes));
+
+        MostrarPantallaInicio = false;
+        MostrarCentroTools = false;
+        ArchivoActivo = borrador;
+        EstadoBarra = $"Archivo nuevo sin carpeta: {nombreArchivo} (listo para ejecutar con F5)";
+        RegistrarActividad("Archivo", $"Borrador sin carpeta creado: {nombreArchivo}");
+        return borrador;
     }
 
     public (bool Exito, string Mensaje) EjecutarCreacion(SolicitudCreacion solicitud)
@@ -1021,6 +1221,12 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
             return;
         }
 
+        if (ArchivoActivo.EsBorradorSinRuta)
+        {
+            SolicitarGuardarBorradorComo?.Invoke(ArchivoActivo);
+            return;
+        }
+
         _gestorProyectos.GuardarArchivo(ArchivoActivo.RutaArchivo, ArchivoActivo.Documento.Text);
         ArchivoActivo.TieneCambiosSinGuardar = false;
         OnPropertyChanged(nameof(TituloVentana));
@@ -1033,12 +1239,30 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public void CompletarGuardadoBorradorEnRuta(ArchivoAbierto borrador, string rutaDestino)
+    {
+        string rutaFull = Path.GetFullPath(rutaDestino);
+        _gestorProyectos.GuardarArchivo(rutaFull, borrador.Documento.Text);
+        borrador.RutaArchivo = rutaFull;
+        borrador.Lenguaje = DetectarNombreLenguaje(rutaFull);
+        borrador.EsBorradorSinRuta = false;
+        borrador.TieneCambiosSinGuardar = false;
+        _gestorConfiguracion.RegistrarReciente(rutaFull, esProyecto: false);
+        SincronizarRecientes();
+        GuardarEstadoSesion();
+        OnPropertyChanged(nameof(TituloVentana));
+        OnPropertyChanged(nameof(RutaRelativaActiva));
+        EstadoBarra = $"Guardado: {borrador.NombreArchivo}";
+        RegistrarActividad("Guardado", $"Borrador guardado en {rutaFull}");
+        MostrarToast($"Archivo guardado: {borrador.NombreArchivo}");
+    }
+
     public void GuardarTodos(bool silencioso = false)
     {
         int guardados = 0;
         foreach (ArchivoAbierto tab in PestanasAbiertas)
         {
-            if (tab.TieneCambiosSinGuardar)
+            if (tab.TieneCambiosSinGuardar && !tab.EsBorradorSinRuta)
             {
                 _gestorProyectos.GuardarArchivo(tab.RutaArchivo, tab.Documento.Text);
                 tab.TieneCambiosSinGuardar = false;
@@ -1160,9 +1384,20 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        GuardarArchivoActivo();
-        string ruta = ArchivoActivo.RutaArchivo;
         string codigo = ArchivoActivo.Documento.Text;
+        string ruta;
+        if (ArchivoActivo.EsBorradorSinRuta)
+        {
+            string dirScratch = Path.Combine(Path.GetTempPath(), "xynex_scratch");
+            Directory.CreateDirectory(dirScratch);
+            ruta = Path.Combine(dirScratch, ArchivoActivo.NombreArchivo);
+            await File.WriteAllTextAsync(ruta, codigo);
+        }
+        else
+        {
+            GuardarArchivoActivo();
+            ruta = ArchivoActivo.RutaArchivo;
+        }
 
         PestanaInferior = PestanaPanelInferior.Consola;
         MostrarPanelInferior = true;
@@ -1174,12 +1409,21 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         RegistrarActividad("Ejecución", $"Iniciada ejecución de {Path.GetFileName(ruta)}.");
         _ctsEjecucion = new CancellationTokenSource();
 
+        var capturaSalida = new System.Text.StringBuilder();
         ConsolaIdeIO? consolaIo = null;
         try
         {
             consolaIo = new ConsolaIdeIO(
-                texto => Consola.AgregarMensaje(TipoMensajeConsola.Salida, texto),
-                texto => Consola.AgregarMensaje(TipoMensajeConsola.Salida, texto),
+                texto =>
+                {
+                    capturaSalida.AppendLine(texto);
+                    Consola.AgregarMensaje(TipoMensajeConsola.Salida, texto);
+                },
+                texto =>
+                {
+                    capturaSalida.AppendLine(texto);
+                    Consola.AgregarMensaje(TipoMensajeConsola.Salida, texto);
+                },
                 indicador => Consola.SolicitarEntrada(indicador, entrada => consolaIo?.EnviarEntrada(entrada)),
                 _ctsEjecucion.Token);
 
@@ -1187,12 +1431,25 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
                 ruta,
                 codigo,
                 consolaIo,
-                (tipo, msg) => Consola.AgregarMensaje(tipo, msg),
+                (tipo, msg) =>
+                {
+                    if (tipo == TipoMensajeConsola.Salida) capturaSalida.AppendLine(msg);
+                    Consola.AgregarMensaje(tipo, msg);
+                },
                 _ctsEjecucion.Token);
 
             Consola.AgregarMensaje(
                 exito ? TipoMensajeConsola.Sistema : TipoMensajeConsola.Advertencia,
                 exito ? "Programa finalizado correctamente." : "La ejecución finalizó con incidencias.");
+
+            string salidaTotal = capturaSalida.ToString();
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (exito && _tutorService.VerificarSalidaLeccion(LeccionTutorActual, salidaTotal))
+                {
+                    EstadoRetoTutor = $"¡Completado! Superaste '{LeccionTutorActual.Titulo}'.";
+                }
+            });
         }
         finally
         {
@@ -1204,7 +1461,7 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
             Dispatcher.UIThread.Post(() =>
             {
                 EstaEjecutando = false;
-                EstadoBarra = "Xynex Code Editor listo";
+                EstadoBarra = $"Xynex Code Editor {VersionApp} listo";
             });
         }
     }
@@ -1759,9 +2016,14 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     {
         _gestorTemas.AplicarTema(Configuracion.TemaId, Configuracion);
         _timerAutoguardado.Interval = TimeSpan.FromSeconds(Math.Clamp(Configuracion.IntervaloGuardadoSegundos, 5, 300));
+        MostrarPanelAsistente = Configuracion.MostrarPanelAsistente;
+        MostrarBarraEstado = Configuracion.MostrarBarraEstado;
+        MostrarBarraLateral = Configuracion.MostrarPanelLateral;
+        MostrarPanelInferior = Configuracion.MostrarPanelInferior;
         _gestorConfiguracion.GuardarConfiguracion();
+        EjecutarDiagnosticoEnVivo();
         OnPropertyChanged(nameof(NombreTemaActual));
-        RegistrarActividad("Apariencia", $"Tema aplicado: {NombreTemaActual}");
+        RegistrarActividad("Apariencia", $"Configuración y tema aplicados: {NombreTemaActual}");
     }
 
     public void AlternarTemaRapido()
@@ -1790,6 +2052,7 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         InformacionActualizacion info = await _gestorActualizaciones.ComprobarAsync();
         _ultimaInfoActualizacion = info;
 
+        bool sha256Ok = false;
         if (info.HayActualizacion &&
             info.PuedeInstalarDirectamente &&
             Configuracion.DescargarActualizacionesAutomaticamente)
@@ -1798,6 +2061,7 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
             if (descarga.Exito)
             {
                 _rutaPaqueteActualizacionListo = descarga.RutaArchivo;
+                sha256Ok = descarga.Sha256Verificado;
             }
         }
 
@@ -1811,6 +2075,30 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
                 : string.Empty;
 
             RegistrarActividad("Actualizaciones", info.MensajeEstado);
+
+            // Actualización silenciosa automática sin intervención del usuario si está verificada
+            if (info.HayActualizacion &&
+                Configuracion.ActualizacionSilenciosaAutomatica &&
+                sha256Ok &&
+                !string.IsNullOrWhiteSpace(_rutaPaqueteActualizacionListo) &&
+                File.Exists(_rutaPaqueteActualizacionListo))
+            {
+                var (exitoInst, msgInst) = _gestorActualizaciones.IniciarInstalacionYReiniciar(_rutaPaqueteActualizacionListo, info);
+                RegistrarActividad("Actualizaciones", msgInst);
+                if (exitoInst)
+                {
+                    MostrarToast($"Actualización v{info.VersionDisponible} verificada. Actualizando automáticamente...");
+                    var delayTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.8) };
+                    delayTimer.Tick += (_, _) =>
+                    {
+                        delayTimer.Stop();
+                        SolicitarCierrePorActualizacionAutomatica?.Invoke();
+                    };
+                    delayTimer.Start();
+                    return;
+                }
+            }
+
             if (!silencioso || info.HayActualizacion)
             {
                 MostrarToast(info.MensajeEstado);
@@ -1875,14 +2163,6 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(SinArchivosRecientes));
     }
 
-    public void GuardarEstadoSesion()
-    {
-        _gestorConfiguracion.GuardarSesion(
-            RutaProyectoActual,
-            PestanasAbiertas.Select(p => p.RutaArchivo),
-            ArchivoActivo?.RutaArchivo,
-            ArchivosIndependientes.Select(a => a.RutaArchivo));
-    }
 
     public void RegistrarActividad(string categoria, string mensaje)
     {
@@ -2088,7 +2368,7 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
     public void EjecutarDiagnosticoEnVivo()
     {
         Problemas.Clear();
-        if (ArchivoActivo is not null)
+        if (Configuracion.DiagnosticosEnVivo && ArchivoActivo is not null)
         {
             IReadOnlyList<ProblemaCodigo> lista = _servicioDiagnostico.AnalizarDocumento(
                 ArchivoActivo.RutaArchivo,
@@ -2099,6 +2379,150 @@ public sealed class VentanaPrincipalViewModel : ViewModelBase, IDisposable
             }
         }
         OnPropertyChanged(nameof(TotalProblemas));
+    }
+
+    // ==================== CUENTA SQLITE, AGENTE IA DEL USUARIO Y BOT TUTOR CIBAO 9.0 ====================
+
+    public void RecargarEstadoCuentaEIA()
+    {
+        CuentaActiva = _baseDatosUsuarios.ObtenerUsuarioActivo();
+        int uid = CuentaActiva?.Id ?? 0;
+
+        IReadOnlyList<PerfilIAConectado> perfiles = _baseDatosUsuarios.ListarPerfilesIA(uid);
+        PerfilesIAUsuario.Clear();
+        foreach (PerfilIAConectado p in perfiles)
+        {
+            PerfilesIAUsuario.Add(p);
+        }
+
+        PerfilIAActivo = PerfilesIAUsuario.FirstOrDefault(p => p.EsActivo) ?? PerfilesIAUsuario.FirstOrDefault();
+    }
+
+    public async Task EnviarConsultaIAAsync()
+    {
+        string consulta = ConsultaUsuarioIA?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(consulta) || EstaConsultandoIA)
+        {
+            return;
+        }
+
+        if (PerfilIAActivo is null)
+        {
+            MensajesChatIA.Add(new MensajeChatIA(
+                "sistema",
+                "Aún no conectaste un modelo de IA propio. Haz clic en 'Conectar tu IA' para agregar Ollama (local gratis), Google Gemini, OpenAI o Claude con tu clave cifrada.",
+                EsError: true));
+            return;
+        }
+
+        ConsultaUsuarioIA = string.Empty;
+        MensajesChatIA.Add(new MensajeChatIA("usuario", consulta));
+        EstaConsultandoIA = true;
+
+        try
+        {
+            string apiKey = _baseDatosUsuarios.DescifrarApiKeyPerfil(PerfilIAActivo);
+            var contexto = new ContextoCodigoIA(
+                ArchivoActivo?.NombreArchivo ?? "sin_archivo.cibao",
+                ArchivoActivo?.Lenguaje ?? "Cibao 9.0",
+                ArchivoActivo?.Documento.Text ?? string.Empty,
+                Problemas.Select(p => $"{p.UbicacionTexto}: {p.Mensaje}").ToList());
+
+            MensajeChatIA respuesta = await _servicioAgenteIA.EnviarConsultaAsync(
+                PerfilIAActivo,
+                apiKey,
+                MensajesChatIA.ToList(),
+                consulta,
+                contexto);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                MensajesChatIA.Add(respuesta);
+                RegistrarActividad("Agente IA", respuesta.EsError ? respuesta.Contenido : $"Respuesta recibida de {PerfilIAActivo.NombrePerfil}");
+            });
+        }
+        finally
+        {
+            Dispatcher.UIThread.Post(() => EstaConsultandoIA = false);
+        }
+    }
+
+    public void LimpiarChatIA()
+    {
+        MensajesChatIA.Clear();
+        MensajesChatIA.Add(new MensajeChatIA("agente", "Conversación reiniciada. ¿En qué código te ayudo hoy?"));
+    }
+
+    public void AplicarBloqueCodigoIA(string? codigo)
+    {
+        if (string.IsNullOrWhiteSpace(codigo)) return;
+        if (ArchivoActivo is null)
+        {
+            CrearArchivoSinCarpeta(".cibao", codigo);
+            return;
+        }
+
+        ArchivoActivo.Documento.Text = codigo;
+        MostrarToast("Código del Agente IA aplicado al editor activo.");
+    }
+
+    public void CrearArchivoConCodigoIA(string? codigo)
+    {
+        if (string.IsNullOrWhiteSpace(codigo)) return;
+        string ext = ArchivoActivo is not null ? Path.GetExtension(ArchivoActivo.RutaArchivo) : ".cibao";
+        if (string.IsNullOrWhiteSpace(ext)) ext = ".cibao";
+        CrearArchivoSinCarpeta(ext, codigo);
+        MostrarToast("Nuevo archivo creado con el código generado.");
+    }
+
+    public void AbrirTutorCibaoDesdeCero()
+    {
+        MostrarPantallaInicio = false;
+        MostrarPanelAsistente = true;
+        PestanaDerechaActiva = 0;
+        InsertarLeccionTutorEnEditor();
+    }
+
+    public void InsertarLeccionTutorEnEditor()
+    {
+        LeccionTutorCibao leccion = LeccionTutorActual;
+        string nombreArchivo = $"leccion_{leccion.Numero:D2}.cibao";
+
+        ArchivoAbierto? existente = PestanasAbiertas.FirstOrDefault(p =>
+            p.EsBorradorSinRuta && p.NombreArchivo.Equals(nombreArchivo, StringComparison.OrdinalIgnoreCase));
+
+        if (existente is not null)
+        {
+            existente.Documento.Text = leccion.CodigoEjemplo;
+            ArchivoActivo = existente;
+            MostrarPantallaInicio = false;
+        }
+        else
+        {
+            CrearArchivoSinCarpeta(".cibao", leccion.CodigoEjemplo, nombreArchivo);
+        }
+
+        EstadoRetoTutor = $"Cargada '{leccion.Titulo}'. Pulsa Ejecutar (F5) para validar el resultado.";
+        MostrarToast($"Lección {leccion.Numero} lista en el editor.");
+    }
+
+    public void SiguienteLeccionTutor() => IndiceLeccionTutor = (_indiceLeccionTutor + 1) % _tutorService.Lecciones.Count;
+
+    public void AnteriorLeccionTutor() =>
+        IndiceLeccionTutor = (_indiceLeccionTutor - 1 + _tutorService.Lecciones.Count) % _tutorService.Lecciones.Count;
+
+    public void PreguntarAlTutorBot()
+    {
+        RespuestaTutorBot = _tutorService.ResponderPreguntaRapida(PreguntaTutorBot, IndiceLeccionTutor);
+        PreguntaTutorBot = string.Empty;
+    }
+
+    public void GuardarEstadoSesion()
+    {
+        var pestanasPersistentes = PestanasAbiertas.Where(p => !p.EsBorradorSinRuta).Select(p => p.RutaArchivo);
+        var independientesPersistentes = ArchivosIndependientes.Where(a => !a.EsBorradorSinRuta).Select(a => a.RutaArchivo);
+        string? activo = ArchivoActivo is { EsBorradorSinRuta: false } ? ArchivoActivo.RutaArchivo : null;
+        _gestorConfiguracion.GuardarSesion(RutaProyectoActual, pestanasPersistentes, activo, independientesPersistentes);
     }
 
     private void NotificarComandos()

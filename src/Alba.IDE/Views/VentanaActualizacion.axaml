@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource FondoBaseBrush}"
         Foreground="{DynamicResource TextoPrincipalBrush}">
-  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20" RowSpacing="14">
     <!-- Encabezado -->
     <Border Grid.Row="0"
             Background="{DynamicResource FondoSuperficieBrush}"
@@ -26,7 +26,7 @@
                      FontWeight="Bold" />
           <TextBlock Grid.Column="1"
                      x:Name="TxtVersiones"
-                     Text="v5.0.0"
+                     Text="v9.0.0"
                      FontSize="12.5"
                      FontWeight="SemiBold"
                      Foreground="{DynamicResource AcentoPrimarioBrush}"
@@ -44,7 +44,7 @@
     </Border>
 
     <!-- Notas y Progreso -->
-    <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto">
+    <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" RowSpacing="10">
       <TextBlock Grid.Row="0"
                  Text="Novedades de esta versión"
                  FontSize="12"

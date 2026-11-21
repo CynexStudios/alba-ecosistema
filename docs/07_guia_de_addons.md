@@ -1,52 +1,39 @@
-# 7. Manual del Sistema de Addons (`/addons`)
+# 07. Guía de Complementos y Tienda Online (API 9.0)
 
-## 7.1. Arquitectura de complementos
+Xynex Code Editor 9.0 incluye **conexión en línea directa mediante API** para descargar e instalar complementos sin tener que bajar carpetas manualmente desde el navegador.
 
-Los complementos residen en la carpeta `/addons/<id-addon>/` y permiten extender **Xynex Code Editor** con soporte para otros lenguajes sin modificar el código fuente del IDE.
+## 1. Descarga en 1 Clic desde el Editor
 
-### Estructura estándar de un addon
-```text
-addons/
-└── python/
-    ├── manifest.json
-    ├── syntax/
-    │   └── python.xshd
-    ├── snippets/
-    │   └── snippets.json
-    └── plugin.py
+1. Haz clic en **Addons API** en la barra superior (o en el icono de descargas de la barra izquierda).
+2. En la pestaña **Descargar en Línea (API)** verás el catálogo oficial sincronizado desde GitHub (`addons/catalogo.json`), con soporte inmediato para Cibao 9.0, Python, HTML/CSS/Web, TypeScript/JS, C#, C++20 y más.
+3. Escribe el lenguaje que buscas y pulsa **Descargar e Instalar en 1 clic**.
+4. El resaltado de sintaxis XSHD, snippets e integración de autocompletado se activan automáticamente.
+
+## 2. Crear un Complemento Propio (`manifest.json`)
+
+Si deseas distribuir un complemento personalizado en carpeta local, incluye un archivo `manifest.json` válido:
+
+```json
+{
+  "id": "mi-lenguaje-addon",
+  "nombre": "Soporte Mi Lenguaje",
+  "version": "9.0.0",
+  "autor": "Tu Nombre",
+  "descripcion": "Resaltado y ejecución nativa.",
+  "lenguaje": "MiLenguaje",
+  "extensiones": [".ext"],
+  "ejecutable": "interprete",
+  "argumentos": ["{archivo}"],
+  "archivoSintaxis": "sintaxis.xshd",
+  "palabrasClave": ["funcion", "retornar"],
+  "snippets": [
+    {
+      "prefijo": "hola",
+      "etiqueta": "Programa inicial",
+      "codigo": "mostrar(\"Hola!\")"
+    }
+  ]
+}
 ```
 
-## 7.2. Especificación de `manifest.json`
-
-| Campo | Tipo | Obligatorio | Descripción |
-| :--- | :--- | :---: | :--- |
-| `id` | `string` | Sí | Identificador único en minúsculas (`^[a-z0-9-]+$`) |
-| `nombre` | `string` | Sí | Nombre visible en el gestor |
-| `version` | `string` | Sí | Versión semántica `X.Y.Z` |
-| `descripcion` | `string` | No | Descripción del complemento |
-| `autor` | `string` | No | Autor o equipo |
-| `lenguaje` | `string` | Sí | Nombre del lenguaje (ej. `Python`, `C#`, `JavaScript`, `C++`) |
-| `extensiones` | `string[]` | Sí | Lista de extensiones (ej. `[".py"]`) |
-| `ejecutable` | `string` | Sí | Binario autorizado en la lista blanca de seguridad |
-| `scriptEntrada` | `string` | No | Ruta relativa al script adaptador dentro del addon |
-| `sintaxis` | `string` | No | Ruta relativa al archivo `.xshd` de resaltado |
-| `snippets` | `string` | No | Ruta relativa al archivo JSON de fragmentos de autocompletado |
-| `dependencias` | `string[]` | No | Lista informativa de dependencias |
-
-## 7.3. Política de seguridad (`ValidadorAddons`)
-
-Un manifiesto JSON nunca puede ejecutar instrucciones arbitrarias ni comandos de shell:
-1. **Lista blanca de ejecutables:** Solo se aceptan nombres simples de binarios autorizados (`python3`, `python`, `py`, `dotnet`, `node`, `gcc`, `g++`, `clang++`) sin rutas absolutas, espacios ni operadores de shell.
-2. **Protección contra *Path Traversal*:** `sintaxis`, `snippets` y `scriptEntrada` deben resolverse estrictamente dentro de la carpeta propia del addon. Cualquier uso de `..` o rutas externas provoca el rechazo inmediato del complemento.
-3. **Ejecución aislada:** El IDE inicia procesos con `UseShellExecute = false` y paso de argumentos mediante `ArgumentList`.
-
-## 7.4. Administración desde Xynex Code Editor
-
-Desde el botón **Complementos** en la barra superior o lateral es posible:
-- **Instalar desde carpeta:** Selecciona una carpeta con `manifest.json`; el validador la verifica y la copia al directorio escribible de complementos del usuario (`%APPDATA%\XynexCodeEditor\addons\<id>\` en Windows, `~/Library/Application Support/XynexCodeEditor/addons/<id>/` en macOS o `~/.config/XynexCodeEditor/addons/<id>/` en Linux), evitando fallos de permisos cuando el IDE está instalado en rutas del sistema.
-- **Activar / Desactivar:** Persiste la preferencia en `addons-config.json` dentro del perfil de usuario (tanto para complementos integrados como instalados).
-- **Desinstalar:** Elimina la carpeta del complemento instalado por el usuario. Los complementos integrados de solo lectura pueden desactivarse en cualquier momento.
-
-## 7.5. Complemento incluido: Python 3 (`addons/python/`)
-
-Incluye resaltado de sintaxis (`syntax/python.xshd`), fragmentos de código (`snippets/snippets.json`) y el adaptador `plugin.py`, que verifica errores de sintaxis con `ast.parse` antes de ejecutar scripts `.py` con codificación UTF-8.
+Por seguridad, `ValidadorAddons` bloquea rutas relativas fuera de la carpeta del complemento (`..`), scripts remotos no autorizados o ejecutables con inyección de shell.

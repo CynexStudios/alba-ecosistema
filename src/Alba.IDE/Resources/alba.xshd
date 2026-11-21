@@ -17,9 +17,16 @@
 
   <RuleSet>
     <Span color="Comentario" begin="#" />
+    <Span color="Comentario" begin="//" />
     <Span color="Comentario" multiline="true" begin="/\*" end="\*/" />
 
-    <!-- Cadenas interpoladas de Cibao 5.0 ($"..." y $'...') -->
+    <!-- Cadenas multilinea de Cibao 9.0 ("""...""") -->
+    <Span color="Cadena" multiline="true">
+      <Begin>"""</Begin>
+      <End>"""</End>
+    </Span>
+
+    <!-- Cadenas interpoladas de Cibao 5.0 / 9.0 ($"..." y $'...') -->
     <Span color="Cadena">
       <Begin>\$"</Begin>
       <End>"</End>
@@ -116,6 +123,7 @@
 
     <Keywords color="FuncionIntegrada">
       <Word>imprimir</Word>
+      <Word>mostrar</Word>
       <Word>leer</Word>
       <Word>rango</Word>
       <Word>longitud</Word>
@@ -154,6 +162,20 @@
       <Word>reducir</Word>
       <Word>ordenar</Word>
       <Word>invertir</Word>
+      <Word>encontrar</Word>
+      <Word>alguno</Word>
+      <Word>todos</Word>
+      <Word>unicos</Word>
+      <Word>cortar</Word>
+      <Word>es_numero</Word>
+      <Word>es_texto</Word>
+      <Word>es_lista</Word>
+      <Word>es_diccionario</Word>
+      <Word>es_nulo</Word>
+      <Word>sha256</Word>
+      <Word>uuid</Word>
+      <Word>base64_codificar</Word>
+      <Word>base64_decodificar</Word>
       <Word>contiene_elemento</Word>
       <Word>indice_de</Word>
       <Word>claves</Word>
@@ -172,6 +194,6 @@
     </Keywords>
 
     <Rule color="Numero">\b\d+(\.\d+)?\b</Rule>
-    <Rule color="Delimitador">[\{\}\[\]\(\),.:;\?]</Rule>
+    <Rule color="Delimitador">[\{\}\[\]\(\),.:;\?=&gt;]</Rule>
   </RuleSet>
 </SyntaxDefinition>

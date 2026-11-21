@@ -6,10 +6,11 @@ using Alba.Engine.Parser;
 namespace Alba.Engine.Runtime;
 
 /// <summary>
-/// Intérprete del Árbol de Sintaxis Abstracta (AST) de Cibao v5.0.0.
-/// Soporta ámbitos léxicos, tipado gradual, funciones y lambdas con closures,
-/// listas, diccionarios, interpolación de texto, herencia de clases, módulos reales,
-/// control de flujo 'elegir/caso/defecto', coalescencia nula ('??') y biblioteca estándar.
+/// Intérprete del Árbol de Sintaxis Abstracta (AST) de Cibao 9.0.
+/// Soporta ámbitos léxicos, tipado gradual, funciones y lambdas flecha con closures,
+/// listas, diccionarios, rangos (.. y ..=), encadenamiento opcional (?.), interpolación de texto,
+/// herencia de clases, módulos reales, control de flujo 'elegir/caso/defecto',
+/// coalescencia nula ('??') y biblioteca estándar Cibao 9.0.
 /// </summary>
 public sealed partial class Interprete
 {
@@ -785,6 +786,19 @@ public sealed partial class Interprete
             case ExprAccesoMiembro acceso:
                 return EvaluarAccesoMiembro(acceso, entorno);
 
+            case ExprAccesoMiembroOpcional opcional:
+            {
+                ValorAlba obj = EvaluarExpresion(opcional.Objeto, entorno);
+                if (obj.Tipo == TipoValorAlba.Nulo)
+                {
+                    return ValorAlba.Nulo;
+                }
+                return ResolverMiembroEnValor(obj, opcional.NombreMiembro, opcional.Ubicacion, esOpcional: true);
+            }
+
+            case ExprRango rango:
+                return EvaluarRango(rango, entorno);
+
             case ExprIndice idx:
                 return EvaluarIndice(idx, entorno);
 
@@ -871,39 +885,88 @@ public sealed partial class Interprete
         }
 
         ValorAlba obj = EvaluarExpresion(acceso.Objeto, entorno);
+        return ResolverMiembroEnValor(obj, acceso.NombreMiembro, acceso.Ubicacion, esOpcional: false);
+    }
 
+    private ValorAlba ResolverMiembroEnValor(ValorAlba obj, string nombreMiembro, UbicacionFuente ubicacion, bool esOpcional)
+    {
         switch (obj.Tipo)
         {
             case TipoValorAlba.Instancia:
             {
                 DefinicionClase? claseActual = _pilaClases.Count > 0 ? _pilaClases.Peek() : null;
-                return obj.ComoInstancia().ObtenerMiembro(acceso.NombreMiembro, claseActual, acceso.Ubicacion, _codigoFuente);
+                return obj.ComoInstancia().ObtenerMiembro(nombreMiembro, claseActual, ubicacion, _codigoFuente);
             }
 
             case TipoValorAlba.Modulo:
             {
                 ModuloAlba modulo = obj.ComoModulo();
-                if (modulo.Exportaciones.TryGetValue(acceso.NombreMiembro, out ValorAlba? exportado))
+                if (modulo.Exportaciones.TryGetValue(nombreMiembro, out ValorAlba? exportado))
                 {
                     return exportado;
                 }
-                throw CrearError("ALB-E009", TipoError.Ejecucion, acceso.Ubicacion,
-                    $"El módulo '{modulo.Nombre}' no exporta '{acceso.NombreMiembro}'.");
+                if (esOpcional)
+                {
+                    return ValorAlba.Nulo;
+                }
+                throw CrearError("ALB-E009", TipoError.Ejecucion, ubicacion,
+                    $"El módulo '{modulo.Nombre}' no exporta '{nombreMiembro}'.");
             }
 
             case TipoValorAlba.Diccionario:
-                return ResolverMiembroDiccionario(obj.ComoDiccionario(), acceso.NombreMiembro, acceso.Ubicacion);
+                return ResolverMiembroDiccionario(obj.ComoDiccionario(), nombreMiembro, ubicacion, esOpcional);
 
             case TipoValorAlba.Lista:
-                return ResolverMiembroLista(obj.ComoLista(), acceso.NombreMiembro, acceso.Ubicacion);
+                return ResolverMiembroLista(obj.ComoLista(), nombreMiembro, ubicacion);
 
             case TipoValorAlba.Texto:
-                return ResolverMiembroTexto(obj.ComoTexto(), acceso.NombreMiembro, acceso.Ubicacion);
+                return ResolverMiembroTexto(obj.ComoTexto(), nombreMiembro, ubicacion);
 
             default:
-                throw CrearError("ALB-T005", TipoError.Tipo, acceso.Ubicacion,
-                    $"No se puede acceder al miembro '{acceso.NombreMiembro}' sobre un valor de tipo '{obj.ObtenerNombreTipo()}'.");
+                throw CrearError("ALB-T005", TipoError.Tipo, ubicacion,
+                    $"No se puede acceder al miembro '{nombreMiembro}' sobre un valor de tipo '{obj.ObtenerNombreTipo()}'.");
         }
+    }
+
+    private ValorAlba EvaluarRango(ExprRango rango, Entorno entorno)
+    {
+        ValorAlba valInicio = EvaluarExpresion(rango.Inicio, entorno);
+        ValorAlba valFin = EvaluarExpresion(rango.Fin, entorno);
+
+        long inicio = ExigirEntero(valInicio, "rango (..)", rango.Inicio.Ubicacion);
+        long fin = ExigirEntero(valFin, "rango (..)", rango.Fin.Ubicacion);
+
+        const int limiteSeguridad = 1_000_000;
+        var elementos = new List<ValorAlba>();
+
+        if (inicio <= fin)
+        {
+            long limite = rango.Inclusivo ? fin : fin - 1;
+            for (long i = inicio; i <= limite; i++)
+            {
+                if (elementos.Count >= limiteSeguridad)
+                {
+                    throw CrearError("ALB-E008", TipoError.Ejecucion, rango.Ubicacion,
+                        "El rango excede el límite de 1,000,000 elementos.");
+                }
+                elementos.Add(ValorAlba.CrearEntero(i));
+            }
+        }
+        else
+        {
+            long limite = rango.Inclusivo ? fin : fin + 1;
+            for (long i = inicio; i >= limite; i--)
+            {
+                if (elementos.Count >= limiteSeguridad)
+                {
+                    throw CrearError("ALB-E008", TipoError.Ejecucion, rango.Ubicacion,
+                        "El rango excede el límite de 1,000,000 elementos.");
+                }
+                elementos.Add(ValorAlba.CrearEntero(i));
+            }
+        }
+
+        return ValorAlba.CrearLista(elementos);
     }
 
     private ValorAlba EvaluarUnaria(ExprUnaria unaria, Entorno entorno)

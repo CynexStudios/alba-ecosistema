@@ -88,8 +88,8 @@ public sealed class ResultadoDescargaActualizacion
 public sealed class InformacionActualizacion
 {
     public bool HayActualizacion { get; init; }
-    public string VersionActual { get; init; } = "5.0.0";
-    public string VersionDisponible { get; init; } = "5.0.0";
+    public string VersionActual { get; init; } = "9.0.0";
+    public string VersionDisponible { get; init; } = "9.0.0";
     public string Notas { get; init; } = string.Empty;
     public string UrlDescarga { get; init; } = "https://github.com/CynexStudios/alba-ecosistema/releases";
     public string MensajeEstado { get; init; } = string.Empty;

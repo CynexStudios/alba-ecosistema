@@ -13,7 +13,10 @@ public enum LenguajeSoportado
     Python,
     Html,
     CSharp,
-    Cpp
+    Cpp,
+    JavaScript,
+    TypeScript,
+    Json
 }
 
 public sealed class EstadoEntornoLenguaje

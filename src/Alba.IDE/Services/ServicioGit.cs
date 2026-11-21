@@ -207,15 +207,64 @@ public sealed class ServicioGit
         string? tokenGitHub = null,
         bool fijarUpstream = true)
     {
+        // Verifica que exista al menos un commit antes de intentar push
+        var headCheck = await EjecutarGitAsync(rutaProyecto, ["rev-parse", "--verify", "HEAD"]);
+        if (headCheck.ExitCode != 0)
+        {
+            return new ResultadoOperacionGit
+            {
+                Exito = false,
+                Mensaje = "No hay commits locales todavía. Prepara tus archivos y crea un commit antes de hacer Push."
+            };
+        }
+
+        string ramaDestino = string.IsNullOrWhiteSpace(rama) || rama == "HEAD" ? "main" : rama.Trim();
+
         var args = new List<string>();
         AnadirHeaderAuthTemporal(args, tokenGitHub);
         args.Add("push");
         if (fijarUpstream) args.Add("-u");
         args.Add("origin");
-        args.Add(string.IsNullOrWhiteSpace(rama) ? "HEAD" : rama);
+        args.Add(ramaDestino);
 
-        var res = await EjecutarGitAsync(rutaProyecto, args);
-        return ConstruirResultado(res, "Cambios enviados a GitHub (push).");
+        var res = await EjecutarGitAsync(rutaProyecto, args, timeoutMs: 45_000);
+        if (res.ExitCode == 0)
+        {
+            return ConstruirResultado(res, $"Cambios enviados a GitHub (origin/{ramaDestino}).");
+        }
+
+        string err = res.Stderr ?? string.Empty;
+        if (err.Contains("non-fast-forward", StringComparison.OrdinalIgnoreCase) ||
+            err.Contains("fetch first", StringComparison.OrdinalIgnoreCase) ||
+            err.Contains("rejected", StringComparison.OrdinalIgnoreCase))
+        {
+            var rebaseArgs = new List<string>();
+            AnadirHeaderAuthTemporal(rebaseArgs, tokenGitHub);
+            rebaseArgs.Add("pull");
+            rebaseArgs.Add("--rebase");
+            rebaseArgs.Add("origin");
+            rebaseArgs.Add(ramaDestino);
+
+            var rebaseRes = await EjecutarGitAsync(rutaProyecto, rebaseArgs, timeoutMs: 45_000);
+            if (rebaseRes.ExitCode == 0)
+            {
+                var retryRes = await EjecutarGitAsync(rutaProyecto, args, timeoutMs: 45_000);
+                if (retryRes.ExitCode == 0)
+                {
+                    return ConstruirResultado(retryRes, $"Sincronizado con rebase y enviado a GitHub (origin/{ramaDestino}).");
+                }
+                return ConstruirResultado(retryRes, string.Empty);
+            }
+
+            return new ResultadoOperacionGit
+            {
+                Exito = false,
+                Mensaje = "El remoto tiene cambios más recientes y el rebase automático encontró conflictos. Haz Pull primero y resuelve conflictos antes del Push.",
+                Salida = err
+            };
+        }
+
+        return ConstruirResultado(res, string.Empty);
     }
 
     public async Task<ResultadoOperacionGit> PullAsync(string rutaProyecto, string? tokenGitHub = null)
@@ -331,7 +380,7 @@ public sealed class ServicioGit
     {
         string ruta = Path.Combine(rutaProyecto, ".gitignore");
         const string plantilla = """
-            # Generado por Xynex Code Editor 5.0
+            # Generado por Xynex Code Editor 9.0
             .env
             .env.*
             *.pem

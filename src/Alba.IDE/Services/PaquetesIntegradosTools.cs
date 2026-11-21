@@ -123,7 +123,7 @@ public static class PaquetesIntegradosTools
             {
                 Id = def.Id,
                 Nombre = def.Nombre,
-                Version = "5.0.0",
+                Version = "9.0.0",
                 Descripcion = def.Descripcion,
                 Autor = "CynexStudios (Verificado)",
                 Lenguaje = def.Lenguaje,

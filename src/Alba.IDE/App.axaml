@@ -4,28 +4,54 @@
              RequestedThemeVariant="Dark">
 
   <Application.Resources>
-    <!-- Paleta base predeterminada (Alba Crepúsculo) actualizada dinámicamente por GestorTemas -->
-    <SolidColorBrush x:Key="FondoBaseBrush" Color="#0A0F1A" />
-    <SolidColorBrush x:Key="FondoSuperficieBrush" Color="#101726" />
-    <SolidColorBrush x:Key="FondoPanelBrush" Color="#0D1320" />
-    <SolidColorBrush x:Key="FondoBarraBrush" Color="#141D2F" />
-    <SolidColorBrush x:Key="FondoEditorBrush" Color="#0B111E" />
-    <SolidColorBrush x:Key="FondoLineaActualBrush" Color="#162033" />
-    <SolidColorBrush x:Key="FondoHoverBrush" Color="#1E293B" />
-    <SolidColorBrush x:Key="BordeSutilBrush" Color="#1E2A3E" />
-    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="#E2E8F0" />
-    <SolidColorBrush x:Key="TextoSecundarioBrush" Color="#94A3B8" />
-    <SolidColorBrush x:Key="TextoApagadoBrush" Color="#64748B" />
-    <SolidColorBrush x:Key="AcentoPrimarioBrush" Color="#38BDF8" />
-    <SolidColorBrush x:Key="AcentoSecundarioBrush" Color="#F59E0B" />
-    <SolidColorBrush x:Key="ExitoColorBrush" Color="#22C55E" />
-    <SolidColorBrush x:Key="AdvertenciaColorBrush" Color="#FBBF24" />
-    <SolidColorBrush x:Key="ErrorColorBrush" Color="#EF4444" />
+    <!-- Paleta predeterminada Visual Studio Pro 9.0 actualizada dinámicamente por GestorTemas -->
+    <SolidColorBrush x:Key="FondoBaseBrush" Color="#181818" />
+    <SolidColorBrush x:Key="FondoSuperficieBrush" Color="#252526" />
+    <SolidColorBrush x:Key="FondoPanelBrush" Color="#1F1F1F" />
+    <SolidColorBrush x:Key="FondoBarraBrush" Color="#2C2C2E" />
+    <SolidColorBrush x:Key="FondoEditorBrush" Color="#1E1E1E" />
+    <SolidColorBrush x:Key="FondoLineaActualBrush" Color="#28282B" />
+    <SolidColorBrush x:Key="FondoHoverBrush" Color="#323236" />
+    <SolidColorBrush x:Key="BordeSutilBrush" Color="#3C3C42" />
+    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="#E5E7EB" />
+    <SolidColorBrush x:Key="TextoSecundarioBrush" Color="#B0B7C3" />
+    <SolidColorBrush x:Key="TextoApagadoBrush" Color="#858585" />
+    <SolidColorBrush x:Key="AcentoPrimarioBrush" Color="#007ACC" />
+    <SolidColorBrush x:Key="AcentoSecundarioBrush" Color="#3794FF" />
+    <SolidColorBrush x:Key="ExitoColorBrush" Color="#3FB950" />
+    <SolidColorBrush x:Key="AdvertenciaColorBrush" Color="#CCA700" />
+    <SolidColorBrush x:Key="ErrorColorBrush" Color="#F14C4C" />
   </Application.Resources>
 
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+
+    <!-- Contraste claro y consistente en controles interactivos -->
+    <Style Selector="CheckBox">
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="FontSize" Value="12.5" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="Background" Value="{DynamicResource FondoEditorBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BordeSutilBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="Background" Value="{DynamicResource FondoEditorBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BordeSutilBrush}" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="TabItem">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource TextoSecundarioBrush}" />
+    </Style>
+    <Style Selector="TabItem:selected">
+      <Setter Property="Foreground" Value="{DynamicResource AcentoSecundarioBrush}" />
+    </Style>
 
     <!-- Menús principales -->
     <Style Selector="Menu">
@@ -47,25 +73,23 @@
       <Setter Property="CornerRadius" Value="5" />
       <Setter Property="Padding" Value="10,5" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="Transitions">
-        <Transitions>
-          <BrushTransition Property="Background" Duration="0:0:0.12" />
-        </Transitions>
-      </Setter>
     </Style>
     <Style Selector="Button.ToolbarBtn:pointerover /template/ ContentPresenter">
       <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
     </Style>
 
-    <!-- Botón de acción primaria -->
+    <!-- Botón de acción primaria Visual Studio -->
     <Style Selector="Button.PrimaryBtn">
       <Setter Property="Background" Value="{DynamicResource AcentoPrimarioBrush}" />
-      <Setter Property="Foreground" Value="#08101D" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="CornerRadius" Value="5" />
       <Setter Property="Padding" Value="12,6" />
       <Setter Property="FontSize" Value="12" />
       <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.PrimaryBtn:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AcentoSecundarioBrush}" />
     </Style>
 
     <!-- Botón Ejecutar -->
@@ -111,10 +135,10 @@
     </Style>
     <Style Selector="Button.RailBtn.Activo">
       <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource AcentoPrimarioBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AcentoSecundarioBrush}" />
     </Style>
 
-    <!-- Botones de pestañas de panel inferior -->
+    <!-- Botones de pestañas de panel inferior y derecho -->
     <Style Selector="Button.DockTabBtn">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="Foreground" Value="{DynamicResource TextoSecundarioBrush}" />
@@ -126,11 +150,11 @@
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="Button.DockTabBtn.Activo">
-      <Setter Property="Foreground" Value="{DynamicResource AcentoPrimarioBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AcentoSecundarioBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource AcentoPrimarioBrush}" />
     </Style>
 
-    <!-- Tarjetas interactivas de pantalla de inicio -->
+    <!-- Tarjetas interactivas -->
     <Style Selector="Button.CardBtn">
       <Setter Property="Background" Value="{DynamicResource FondoSuperficieBrush}" />
       <Setter Property="Foreground" Value="{DynamicResource TextoPrincipalBrush}" />
@@ -143,7 +167,7 @@
     </Style>
     <Style Selector="Button.CardBtn:pointerover /template/ ContentPresenter">
       <Setter Property="Background" Value="{DynamicResource FondoHoverBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource AcentoPrimarioBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AcentoSecundarioBrush}" />
     </Style>
   </Application.Styles>
 </Application>

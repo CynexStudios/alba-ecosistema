@@ -101,6 +101,11 @@ public enum TipoToken
     Mayor,
     MayorIgual,
     NuloCoalescente,
+    InterrogacionPunto,
+    MasMas,
+    MenosMenos,
+    PuntoPunto,
+    PuntoPuntoIgual,
 
     // Delimitadores y puntuación
     ParentesisIzq,
@@ -114,6 +119,7 @@ public enum TipoToken
     DosPuntos,
     PuntoYComa,
     Flecha,
+    FlechaGorda,
 
     // Control de estructura y fin de flujo
     SaltoLinea,

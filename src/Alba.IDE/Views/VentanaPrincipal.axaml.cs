@@ -107,6 +107,24 @@ public partial class VentanaPrincipal : Window
             }
         };
 
+        _vm.MensajesChatIA.CollectionChanged += (_, _) =>
+        {
+            if (_vm.MensajesChatIA.Count > 0)
+            {
+                Dispatcher.UIThread.Post(() => ListaChatIA.ScrollIntoView(_vm.MensajesChatIA[^1]));
+            }
+        };
+
+        _vm.SolicitarGuardarBorradorComo += borrador =>
+        {
+            Dispatcher.UIThread.Post(async () => await GuardarBorradorComoAsync(borrador));
+        };
+
+        _vm.SolicitarCierrePorActualizacionAutomatica += () =>
+        {
+            Dispatcher.UIThread.Post(() => Close());
+        };
+
         EngancharScrollTerminal();
 
         _vm.InicializarSegunArgumento(rutaInicial);
@@ -168,6 +186,40 @@ public partial class VentanaPrincipal : Window
         catch
         {
             // Mantiene el icono predeterminado si no está embebido en un contexto de prueba
+        }
+    }
+
+    private void AlCrearArchivoSinCarpeta(object? sender, RoutedEventArgs e)
+    {
+        _vm.CrearArchivoSinCarpeta(".cibao");
+    }
+
+    private void AlCrearScratchPorExtension(object? sender, RoutedEventArgs e)
+    {
+        if (sender is StyledElement el && el.Tag is string ext && !string.IsNullOrWhiteSpace(ext))
+        {
+            _vm.CrearArchivoSinCarpeta(ext);
+        }
+        else if (sender is MenuItem mi && mi.Tag is string extMenu && !string.IsNullOrWhiteSpace(extMenu))
+        {
+            _vm.CrearArchivoSinCarpeta(extMenu);
+        }
+    }
+
+    private async Task GuardarBorradorComoAsync(ArchivoAbierto borrador)
+    {
+        IStorageFile? destino = await StorageProvider.SaveFilePickerAsync(
+            new FilePickerSaveOptions
+            {
+                Title = "Guardar archivo sin carpeta en disco",
+                SuggestedFileName = borrador.NombreArchivo
+            });
+
+        string? ruta = destino?.TryGetLocalPath();
+        if (!string.IsNullOrWhiteSpace(ruta))
+        {
+            _vm.CompletarGuardadoBorradorEnRuta(borrador, ruta);
+            EditorPrincipal.AplicarResaltadoPorExtension(ruta);
         }
     }
 
@@ -477,8 +529,78 @@ public partial class VentanaPrincipal : Window
 
     private void AlAbrirDocumentacion(object? sender, RoutedEventArgs e)
     {
-        var doc = new VentanaDocumentacion();
+        var doc = new VentanaDocumentacion(codigoEjemplo => _vm.CrearArchivoSinCarpeta(".cibao", codigoEjemplo));
         doc.Show(this);
+    }
+
+    private async void AlAbrirAddonsOnline(object? sender, RoutedEventArgs e)
+    {
+        var ventana = new VentanaAddons(_vm.GestorAddons);
+        await ventana.ShowDialog(this);
+        await _vm.RefrescarEntornosYToolsAsync(forzar: false);
+        if (_vm.ArchivoActivo is not null)
+        {
+            EditorPrincipal.AplicarResaltadoPorExtension(_vm.ArchivoActivo.RutaArchivo);
+            _vm.ArchivoActivo.Lenguaje = _vm.DetectarNombreLenguaje(_vm.ArchivoActivo.RutaArchivo);
+        }
+    }
+
+    private async void AlAbrirCuentaUsuario(object? sender, RoutedEventArgs e) =>
+        await AbrirDialogoCuentaAsync(abrirEnTabIA: false);
+
+    private async void AlConectarTuIA(object? sender, RoutedEventArgs e) =>
+        await AbrirDialogoCuentaAsync(abrirEnTabIA: true);
+
+    private async Task AbrirDialogoCuentaAsync(bool abrirEnTabIA)
+    {
+        var dlg = new DialogoCuentaUsuario(_vm.BaseDatosUsuarios, abrirEnTabIA);
+        await dlg.ShowDialog(this);
+        _vm.RecargarEstadoCuentaEIA();
+    }
+
+    private void AlAbrirTutorCibao(object? sender, RoutedEventArgs e) => _vm.AbrirTutorCibaoDesdeCero();
+    private void AlAlternarAsistente(object? sender, RoutedEventArgs e)
+    {
+        _vm.MostrarPantallaInicio = false;
+        _vm.MostrarPanelAsistente = !_vm.MostrarPanelAsistente;
+    }
+    private void AlSeleccionarTabTutor(object? sender, RoutedEventArgs e) => _vm.PestanaDerechaActiva = 0;
+    private void AlSeleccionarTabAgenteIA(object? sender, RoutedEventArgs e) => _vm.PestanaDerechaActiva = 1;
+    private void AlAnteriorLeccionTutor(object? sender, RoutedEventArgs e) => _vm.AnteriorLeccionTutor();
+    private void AlSiguienteLeccionTutor(object? sender, RoutedEventArgs e) => _vm.SiguienteLeccionTutor();
+    private void AlInsertarLeccionTutor(object? sender, RoutedEventArgs e) => _vm.InsertarLeccionTutorEnEditor();
+    private void AlProbarLeccionTutor(object? sender, RoutedEventArgs e)
+    {
+        _vm.InsertarLeccionTutorEnEditor();
+        _ = _vm.EjecutarActivoAsync();
+    }
+    private void AlPreguntarTutorBot(object? sender, RoutedEventArgs e) => _vm.PreguntarAlTutorBot();
+    private void AlTeclaPreguntaTutor(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            _vm.PreguntarAlTutorBot();
+        }
+    }
+
+    private void AlEnviarConsultaIA(object? sender, RoutedEventArgs e) => _ = _vm.EnviarConsultaIAAsync();
+    private void AlTeclaConsultaIA(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            e.Handled = true;
+            _ = _vm.EnviarConsultaIAAsync();
+        }
+    }
+    private void AlLimpiarChatIA(object? sender, RoutedEventArgs e) => _vm.LimpiarChatIA();
+    private void AlAplicarCodigoIA(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn) _vm.AplicarBloqueCodigoIA(btn.Tag as string);
+    }
+    private void AlNuevoArchivoCodigoIA(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn) _vm.CrearArchivoConCodigoIA(btn.Tag as string);
     }
 
     private void AlAbrirPaletaComandos(object? sender, RoutedEventArgs e) => MostrarPaletaComandos();
@@ -489,6 +611,11 @@ public partial class VentanaPrincipal : Window
     {
         var comandos = new List<ComandoPaleta>
         {
+            new() { Id = "nuevo-sin-carpeta", Titulo = "Crear archivo rápido sin carpeta (Cibao 9.0)", Categoria = "Creación", Ejecutar = () => _vm.CrearArchivoSinCarpeta(".cibao") },
+            new() { Id = "tutor-bot", Titulo = "Abrir Bot Tutor Cibao 9.0 (Aprender desde cero)", Categoria = "Aprendizaje", Ejecutar = () => _vm.AbrirTutorCibaoDesdeCero() },
+            new() { Id = "agente-ia", Titulo = "Abrir Agente IA y conectar modelo propio", Categoria = "IA", Ejecutar = () => { _vm.MostrarPantallaInicio = false; _vm.MostrarPanelAsistente = true; _vm.PestanaDerechaActiva = 1; } },
+            new() { Id = "addons-online", Titulo = "Abrir Tienda de Addons Online (API)", Categoria = "Extensiones", Ejecutar = () => AlAbrirAddonsOnline(this, new RoutedEventArgs()) },
+            new() { Id = "cuenta-db", Titulo = "Cuenta Xynex y Bóveda de claves IA", Categoria = "Seguridad", Ejecutar = () => AlAbrirCuentaUsuario(this, new RoutedEventArgs()) },
             new() { Id = "nuevo-proyecto", Titulo = "Crear proyecto...", Categoria = "Creación", Ejecutar = () => AlCrearProyecto(this, new RoutedEventArgs()) },
             new() { Id = "nuevo-programa", Titulo = "Crear programa directo...", Categoria = "Creación", Ejecutar = () => AlCrearPrograma(this, new RoutedEventArgs()) },
             new() { Id = "nuevo-archivo-ind", Titulo = "Crear archivo independiente...", Categoria = "Creación", Ejecutar = () => AlCrearArchivoIndependiente(this, new RoutedEventArgs()) },
@@ -635,18 +762,7 @@ public partial class VentanaPrincipal : Window
 
     private void AlAbrirEjemploHolaMundo(object? sender, RoutedEventArgs e)
     {
-        string? dirEjemplos = RutasUsuarioAlba.BuscarDirectorioInstalacion("examples");
-        if (!string.IsNullOrWhiteSpace(dirEjemplos) && Directory.Exists(dirEjemplos))
-        {
-            _vm.AbrirCarpetaProyecto(dirEjemplos);
-            string hola = Path.Combine(dirEjemplos, "01_hola_mundo.alb");
-            if (File.Exists(hola)) _vm.AbrirArchivo(hola);
-        }
-        else
-        {
-            string carpetaDef = RutasUsuarioAlba.ObtenerCarpetaProyectosPorDefecto();
-            _vm.CrearNuevoProyecto(carpetaDef, "HolaCibao");
-        }
+        _vm.AbrirTutorCibaoDesdeCero();
     }
 
     private void AlAbrirRecienteClick(object? sender, RoutedEventArgs e)

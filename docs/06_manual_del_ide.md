@@ -1,56 +1,30 @@
-# 6. Manual del IDE: Xynex Code Editor (`v5.0.0`)
+# 06. Manual Completo de Xynex Code Editor 9.0 (IDE Estilo Visual Studio)
 
-## 6.1. Pantalla de Inicio (Bienvenida)
+## 1. Inicio Limpio y Archivos Sin Carpeta
 
-Al abrir **Xynex Code Editor** sin proyecto activo (o mediante **Archivo → Pantalla de inicio**), accedes a:
-- **Acciones rápidas:** *Crear nuevo proyecto Cibao*, *Abrir proyecto o carpeta*, *Abrir archivo de código*, *Documentación* y *Temas y Ajustes*.
-- **Recientes:** Historial persistente de proyectos y archivos abiertos recientemente, con apertura directa o eliminación de la lista.
-- **Novedades y ejemplos:** Resumen de **Cibao 5.0** y acceso directo a los ejemplos (`.cibao` y `.alb`).
+Al abrir Xynex Code Editor 9.0 llegas al **Centro de Inicio**:
+- No repite un código estático fijo al arrancar si aún no trabajaste en un proyecto propio.
+- Con **Archivo Sin Carpeta** creas código al instante en Cibao, Python, HTML, CSS, JavaScript, TypeScript, JSON, C# o C++ y lo ejecutas inmediatamente con `F5` sin crear carpetas en disco. Si luego deseas conservarlo, `Ctrl+S` abrirá el selector "Guardar como".
 
----
+## 2. IntelliSense de Alto Contraste y Detectores Nativos
 
-## 6.2. Espacio de trabajo
+- **Autocompletado contextual:** Muestra insignia visual (`FN`, `KW`, `TIPO`, `METODO`, `VAR`, `TAG`, `PROP`, `ADDON`) y ayuda descriptiva conforme escribes desde el primer carácter, tras `.` o `<`, o al pulsar `Ctrl+Space`. Detecta automáticamente variables, funciones y clases que hayas declarado en el archivo actual.
+- **Detectores de error en vivo nativos:** Validan sintaxis, etiquetas HTML abiertas, `id` duplicados, punto y coma CSS, indentación/bloques `:` de Python, JSON y llaves/cadenas en JS/TS/C#/C++ en tiempo real en el panel **PROBLEMAS**.
 
-1. **Barra superior integrada:**
-   - Identidad de **Xynex Code Editor**, menús (`Archivo`, `Editar`, `Ver`, `Ejecutar`, `Herramientas`, `Ayuda`), acceso central a la **Paleta de Comandos (`Ctrl+Shift+P`)** y botones rápidos (`Verificar`, `Ejecutar F5`, `Detener`, `Inicio`, `Ajustes`).
-2. **Activity Rail y barra lateral colapsable (`Ctrl+B`):**
-   - **Explorador:** Árbol de archivos con menú contextual (nuevo archivo, nueva carpeta, renombrar, duplicar, eliminar con confirmación).
-   - **Buscar en Proyecto (`Ctrl+Shift+F`):** Búsqueda global en todos los archivos con salto directo a línea y columna.
-   - **Complementos (Addons):** Lista de complementos validados y gestor completo para extender lenguajes.
-   - **Herramientas:** Verificación masiva de todos los `.cibao` y `.alb` del proyecto, terminal en carpeta, manual y explorador del sistema.
-3. **Área de edición (`EditorCodigoAlba`):**
-   - Pestañas múltiples con menú contextual, barra de ruta (*breadcrumbs*), resaltado dinámico de Cibao 5.0 (`$"..."`, diccionarios, `extiende`, `elegir`), numeración de líneas, autocompletado (`Ctrl+Space`), zoom (`Ctrl+Rueda`) y **diagnóstico en vivo** con subrayado rojo y tooltip informativo en errores léxicos/sintácticos.
-   - Ejecución directa para `.cibao`, `.alb`, `.py`, `.js`, `.ts`, `.cs`, `.cpp`, `.rs`, `.go`, `.java`, `.php`, `.rb` y vista previa Web para `.html`.
-4. **Panel inferior con pestañas (`Ctrl+J`):**
-   - **Consola:** Salida del programa y barra interactiva para `leer(...)`.
-   - **Problemas:** Lista en vivo de errores; doble clic para saltar al archivo y línea exactos.
-   - **Terminal:** Shell real del sistema (`powershell.exe` en Windows, `bash`/`sh` en Linux) en la carpeta del proyecto.
-   - **Registro:** Historial con marca de tiempo de eventos del IDE.
-5. **Barra de estado inferior:**
-   - Indicador de ejecución, conteo de errores, lenguaje detectado (`Cibao` o lenguaje activo), cursor (`Ln X, Col Y`), cambio rápido de tema y versión `v5.0.0`.
+## 3. Bot Tutor Cibao 9.0 y Agente IA del Usuario
 
----
+En el panel derecho integrado (botón **Bot / IA**):
+- **Bot Tutor Cibao 9.0:** 8 lecciones interactivas desde cero (*Hola Mundo*, *Variables y Constantes*, *7 Tipos de Datos*, *Condicionales*, *Ciclos y Rangos*, *Funciones y Lambdas*, *Clases POO* y *Errores/Opcional*). Haz clic en **Insertar en Editor** y **Probar (F5)** para validar tu reto automáticamente.
+- **Agente IA Propio:** Haz clic en **Conectar tu IA** para guardar tus credenciales cifradas de **Ollama local**, **Google Gemini**, **OpenAI / Groq / DeepSeek** o **Anthropic Claude**. Puedes preguntar sobre el archivo actual, corregir errores mostrados y pulsar **Aplicar al editor** o **Nuevo archivo** con un solo clic.
 
-## 6.3. Temas, productividad y actualizaciones
+## 4. Vista Web / HTML Mejorada
 
-Desde **Ajustes** puedes:
-- Elegir entre **Crepúsculo**, **Medianoche** y **Amanecer**, o personalizar los colores hexadecimales de sintaxis.
-- Activar **Autoguardado periódico** y **Recuperación de sesión**.
-- Editar atajos de teclado y comprobar manualmente actualizaciones oficiales en GitHub Releases (`CynexStudios/alba-ecosistema`).
+Al abrir un `.html` o pulsar **Vista Web**, Xynex renderiza tarjetas, barras de navegación, tablas e imágenes junto al **Live Server local (`127.0.0.1`)** con recarga en vivo, consola de errores del navegador y botón **Abrir Ventana Web Real** (`--app=` sin barras).
 
----
+## 5. Personalización Completa en Ajustes
 
-## 6.4. Atajos de teclado predeterminados (configurables)
-
-| Atajo | Acción |
-| :--- | :--- |
-| `Ctrl + Shift + P` | Abrir Paleta de Comandos |
-| `Ctrl + P` | Apertura rápida de archivos del proyecto |
-| `Ctrl + S` | Guardar archivo activo |
-| `Ctrl + F` | Buscar / Reemplazar en archivo activo |
-| `Ctrl + Shift + F` | Buscar en todo el proyecto |
-| `Ctrl + B` | Mostrar / ocultar barra lateral |
-| `Ctrl + J` | Mostrar / ocultar panel inferior |
-| `Ctrl + Shift + B` | Verificar sintaxis del archivo activo |
-| `Ctrl + Space` | Autocompletado |
-| `F5` | Guardar y ejecutar el archivo activo |
+Abre **Ajustes** para modificar:
+- Temas visuales (por defecto **Xynex Visual Studio Pro** de alto contraste).
+- Tipo de letra, tamaño de fuente y tamaño de tabulación.
+- Color personalizado del fondo, texto y de cada categoría de sintaxis.
+- Interruptores para autocompletado, diagnósticos en vivo, números de línea, ajuste de línea, espacios en blanco, panel derecho Bot/IA, barra de estado y **actualización silenciosa automática**.

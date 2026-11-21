@@ -1,213 +1,164 @@
-# 3. Manual Completo del Lenguaje Cibao (`v5.0.0`)
+# 03. Manual Completo del Lenguaje Cibao Code 9.0 (Desde Cero)
 
-## 3.1. Hola Mundo y primer programa
+Este manual explica **todo el lenguaje Cibao 9.0 paso a paso**, desde tu primera línea hasta programación modular y orientada a objetos.
 
-Todo archivo de **Cibao** (*Cibao Programming Language*) utiliza la extensión oficial `.cibao` (y conserva compatibilidad total con `.alb`) y codificación UTF-8. No es necesario escribir punto y coma al final de cada instrucción.
-
-```cibao
-# Archivo: hola.cibao
-variable lugar = "el Cibao"
-imprimir($"¡Hola mundo desde {lugar.mayusculas()}!")
-```
-
-Para ejecutarlo desde consola:
-```bash
-alba ejecutar hola.cibao
-```
-
-### Programa interactivo con `leer`
-```cibao
-variable nombre = leer("¿Cómo te llamas? ")
-imprimir($"Bienvenido/a, {nombre}")
-```
-
----
-
-## 3.2. Comentarios
+## 1. Hola Mundo y Comentarios
 
 ```cibao
-# Comentario de una sola línea
+// Comentario de una sola línea
+/* Comentario de
+   varias líneas */
 
-/*
-   Comentario de varias líneas.
-*/
+mostrar("¡Hola Mundo desde Cibao Code 9.0!")
+imprimir("Imprime texto sin problemas")
+variable tuNombre = leer("Ingresa tu nombre: ")
+mostrar($"Bienvenido, {tuNombre}!")
 ```
 
----
+## 2. Variables y Constantes
 
-## 3.3. Variables, constantes y coalescencia nula (`??`)
-
-- **`variable`:** Crea una variable mutable. Puede inferir su tipo o declararlo explícitamente.
-- **`constante`:** Crea un identificador inmutable; su inicialización con `=` es obligatoria.
-- **`??`:** Devuelve el operando izquierdo si es distinto de `nulo`; en caso contrario evalúa y devuelve el derecho.
+- **`variable`**: crea un espacio de memoria que puedes modificar después.
+- **`constante`**: valor inmutable que no se puede reasignar tras su creación.
 
 ```cibao
-variable edad = 20                     # Inferido como entero
-variable precio: decimal = 19.95       # Tipado explícito
-variable nombre: texto                 # Valor por defecto: ""
-variable apodo = nulo ?? "Invitado"    # Resultado: "Invitado"
-
-constante PI_LOCAL: decimal = 3.14159
+constante EMPRESA: texto = "Cynex Studios"
+variable puntos: entero = 10
+puntos += 5
+puntos++
+mostrar($"{EMPRESA} — Puntos actuales: {puntos}")
 ```
 
-Si una variable se declara sin inicializador con anotación de tipo, recibe un valor inicial seguro:
-- `entero` → `0`
-- `decimal` → `0.0`
-- `texto` → `""`
-- `booleano` → `falso`
-- `lista` → `[]`
-- `diccionario` → `{}`
-- Tipo de clase o sin anotación → `nulo`
+## 3. Los 7 Tipos de Datos Nativos
 
----
+| Tipo | Palabra clave | Valores ejemplo |
+|---|---|---|
+| Entero | `entero` | `0`, `42`, `-15` |
+| Decimal | `decimal` | `3.1416`, `9.0`, `-0.5` |
+| Texto | `texto` | `"Hola"`, `$"Suma: {1 + 2}"`, `"""Multilínea"""` |
+| Booleano | `booleano` | `verdadero`, `falso` |
+| Lista | `lista` | `["a", "b", "c"]`, `[1, 2, 3]` |
+| Diccionario | `diccionario` | `{ nombre: "Ana", activo: verdadero }` |
+| Nulo | `nulo` | `nulo` |
 
-## 3.4. Tipos de datos, interpolación y diccionarios
+Usa `tipo_de(valor)` para inspeccionar el tipo real en tiempo de ejecución y `valor es lista` para validar tipos en expresiones lógicas.
 
-Cibao implementa los siguientes tipos en la `v5.0.0`:
-- `entero`: Entero de 64 bits con signo (`42`, `-7`).
-- `decimal`: Número en coma flotante de doble precisión (`3.14`, `0.5`).
-- `texto`: Cadena UTF-8 delimitada por `"..."` o `'...'`. Con prefijo `$"..."` o `$'...'` admite interpolación directa de expresiones `{expresion}` y escapes `\{` / `\}`.
-- `booleano`: `verdadero` o `falso`.
-- `lista`: Colección ordenada y mutable (`[1, "dos", verdadero]`).
-- `diccionario`: Mapa clave-valor (`{ nombre: "Ana", edad: 28 }`), accesible vía `d["nombre"]` o `d.nombre`.
-- `funcion`: Funciones nombradas y funciones anónimas (`funcion(x) { retornar x * 2 }`).
-- `nulo`: Ausencia de valor.
+## 4. Operadores Aritméticos, Lógicos, Potencia, Opcional y Rangos
 
+- **Aritméticos:** `+`, `-`, `*`, `/`, `%`, y **potencia `**`** (`2 ** 8` devuelve `256`).
+- **Comparación:** `==`, `!=`, `<`, `<=`, `>`, `>=`.
+- **Lógicos:** `y` (`&&`), `o` (`||`), `no` (`!`).
+- **Opcional seguro:** `perfil?.contacto?.correo ?? "sin-correo@ejemplo.com"`.
+- **Rangos (9.0):** `1..5` equivale a `[1, 2, 3, 4]`; `1..=5` equivale a `[1, 2, 3, 4, 5]`.
+
+## 5. Control de Flujo
+
+### Condicional `si` / `sino_si` / `sino`
 ```cibao
-variable usuario: diccionario = {
-    nombre: "Carlos",
-    "ciudad": "Santiago"
-}
-usuario["activo"] = verdadero
-
-para clave en usuario {
-    imprimir($"{clave} => {usuario[clave]}")
+variable bateria: entero = 18
+si bateria > 50 {
+    mostrar("Batería óptima")
+} sino_si bateria >= 15 {
+    mostrar("Ahorro de energía recomendado")
+} sino {
+    mostrar("Conectar cargador")
 }
 ```
 
----
-
-## 3.5. Operadores y precedencia
-
-De mayor a menor precedencia:
-1. Agrupación y acceso: `( )`, `[ ]`, `.`
-2. Instanciación: `nuevo`
-3. Unarios: `-`, `no`
-4. Potencia (asociativa a la derecha): `^`
-5. Multiplicación, división y módulo: `*`, `/`, `%` (la división `/` siempre devuelve `decimal`)
-6. Suma/concatenación y resta: `+`, `-`
-7. Comparación y comprobación de tipo: `<`, `<=`, `>`, `>=`, `es`
-8. Igualdad: `==`, `!=`
-9. Conjunción lógica (cortocircuito): `y`
-10. Disyunción lógica (cortocircuito): `o`
-11. Coalescencia nula (cortocircuito): `??`
-12. Asignación (solo sentencias): `=`, `+=`, `-=`, `*=`, `/=`
-
----
-
-## 3.6. Condicionales (`si`, `sino_si`, `sino`) y `elegir`
-
+### Selector `elegir` / `caso` / `defecto`
 ```cibao
-variable dia = "lunes"
-
+variable dia = "viernes"
 elegir dia {
-    caso "sabado", "domingo":
-        imprimir("Fin de semana")
-    caso "lunes":
-        imprimir("Inicio de semana")
+    caso "lunes", "martes":
+        mostrar("Inicio de semana")
+    caso "viernes" {
+        mostrar("¡Casi fin de semana!")
+    }
     defecto:
-        imprimir("Día laboral")
+        mostrar("Día laboral regular")
 }
 ```
 
-> A diferencia de `switch` tradicional, `elegir` no hace *fall-through*: al coincidir un `caso`, ejecuta su bloque y sale automáticamente.
-
----
-
-## 3.7. Ciclos (`mientras`, `para`, `romper`, `continuar`)
-
+### Ciclos `para`, `mientras` y `repetir`
 ```cibao
-para i en rango(1, 6) {
-    si i == 2 { continuar }
-    si i == 5 { romper }
-    imprimir($"Valor: {i}")
+para numero en 1..=5 {
+    si numero == 3 { continuar }
+    mostrar($"Número: {numero}")
+}
+
+variable intentos = 0
+mientras intentos < 3 {
+    intentos++
+}
+
+repetir 2 {
+    mostrar("Repetición rápida")
 }
 ```
 
-El ciclo `para ... en` admite `lista`, `diccionario` (iterando claves) y `texto` (iterando caracteres).
-
----
-
-## 3.8. Funciones, lambdas y programación funcional
+## 6. Funciones, Parámetros por Defecto y Lambdas Flecha (`=>`)
 
 ```cibao
-variable nums = [1, 2, 3, 4, 5, 6]
-variable resultado = nums
-    .filtrar(funcion(x: entero) -> booleano { retornar x % 2 == 0 })
-    .mapear(funcion(x: entero) -> entero { retornar x * x })
+funcion calcularTotal(precio: decimal, impuesto: decimal = 0.18): decimal {
+    retornar precio + (precio * impuesto)
+}
 
-imprimir(resultado)   # [4, 16, 36]
+// Expresión concisa de una línea con flecha =>
+funcion doble(x: entero): entero => x * 2
+
+// Lambdas en métodos funcionales de lista
+variable valores = 1..=8
+variable filtrados = valores
+    .filtrar(n => n % 2 == 0)
+    .mapear((n) => n ** 2)
+
+mostrar($"Total={calcularTotal(100.0)} | Pares^2={unir(filtrados, ', ')}")
 ```
 
----
-
-## 3.9. Clases, herencia (`extiende`, `super`) y polimorfismo (`es`)
+## 7. Programación Orientada a Objetos (POO)
 
 ```cibao
-clase Vehiculo {
-    publico marca: texto
+clase Persona {
+    publico nombre: texto
+    privado documento: texto
 
-    constructor(marca: texto) {
-        este.marca = marca
+    constructor(nombre: texto, documento: texto) {
+        este.nombre = nombre
+        este.documento = documento
     }
 
-    publico funcion describir() -> texto {
-        retornar $"Vehículo {este.marca}"
+    publico funcion presentarse(): texto {
+        retornar $"Hola, soy {este.nombre}"
     }
 }
 
-clase Automovil extiende Vehiculo {
-    publico puertas: entero
+clase Desarrollador extiende Persona {
+    publico lenguaje: texto
 
-    constructor(marca: texto, puertas: entero) {
-        super(marca)
-        este.puertas = puertas
+    constructor(nombre: texto, documento: texto, lenguaje: texto) {
+        super(nombre, documento)
+        este.lenguaje = lenguaje
     }
 
-    publico funcion describir() -> texto {
-        retornar $"{super.describir()} de {este.puertas} puertas"
+    publico funcion presentarse(): texto {
+        retornar $"{super.presentarse()} y programo en {este.lenguaje}"
     }
 }
 
-variable auto: Vehiculo = nuevo Automovil("Toyota", 4)
-imprimir(auto es Vehiculo, auto es Automovil, auto.describir())
+variable dev = nuevo Desarrollador("Lucía", "001", "Cibao 9.0")
+mostrar(dev.presentarse())
 ```
 
----
-
-## 3.10. Módulos e importaciones reales (`importar`)
-
-Cibao soporta importar archivos `.cibao` / `.alb` relativos al archivo en ejecución, con caché única y prevención de dependencias circulares, además de módulos virtuales de la biblioteca estándar:
+## 8. Manejo Seguro de Errores y Módulos
 
 ```cibao
-importar "./utilidades.cibao" como util
 importar "matematicas" como mat
-importar "json" como json
 
-imprimir($"Raíz: {mat.raiz(81)}")
-imprimir(json.json_a_texto({ ok: verdadero, version: 5 }))
-```
-
----
-
-## 3.11. Manejo de errores (`intentar`, `capturar`, `finalmente`, `lanzar`)
-
-```cibao
 intentar {
-    lanzar "No se pudo completar la operación."
+    mostrar($"Raíz cuadrada de 144 = {mat.raiz(144)}")
+    lanzar "Demostración de error controlado"
 } capturar (err) {
-    imprimir($"Error capturado: {err}")
+    mostrar($"Capturado: {err}")
 } finalmente {
-    imprimir("Limpieza garantizada.")
+    mostrar("Limpieza ejecutada siempre")
 }
 ```

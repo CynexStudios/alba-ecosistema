@@ -1,10 +1,13 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Alba.IDE.Models;
 using Alba.IDE.Services;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 
 namespace Alba.IDE.Controls;
 
@@ -48,11 +51,12 @@ public partial class VistaPreviaWebControl : UserControl
         }
         catch
         {
-            MarcoViewport.Background = Brush.Parse("#0D1320");
+            MarcoViewport.Background = Brush.Parse("#111827");
         }
 
         IBrush textoBrush = IntentarColor(res.ColorTextoCssHex, Brushes.WhiteSmoke);
-        IBrush acentoBrush = IntentarColor(res.ColorAcentoCssHex, Brushes.DeepSkyBlue);
+        IBrush acentoBrush = IntentarColor(res.ColorAcentoCssHex, Brush.Parse("#007ACC"));
+        IBrush tarjetaBrush = IntentarColor(res.FondoTarjetaCssHex, Brush.Parse("#1E293B"));
 
         ContenedorPreviewDom.Children.Clear();
         if (res.Bloques.Count == 0)
@@ -68,11 +72,10 @@ public partial class VistaPreviaWebControl : UserControl
         {
             foreach (BloquePreviewWeb b in res.Bloques)
             {
-                ContenedorPreviewDom.Children.Add(ConstruirControlPreview(b, textoBrush, acentoBrush));
+                ContenedorPreviewDom.Children.Add(ConstruirControlPreview(b, textoBrush, acentoBrush, tarjetaBrush));
             }
         }
 
-        // Actualiza errores de análisis manteniendo logs recientes del navegador
         var logsNavegador = _mensajes.Where(m => m.Origen == "Navegador" || m.Origen == "HTTP 404").TakeLast(25).ToList();
         _mensajes.Clear();
         foreach (MensajeConsolaWeb err in res.Errores)
@@ -96,15 +99,37 @@ public partial class VistaPreviaWebControl : UserControl
         ActualizarTituloConsola();
     }
 
-    private Control ConstruirControlPreview(BloquePreviewWeb bloque, IBrush textoBrush, IBrush acentoBrush)
+    private Control ConstruirControlPreview(
+        BloquePreviewWeb bloque,
+        IBrush textoBrush,
+        IBrush acentoBrush,
+        IBrush tarjetaBrush)
     {
         switch (bloque.Etiqueta)
         {
+            case "nav":
+            case "header":
+                return new Border
+                {
+                    Background = tarjetaBrush,
+                    BorderBrush = acentoBrush,
+                    BorderThickness = new Thickness(0, 0, 0, 2),
+                    CornerRadius = new CornerRadius(6),
+                    Padding = new Thickness(12, 8),
+                    Child = new TextBlock
+                    {
+                        Text = bloque.Texto,
+                        FontSize = 13,
+                        FontWeight = FontWeight.SemiBold,
+                        Foreground = textoBrush,
+                        TextWrapping = TextWrapping.Wrap
+                    }
+                };
             case "h1":
                 return new TextBlock
                 {
                     Text = bloque.Texto,
-                    FontSize = _modoViewport == ModoViewportWeb.Movil ? 20 : 24,
+                    FontSize = _modoViewport == ModoViewportWeb.Movil ? 20 : 25,
                     FontWeight = FontWeight.Bold,
                     Foreground = textoBrush,
                     TextWrapping = TextWrapping.Wrap
@@ -113,7 +138,7 @@ public partial class VistaPreviaWebControl : UserControl
                 return new TextBlock
                 {
                     Text = bloque.Texto,
-                    FontSize = 18,
+                    FontSize = 18.5,
                     FontWeight = FontWeight.SemiBold,
                     Foreground = textoBrush,
                     TextWrapping = TextWrapping.Wrap
@@ -130,22 +155,88 @@ public partial class VistaPreviaWebControl : UserControl
                     Foreground = textoBrush,
                     TextWrapping = TextWrapping.Wrap
                 };
+            case "img":
+                if (!string.IsNullOrWhiteSpace(bloque.ImagenRuta) && File.Exists(bloque.ImagenRuta))
+                {
+                    try
+                    {
+                        return new Border
+                        {
+                            CornerRadius = new CornerRadius(6),
+                            ClipToBounds = true,
+                            MaxHeight = 220,
+                            Child = new Image
+                            {
+                                Source = new Bitmap(bloque.ImagenRuta),
+                                Stretch = Stretch.Uniform
+                            }
+                        };
+                    }
+                    catch
+                    {
+                        // Si la imagen falla al decodificarse, muestra marcador descriptivo
+                    }
+                }
+                return new Border
+                {
+                    Background = tarjetaBrush,
+                    CornerRadius = new CornerRadius(6),
+                    Padding = new Thickness(10, 6),
+                    Child = new TextBlock
+                    {
+                        Text = $"[Imagen: {bloque.Texto} ({bloque.Href})]",
+                        FontSize = 11.5,
+                        Foreground = acentoBrush
+                    }
+                };
+            case "table":
+                var stackTabla = new StackPanel { Spacing = 4 };
+                for (int r = 0; r < bloque.FilasTabla.Count; r++)
+                {
+                    var filaPanel = new Grid();
+                    var celdas = bloque.FilasTabla[r];
+                    for (int c = 0; c < celdas.Count; c++)
+                    {
+                        filaPanel.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                        var tb = new TextBlock
+                        {
+                            Text = celdas[c],
+                            FontSize = 12,
+                            FontWeight = r == 0 ? FontWeight.Bold : FontWeight.Normal,
+                            Foreground = r == 0 ? acentoBrush : textoBrush,
+                            Margin = new Thickness(4, 2),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+                        Grid.SetColumn(tb, c);
+                        filaPanel.Children.Add(tb);
+                    }
+                    stackTabla.Children.Add(filaPanel);
+                }
+                return new Border
+                {
+                    Background = tarjetaBrush,
+                    BorderBrush = Brush.Parse("#334155"),
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(6),
+                    Padding = new Thickness(8),
+                    Child = stackTabla
+                };
             case "button":
                 var btn = new Button
                 {
                     Content = bloque.Texto,
                     Background = acentoBrush,
-                    Foreground = Brushes.Black,
+                    Foreground = Brushes.White,
                     FontWeight = FontWeight.SemiBold,
-                    Padding = new Avalonia.Thickness(12, 6),
-                    CornerRadius = new Avalonia.CornerRadius(6),
+                    Padding = new Thickness(14, 7),
+                    CornerRadius = new CornerRadius(6),
                     HorizontalAlignment = HorizontalAlignment.Left
                 };
                 btn.Click += (_, _) => AgregarLogExterno(new MensajeConsolaWeb
                 {
                     Nivel = "ok",
                     Origen = "Preview",
-                    Mensaje = $"Clic simulado en botón <button>: '{bloque.Texto}'"
+                    Mensaje = $"Clic en botón <button>: '{bloque.Texto}'"
                 });
                 return btn;
             case "a":
@@ -154,8 +245,8 @@ public partial class VistaPreviaWebControl : UserControl
                     Content = $"{bloque.Texto} ({(string.IsNullOrWhiteSpace(bloque.Href) ? "#" : bloque.Href)})",
                     Background = Brushes.Transparent,
                     Foreground = acentoBrush,
-                    BorderThickness = new Avalonia.Thickness(0),
-                    Padding = new Avalonia.Thickness(0, 2),
+                    BorderThickness = new Thickness(0),
+                    Padding = new Thickness(0, 2),
                     HorizontalAlignment = HorizontalAlignment.Left
                 };
                 linkBtn.Click += (_, _) =>
@@ -190,8 +281,8 @@ public partial class VistaPreviaWebControl : UserControl
                 return new Border
                 {
                     Background = Brush.Parse("#141D2F"),
-                    CornerRadius = new Avalonia.CornerRadius(4),
-                    Padding = new Avalonia.Thickness(8, 5),
+                    CornerRadius = new CornerRadius(4),
+                    Padding = new Thickness(8, 5),
                     Child = new TextBlock
                     {
                         Text = bloque.Texto,
@@ -250,6 +341,49 @@ public partial class VistaPreviaWebControl : UserControl
     private static IBrush IntentarColor(string hex, IBrush defecto)
     {
         try { return Brush.Parse(hex); } catch { return defecto; }
+    }
+
+    private void AlAbrirVentanaApp(object? sender, RoutedEventArgs e)
+    {
+        string url = TxtUrlWeb.Text?.Trim() ?? string.Empty;
+        if (!ServicioSeguridad.EsUrlHttpSegura(url, permitirHttpLocalhost: true))
+        {
+            SolicitarAbrirExterno?.Invoke();
+            return;
+        }
+
+        string[] navegadores = OperatingSystem.IsWindows()
+            ? ["msedge", "chrome", "brave"]
+            : ["google-chrome", "chromium", "chromium-browser", "brave", "microsoft-edge"];
+
+        foreach (string nav in navegadores)
+        {
+            try
+            {
+                var p = Process.Start(new ProcessStartInfo
+                {
+                    FileName = nav,
+                    ArgumentList = { $"--app={url}", "--new-window" },
+                    UseShellExecute = true
+                });
+                if (p is not null)
+                {
+                    AgregarLogExterno(new MensajeConsolaWeb
+                    {
+                        Nivel = "ok",
+                        Origen = "Ventana App",
+                        Mensaje = $"Vista HTML dedicada abierta con {nav} en {url}"
+                    });
+                    return;
+                }
+            }
+            catch
+            {
+                // Intenta siguiente navegador compatible
+            }
+        }
+
+        SolicitarAbrirExterno?.Invoke();
     }
 
     private void AlRecargarPreview(object? sender, RoutedEventArgs e) => SolicitarRecarga?.Invoke();

@@ -1,0 +1,240 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Alba.IDE.Views.DialogoCuentaUsuario"
+        Title="Cuenta Xynex y Bóveda de IA — Xynex Code Editor 9.0"
+        Width="680"
+        Height="610"
+        MinWidth="600"
+        MinHeight="540"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource FondoBaseBrush}"
+        Foreground="{DynamicResource TextoPrincipalBrush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+    <!-- Cabecera de perfil -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource FondoSuperficieBrush}"
+            BorderBrush="{DynamicResource BordeSutilBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="14"
+            Margin="0,0,0,14">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Grid.Column="0"
+                Width="44"
+                Height="44"
+                CornerRadius="22"
+                Background="{DynamicResource AcentoPrimarioBrush}"
+                Margin="0,0,12,0">
+          <TextBlock x:Name="TxtInicialesCuenta"
+                     Text="XY"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     FontWeight="Bold"
+                     FontSize="15"
+                     Foreground="#0B1220" />
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+          <TextBlock x:Name="TxtTituloCuenta" Text="Sin sesión activa (Modo Local)" FontSize="15" FontWeight="Bold" />
+          <TextBlock x:Name="TxtSubtituloCuenta"
+                     Text="Crea tu cuenta en la base de datos SQLite cifrada (PBKDF2-SHA512) o conecta tu propia IA."
+                     FontSize="11.5"
+                     Foreground="{DynamicResource TextoSecundarioBrush}"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+        <Button Grid.Column="2"
+                x:Name="BtnCerrarSesion"
+                Classes="ToolbarBtn"
+                Content="Cerrar sesión"
+                IsVisible="False"
+                Click="AlCerrarSesion" />
+      </Grid>
+    </Border>
+
+    <!-- Pestañas -->
+    <TabControl Grid.Row="1" x:Name="TabsCuenta">
+      <!-- Tab 1: Iniciar Sesión -->
+      <TabItem Header="Iniciar sesión">
+        <StackPanel Spacing="12" Margin="6,14">
+          <TextBlock Text="Accede a tu perfil de Xynex Code Editor 9.0 para sincronizar tus perfiles de IA cifrados y preferencias."
+                     FontSize="12"
+                     Foreground="{DynamicResource TextoSecundarioBrush}"
+                     TextWrapping="Wrap" />
+
+          <StackPanel Spacing="5">
+            <TextBlock Text="Usuario o correo electrónico:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <TextBox x:Name="TxtLoginUsuario" Watermark="ej: jaderson o correo@ejemplo.com" />
+          </StackPanel>
+
+          <StackPanel Spacing="5">
+            <TextBlock Text="Contraseña:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <TextBox x:Name="TxtLoginContrasena" PasswordChar="•" Watermark="Ingresa tu contraseña..." />
+          </StackPanel>
+
+          <Button Classes="PrimaryBtn"
+                  Content="Iniciar sesión de forma segura"
+                  HorizontalAlignment="Left"
+                  Click="AlIniciarSesion" />
+        </StackPanel>
+      </TabItem>
+
+      <!-- Tab 2: Crear Cuenta -->
+      <TabItem Header="Crear cuenta nueva">
+        <StackPanel Spacing="10" Margin="6,12">
+          <TextBlock Text="Tu contraseña nunca se guarda en texto plano: usamos PBKDF2-HMAC-SHA512 (310,000 iteraciones) con sal única por usuario."
+                     FontSize="11.5"
+                     Foreground="{DynamicResource TextoSecundarioBrush}"
+                     TextWrapping="Wrap" />
+
+          <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" Margin="0,2">
+            <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,8">
+              <TextBlock Text="Nombre de usuario:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox x:Name="TxtRegUsuario" Watermark="ej: dev_cibao" />
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,8">
+              <TextBlock Text="Nombre visible:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox x:Name="TxtRegNombreMostrar" Watermark="ej: Jaderson Liriano" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+              <TextBlock Text="Correo electrónico:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox x:Name="TxtRegCorreo" Watermark="tu@correo.com" />
+            </StackPanel>
+          </Grid>
+
+          <Grid ColumnDefinitions="*,*">
+            <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
+              <TextBlock Text="Contraseña (mín. 8 caracteres):" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox x:Name="TxtRegPass1" PasswordChar="•" Watermark="••••••••" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
+              <TextBlock Text="Confirmar contraseña:" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+              <TextBox x:Name="TxtRegPass2" PasswordChar="•" Watermark="••••••••" />
+            </StackPanel>
+          </Grid>
+
+          <Button Classes="PrimaryBtn"
+                  Content="Registrar cuenta y entrar"
+                  HorizontalAlignment="Left"
+                  Margin="0,6,0,0"
+                  Click="AlRegistrarCuenta" />
+        </StackPanel>
+      </TabItem>
+
+      <!-- Tab 3: Conectar Tu Propia IA (Bóveda Cifrada) -->
+      <TabItem Header="Conectar mi IA (Agentes)">
+        <Grid RowDefinitions="Auto,*" Margin="6,10">
+          <Border Grid.Row="0"
+                  Background="{DynamicResource FondoSuperficieBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="12"
+                  Margin="0,0,0,10">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Conecta cualquier IA tuya (Local con Ollama/LM Studio, o tus propias claves de Gemini, OpenAI, DeepSeek, Groq, Claude):"
+                         FontSize="11.5"
+                         Foreground="{DynamicResource TextoSecundarioBrush}"
+                         TextWrapping="Wrap" />
+
+              <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,6">
+                  <TextBlock Text="Proveedor:" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  <ComboBox x:Name="CmbProveedorIA"
+                            HorizontalAlignment="Stretch"
+                            SelectionChanged="AlCambiarProveedorIA" />
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,6">
+                  <TextBlock Text="Nombre del perfil:" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  <TextBox x:Name="TxtNombrePerfilIA" Watermark="Ej: Mi Gemini Pro / Ollama Qwen" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,6">
+                  <TextBlock Text="Endpoint URL (HTTPS o localhost):" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  <TextBox x:Name="TxtEndpointIA" Watermark="https://..." />
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="8,0,0,6">
+                  <TextBlock Text="Modelo:" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  <TextBox x:Name="TxtModeloIA" Watermark="ej: gemini-2.5-flash, gpt-4o-mini, qwen2.5-coder" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                  <TextBlock Text="Tu API Key personal (opcional en Ollama local; se cifra con DPAPI / AES-256-GCM):"
+                             FontSize="11.5"
+                             Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0"
+                             x:Name="TxtApiKeyIA"
+                             PasswordChar="•"
+                             Watermark="Pega aquí tu propia clave API..."
+                             Margin="0,0,8,0" />
+                    <Button Grid.Column="1"
+                            Classes="PrimaryBtn"
+                            Content="Guardar y activar IA"
+                            Click="AlGuardarPerfilIA" />
+                  </Grid>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="1"
+                  Background="{DynamicResource FondoPanelBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="8">
+            <Grid RowDefinitions="Auto,*">
+              <TextBlock Grid.Row="0"
+                         Text="Perfiles de IA guardados en tu bóveda cifrada:"
+                         FontSize="12"
+                         FontWeight="SemiBold"
+                         Margin="4,2,4,6" />
+              <ScrollViewer Grid.Row="1">
+                <ItemsControl x:Name="ListaPerfilesIA">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Background="{DynamicResource FondoSuperficieBrush}"
+                              BorderBrush="{DynamicResource BordeSutilBrush}"
+                              BorderThickness="1"
+                              CornerRadius="6"
+                              Padding="10,8"
+                              Margin="0,0,0,6">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                          <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock Text="{Binding NombrePerfil}" FontWeight="SemiBold" FontSize="12.5" />
+                            <TextBlock Text="{Binding EtiquetaModelo}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                          </StackPanel>
+                          <Button Grid.Column="1"
+                                  Classes="ToolbarBtn"
+                                  Content="{Binding TextoEstado}"
+                                  Tag="{Binding Id}"
+                                  Margin="0,0,6,0"
+                                  Click="AlActivarPerfilLista" />
+                          <Button Grid.Column="2"
+                                  Classes="ToolbarBtn"
+                                  Content="Quitar"
+                                  Tag="{Binding Id}"
+                                  Click="AlEliminarPerfilLista" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+        </Grid>
+      </TabItem>
+    </TabControl>
+
+    <!-- Estado inferior -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,12,0,0">
+      <TextBlock Grid.Column="0"
+                 x:Name="TxtMensajeEstado"
+                 FontSize="12"
+                 Foreground="{DynamicResource AdvertenciaColorBrush}"
+                 VerticalAlignment="Center"
+                 TextWrapping="Wrap" />
+      <Button Grid.Column="1" Classes="PrimaryBtn" Content="Listo / Cerrar" Click="AlCerrar" />
+    </Grid>
+  </Grid>
+</Window>

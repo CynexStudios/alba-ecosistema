@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${1:-5.0.0}"
+VERSION="${1:-9.0.0}"
 ARCH="amd64"
 RID="linux-x64"
 
@@ -27,6 +27,14 @@ dotnet publish "${REPO_ROOT}/src/Alba.CLI/Alba.CLI.csproj" \
 chmod +x "${STAGE_DIR}/ide/Alba.IDE" "${STAGE_DIR}/cli/alba"
 ln -sf "alba" "${STAGE_DIR}/cli/cibao"
 
+cat > "${STAGE_DIR}/xynex.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "${HERE}/ide/Alba.IDE" "$@"
+EOF
+chmod +x "${STAGE_DIR}/xynex.sh"
+
 # 2. Compilar host nativo C++20 si g++ está disponible
 if command -v g++ >/dev/null 2>&1; then
     g++ -std=c++20 -O2 -static-libstdc++ -static-libgcc -DALBA_PLATFORM_LINUX=1 "${REPO_ROOT}/native-launcher/src/main.cpp" -o "${STAGE_DIR}/alba-host"
@@ -38,7 +46,7 @@ cp -R "${REPO_ROOT}/addons" "${STAGE_DIR}/addons"
 cp -R "${REPO_ROOT}/docs" "${STAGE_DIR}/docs"
 cp -R "${REPO_ROOT}/examples" "${STAGE_DIR}/examples"
 
-# 4. Archivo portable .tar.gz
+# 4. Archivo portable universal .tar.gz (Arch, CachyOS, Ubuntu, Fedora, etc.)
 TAR_OUT="${DIST_DIR}/XynexCodeEditor-${VERSION}-${RID}-portable.tar.gz"
 tar -C "${STAGE_DIR}" -czf "${TAR_OUT}" .
 echo "Archivo portable .tar.gz generado: ${TAR_OUT}"
@@ -73,9 +81,9 @@ Priority: optional
 Architecture: ${ARCH}
 Maintainer: Jaderson Liriano (CynexStudios) <https://github.com/CynexStudios/alba-ecosistema>
 Depends: libx11-6, libice6, libsm6, libfontconfig1
-Description: Xynex Code Editor 5.0 — Lenguaje de programacion Cibao e IDE nativo
+Description: Xynex Code Editor 9.0 — Lenguaje de programacion Cibao e IDE nativo
  Entorno de desarrollo integrado y motor autocontenido para programar en
- Cibao (.cibao / .alb). No requiere instalar .NET SDK adicional.
+ Cibao (.cibao / .alb), Python, HTML, JS/TS y mas. Incluye cuentas SQLite, Bot Tutor y Agente IA.
 EOF
 
     cat > "${DEB_ROOT}/DEBIAN/postinst" <<'EOF'
@@ -107,11 +115,12 @@ if command -v rpmbuild >/dev/null 2>&1; then
     echo "Paquete .rpm generado en: ${DIST_DIR}/XynexCodeEditor-${VERSION}-${RID}.rpm"
 fi
 
-# 7. Paquete .AppImage portable
+# 7. Paquete .AppImage portable universal (con fallback sin FUSE)
 APPIMAGE_TOOL="${APPIMAGETOOL:-$(command -v appimagetool || true)}"
 if [ -n "${APPIMAGE_TOOL}" ] && [ -x "${APPIMAGE_TOOL}" ]; then
     APPDIR="${DIST_DIR}/XynexCodeEditor.AppDir"
-    rm -rf "${APPDIR}"
+    APPIMAGE_OUT="${DIST_DIR}/XynexCodeEditor-${VERSION}-${RID}.AppImage"
+    rm -rf "${APPDIR}" "${APPIMAGE_OUT}"
     mkdir -p "${APPDIR}/usr/lib/xynex-code-editor" "${APPDIR}/usr/bin"
     cp -R "${STAGE_DIR}/"* "${APPDIR}/usr/lib/xynex-code-editor/"
     cp "${SCRIPT_DIR}/alba-studio.desktop" "${APPDIR}/xynex-code-editor.desktop"
@@ -124,6 +133,14 @@ exec "${HERE}/usr/lib/xynex-code-editor/ide/Alba.IDE" "$@"
 EOF
     chmod +x "${APPDIR}/AppRun"
 
-    ARCH=x86_64 "${APPIMAGE_TOOL}" "${APPDIR}" "${DIST_DIR}/XynexCodeEditor-${VERSION}-${RID}.AppImage"
-    echo "Paquete .AppImage generado: ${DIST_DIR}/XynexCodeEditor-${VERSION}-${RID}.AppImage"
+    if ! ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "${APPIMAGE_TOOL}" --no-appstream "${APPDIR}" "${APPIMAGE_OUT}"; then
+        echo "==> Reintentando appimagetool mediante extracción directa sin FUSE..."
+        TOOL_EXTRACT="${DIST_DIR}/appimagetool-extracted"
+        rm -rf "${TOOL_EXTRACT}"
+        mkdir -p "${TOOL_EXTRACT}"
+        (cd "${TOOL_EXTRACT}" && "${APPIMAGE_TOOL}" --appimage-extract >/dev/null)
+        ARCH=x86_64 "${TOOL_EXTRACT}/squashfs-root/AppRun" --no-appstream "${APPDIR}" "${APPIMAGE_OUT}"
+    fi
+    chmod +x "${APPIMAGE_OUT}"
+    echo "Paquete .AppImage generado: ${APPIMAGE_OUT}"
 fi

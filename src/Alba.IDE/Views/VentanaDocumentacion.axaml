@@ -1,51 +1,95 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Alba.IDE.Views.VentanaDocumentacion"
-        Title="Documentación de Cibao y Xynex Code Editor 5.0"
-        Width="900"
-        Height="600"
+        Title="Documentación Oficial — Cibao Code 9.0 &amp; Xynex Code Editor 9.0"
+        Width="1040"
+        Height="680"
+        MinWidth="820"
+        MinHeight="520"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource FondoBaseBrush}"
         Foreground="{DynamicResource TextoPrincipalBrush}">
-  <Grid ColumnDefinitions="260,*" Margin="14">
-    <Border Grid.Column="0"
+  <Grid RowDefinitions="Auto,*" Margin="16">
+    <!-- Barra superior -->
+    <Border Grid.Row="0"
             Background="{DynamicResource FondoSuperficieBrush}"
             BorderBrush="{DynamicResource BordeSutilBrush}"
             BorderThickness="1"
             CornerRadius="8"
-            Padding="10"
-            Margin="0,0,12,0">
-      <Grid RowDefinitions="Auto,*">
-        <TextBlock Grid.Row="0"
-                   Text="GUÍAS Y MANUALES"
-                   FontSize="11"
-                   FontWeight="Bold"
-                   Foreground="{DynamicResource TextoSecundarioBrush}"
-                   Margin="4,2,4,8" />
-        <ListBox Grid.Row="1"
-                 x:Name="ListaDocumentos"
-                 Background="Transparent"
-                 SelectionChanged="AlSeleccionarDocumento" />
+            Padding="14,10"
+            Margin="0,0,0,12">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="2">
+          <TextBlock Text="Documentación Completa — Cibao Code 9.0 y Xynex IDE" FontSize="16" FontWeight="Bold" />
+          <TextBlock Text="Creada desde cero para explicar todo el lenguaje, tipos de datos, POO, entornos nativos y Agente IA."
+                     FontSize="12"
+                     Foreground="{DynamicResource TextoSecundarioBrush}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Classes="ToolbarBtn"
+                  Content="Probar ejemplo en Editor"
+                  Click="AlProbarEjemploActual" />
+          <Button Classes="PrimaryBtn"
+                  Content="Abrir Manual HTML Interactivo"
+                  Click="AlAbrirManualHtmlInteractivo" />
+        </StackPanel>
       </Grid>
     </Border>
 
-    <Border Grid.Column="1"
-            Background="{DynamicResource FondoSuperficieBrush}"
-            BorderBrush="{DynamicResource BordeSutilBrush}"
-            BorderThickness="1"
-            CornerRadius="8"
-            Padding="18">
-      <ScrollViewer>
-        <TextBox x:Name="TxtContenidoDoc"
-                 IsReadOnly="True"
-                 AcceptsReturn="True"
-                 TextWrapping="Wrap"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 Foreground="{DynamicResource TextoPrincipalBrush}"
-                 FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
-                 FontSize="13" />
-      </ScrollViewer>
-    </Border>
+    <!-- Índice + Visor -->
+    <Grid Grid.Row="1" ColumnDefinitions="280,14,*">
+      <Border Grid.Column="0"
+              Background="{DynamicResource FondoSuperficieBrush}"
+              BorderBrush="{DynamicResource BordeSutilBrush}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="10">
+        <Grid RowDefinitions="Auto,Auto,*">
+          <TextBlock Grid.Row="0"
+                     Text="CAPÍTULOS Y GUÍAS (v9.0)"
+                     FontSize="10.5"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource TextoApagadoBrush}"
+                     Margin="2,2,2,8" />
+          <TextBox Grid.Row="1"
+                   x:Name="TxtBuscarDoc"
+                   Watermark="Buscar tema (ej: variables, clases, python)..."
+                   Margin="0,0,0,8"
+                   TextChanged="AlFiltrarDocumentos" />
+          <ListBox Grid.Row="2"
+                   x:Name="ListaDocumentos"
+                   Background="Transparent"
+                   SelectionChanged="AlSeleccionarDocumento" />
+        </Grid>
+      </Border>
+
+      <Border Grid.Column="2"
+              Background="{DynamicResource FondoSuperficieBrush}"
+              BorderBrush="{DynamicResource BordeSutilBrush}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="18">
+        <Grid RowDefinitions="Auto,*">
+          <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+            <TextBlock x:Name="TxtTituloDoc" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+            <Separator Background="{DynamicResource BordeSutilBrush}" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="1">
+            <TextBox x:Name="TxtContenidoDoc"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Background="{DynamicResource FondoEditorBrush}"
+                     BorderBrush="{DynamicResource BordeSutilBrush}"
+                     BorderThickness="1"
+                     CornerRadius="6"
+                     Padding="14"
+                     Foreground="{DynamicResource TextoPrincipalBrush}"
+                     FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                     FontSize="13" />
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
   </Grid>
 </Window>

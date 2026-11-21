@@ -72,3 +72,45 @@ public sealed class AddonCargado
 
     public string ExtensionesTexto => string.Join(", ", Manifiesto.Extensiones);
 }
+
+public sealed class AddonCatalogoEnLinea
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("nombre")]
+    public string Nombre { get; set; } = string.Empty;
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = string.Empty;
+
+    [JsonPropertyName("descripcion")]
+    public string Descripcion { get; set; } = string.Empty;
+
+    [JsonPropertyName("autor")]
+    public string Autor { get; set; } = string.Empty;
+
+    [JsonPropertyName("lenguaje")]
+    public string Lenguaje { get; set; } = string.Empty;
+
+    [JsonPropertyName("extensiones")]
+    public List<string> Extensiones { get; set; } = [];
+
+    [JsonPropertyName("ejecutable")]
+    public string Ejecutable { get; set; } = string.Empty;
+
+    [JsonPropertyName("urlManifiesto")]
+    public string? UrlManifiesto { get; set; }
+
+    [JsonPropertyName("urlSnippets")]
+    public string? UrlSnippets { get; set; }
+
+    [JsonPropertyName("snippetsIntegrados")]
+    public List<SnippetAddon> SnippetsIntegrados { get; set; } = [];
+
+    [JsonIgnore]
+    public bool YaInstalado { get; set; }
+
+    [JsonIgnore]
+    public string ExtensionesTexto => string.Join(", ", Extensiones);
+}

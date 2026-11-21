@@ -1,0 +1,33 @@
+{
+  "id": "xynex-vs-pro",
+  "nombre": "Xynex Visual Studio Pro (Oscuro Oficial)",
+  "esOscuro": true,
+  "fondoBase": "#181818",
+  "fondoSuperficie": "#252526",
+  "fondoPanel": "#1F1F1F",
+  "fondoBarra": "#2C2C2E",
+  "fondoEditor": "#1E1E1E",
+  "fondoLineaActual": "#28282B",
+  "fondoHover": "#323236",
+  "bordeSutil": "#3C3C42",
+  "textoPrincipal": "#E5E7EB",
+  "textoSecundario": "#B0B7C3",
+  "textoApagado": "#858585",
+  "acentoPrimario": "#007ACC",
+  "acentoSecundario": "#3794FF",
+  "exitoColor": "#3FB950",
+  "advertenciaColor": "#CCA700",
+  "errorColor": "#F14C4C",
+  "sintaxis": {
+    "comentario": "#6A9955",
+    "cadena": "#CE9178",
+    "numero": "#B5CEA8",
+    "palabraControl": "#C586C0",
+    "palabraDeclaracion": "#569CD6",
+    "tipoDato": "#4EC9B0",
+    "valorEspecial": "#4FC1FF",
+    "funcionIntegrada": "#DCDCAA",
+    "operadorLogico": "#C586C0",
+    "delimitador": "#D4D4D4"
+  }
+}

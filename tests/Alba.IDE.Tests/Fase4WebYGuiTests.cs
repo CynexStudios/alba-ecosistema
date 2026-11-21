@@ -183,7 +183,7 @@ public sealed class Fase4WebYGuiTests : IDisposable
 
         var addons = new GestorAddons(Path.Combine(_carpetaTemporal, "addons_test"));
         var gestorTools = new GestorTools(addons, detector);
-        await gestorTools.RefrescarCatalogoAsync(true);
+        await gestorTools.RefrescarCatalogoAsync(forzar: true);
 
         Assert.Contains(gestorTools.Catalogo, t => t.Id == "tool-html-web" && t.Instalado);
         Assert.Contains(gestorTools.Catalogo, t => t.Id == "tool-avalonia-ui" && t.Categoria == CategoriaHerramienta.AplicacionesGraficas);

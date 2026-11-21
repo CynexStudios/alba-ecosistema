@@ -1,4 +1,4 @@
-name: CI Multiplataforma (Xynex Code Editor & Cibao 5.0)
+name: CI Multiplataforma (Xynex Code Editor & Cibao 9.0)
 
 on:
   push:

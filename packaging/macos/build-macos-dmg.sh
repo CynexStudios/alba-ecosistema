@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${1:-5.0.0}"
+VERSION="${1:-9.0.0}"
 ARCH="${2:-arm64}" # arm64 (Apple Silicon) o x64 (Intel)
 RID="osx-${ARCH}"
 

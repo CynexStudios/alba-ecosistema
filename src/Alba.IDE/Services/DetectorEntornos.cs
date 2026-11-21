@@ -4,7 +4,8 @@ using Alba.IDE.Models;
 namespace Alba.IDE.Services;
 
 /// <summary>
-/// Detecta de forma real los SDK, compiladores, intérpretes y herramientas instalados en el equipo del usuario.
+/// Detecta de forma real los SDK, compiladores, intérpretes y herramientas instalados en el equipo del usuario
+/// para Cibao 9.0, HTML/CSS, JavaScript (Node.js), TypeScript, Python, C# y C++.
 /// </summary>
 public sealed class DetectorEntornos
 {
@@ -31,6 +32,26 @@ public sealed class DetectorEntornos
                 RequiereSdkExterno = true,
                 VersionDetectada = string.Empty,
                 ComandoEjecutable = "python"
+            },
+            new EstadoEntornoLenguaje
+            {
+                Lenguaje = LenguajeSoportado.JavaScript,
+                Nombre = "JavaScript (Node.js)",
+                ExtensionPrincipal = ".js",
+                Disponible = false,
+                RequiereSdkExterno = true,
+                VersionDetectada = string.Empty,
+                ComandoEjecutable = "node"
+            },
+            new EstadoEntornoLenguaje
+            {
+                Lenguaje = LenguajeSoportado.TypeScript,
+                Nombre = "TypeScript",
+                ExtensionPrincipal = ".ts",
+                Disponible = false,
+                RequiereSdkExterno = true,
+                VersionDetectada = string.Empty,
+                ComandoEjecutable = "tsc"
             },
             new EstadoEntornoLenguaje
             {
@@ -68,6 +89,14 @@ public sealed class DetectorEntornos
                 ? [("python", "--version"), ("python3", "--version"), ("py", "--version")]
                 : [("python3", "--version"), ("python", "--version")]);
 
+        Task<(bool Ok, string Ver, string Cmd)> nodeTask = DetectarPrimeroAsync(
+            forzarRecarga,
+            [("node", "--version")]);
+
+        Task<(bool Ok, string Ver, string Cmd)> tsTask = DetectarPrimeroAsync(
+            forzarRecarga,
+            [("tsc", "--version"), ("ts-node", "--version")]);
+
         Task<(bool Ok, string Ver, string Cmd)> dotnetTask = DetectarPrimeroAsync(
             forzarRecarga,
             [("dotnet", "--version")]);
@@ -76,9 +105,11 @@ public sealed class DetectorEntornos
             forzarRecarga,
             [("g++", "--version"), ("clang++", "--version")]);
 
-        await Task.WhenAll(pythonTask, dotnetTask, cppTask);
+        await Task.WhenAll(pythonTask, nodeTask, tsTask, dotnetTask, cppTask);
 
         var py = await pythonTask;
+        var js = await nodeTask;
+        var ts = await tsTask;
         var cs = await dotnetTask;
         var cpp = await cppTask;
 
@@ -95,6 +126,26 @@ public sealed class DetectorEntornos
                 RequiereSdkExterno = true,
                 VersionDetectada = py.Ver,
                 ComandoEjecutable = py.Ok ? py.Cmd : "python"
+            },
+            new EstadoEntornoLenguaje
+            {
+                Lenguaje = LenguajeSoportado.JavaScript,
+                Nombre = "JavaScript (Node.js)",
+                ExtensionPrincipal = ".js",
+                Disponible = js.Ok,
+                RequiereSdkExterno = true,
+                VersionDetectada = js.Ok ? $"Node {js.Ver}" : string.Empty,
+                ComandoEjecutable = "node"
+            },
+            new EstadoEntornoLenguaje
+            {
+                Lenguaje = LenguajeSoportado.TypeScript,
+                Nombre = "TypeScript",
+                ExtensionPrincipal = ".ts",
+                Disponible = ts.Ok || js.Ok,
+                RequiereSdkExterno = true,
+                VersionDetectada = ts.Ok ? ts.Ver : (js.Ok ? "Node + Diagnóstico nativo" : string.Empty),
+                ComandoEjecutable = ts.Ok ? ts.Cmd : "tsc"
             },
             new EstadoEntornoLenguaje
             {
@@ -123,7 +174,7 @@ public sealed class DetectorEntornos
 
     public async Task<Dictionary<string, (bool Disponible, string Version)>> DetectarHerramientasExtendidasAsync(bool forzarRecarga = false)
     {
-        string[] herramientas = ["git", "node", "cmake", "gdb", "java", "go", "rustc", "tsc", "php", "ruby", "pip"];
+        string[] herramientas = ["git", "node", "npm", "tsc", "cmake", "gdb", "java", "go", "rustc", "php", "ruby", "pip"];
         var tareas = herramientas.ToDictionary(
             h => h,
             h => DetectarComandoAsync(h, h == "java" ? "-version" : "--version", forzarRecarga));
@@ -233,11 +284,11 @@ public sealed class DetectorEntornos
     private static EstadoEntornoLenguaje CrearEstadoHtml() => new()
     {
         Lenguaje = LenguajeSoportado.Html,
-        Nombre = "HTML / Web",
+        Nombre = "HTML / CSS / Web",
         ExtensionPrincipal = ".html",
         Disponible = true,
         RequiereSdkExterno = false,
-        VersionDetectada = "HTML5 / Navegador",
+        VersionDetectada = "HTML5 / CSS3 nativo",
         ComandoEjecutable = "browser"
     };
 

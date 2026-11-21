@@ -14,8 +14,8 @@ using AvaloniaEdit.Highlighting.Xshd;
 namespace Alba.IDE.Controls;
 
 /// <summary>
-/// Editor de código Alba Studio 2.0 basado en AvaloniaEdit con soporte de temas dinámicos,
-/// diagnósticos en vivo, zoom, autocompletado, cierre automático e indentación inteligente.
+/// Editor de código de Xynex Code Editor 9.0 basado en AvaloniaEdit con temas Visual Studio,
+/// tipografía/colores personalizables, IntelliSense visible, diagnósticos en vivo y zoom.
 /// </summary>
 public sealed class EditorCodigoAlba : TextEditor
 {
@@ -38,9 +38,9 @@ public sealed class EditorCodigoAlba : TextEditor
         ShowLineNumbers = true;
         FontFamily = new FontFamily("JetBrains Mono, Cascadia Mono, Consolas, SF Mono, DejaVu Sans Mono, monospace");
         FontSize = 14;
-        Background = Brush.Parse("#0B111E");
-        Foreground = Brush.Parse("#E2E8F0");
-        LineNumbersForeground = Brush.Parse("#64748B");
+        Background = Brush.Parse("#1E1E1E");
+        Foreground = Brush.Parse("#D4D4D4");
+        LineNumbersForeground = Brush.Parse("#6E7681");
         Padding = new Thickness(10, 8);
 
         Options.EnableHyperlinks = false;
@@ -83,9 +83,19 @@ public sealed class EditorCodigoAlba : TextEditor
     {
         _configuracion = config;
 
-        if (Color.TryParse(tema.FondoEditor, out Color bg))
+        string bgHex = config is { UsarColoresEditorPersonalizados: true } &&
+                       !string.IsNullOrWhiteSpace(config.ColorFondoEditorPersonalizado)
+            ? config.ColorFondoEditorPersonalizado
+            : tema.FondoEditor;
+
+        string fgHex = config is { UsarColoresEditorPersonalizados: true } &&
+                       !string.IsNullOrWhiteSpace(config.ColorTextoEditorPersonalizado)
+            ? config.ColorTextoEditorPersonalizado
+            : tema.TextoPrincipal;
+
+        if (Color.TryParse(bgHex, out Color bg))
             Background = new SolidColorBrush(bg);
-        if (Color.TryParse(tema.TextoPrincipal, out Color fg))
+        if (Color.TryParse(fgHex, out Color fg))
             Foreground = new SolidColorBrush(fg);
         if (Color.TryParse(tema.TextoApagado, out Color ln))
             LineNumbersForeground = new SolidColorBrush(ln);
@@ -94,8 +104,25 @@ public sealed class EditorCodigoAlba : TextEditor
 
         if (config is not null)
         {
-            FontSize = Math.Clamp(config.TamanoFuenteEditor, 10, 30);
+            FontSize = Math.Clamp(config.TamanoFuenteEditor, 10, 32);
             Options.IndentationSize = Math.Clamp(config.TamanoTabulacion, 2, 8);
+            ShowLineNumbers = config.MostrarNumerosLinea;
+            WordWrap = config.AjusteDeLinea;
+            Options.HighlightCurrentLine = config.ResaltarLineaActual;
+            Options.ShowSpaces = config.MostrarEspaciosEnBlanco;
+            Options.ShowTabs = config.MostrarEspaciosEnBlanco;
+
+            if (!string.IsNullOrWhiteSpace(config.FuenteEditor))
+            {
+                try
+                {
+                    FontFamily = new FontFamily($"{config.FuenteEditor}, JetBrains Mono, Cascadia Mono, Consolas, monospace");
+                }
+                catch
+                {
+                    // Conserva fuente predeterminada
+                }
+            }
         }
 
         if (_gestorTemas is not null)
@@ -113,6 +140,8 @@ public sealed class EditorCodigoAlba : TextEditor
 
     public void CargarArchivo(ArchivoAbierto? archivo)
     {
+        _ventanaCompletado?.Close();
+
         if (archivo is null)
         {
             Document = new AvaloniaEdit.Document.TextDocument(string.Empty);
@@ -181,9 +210,18 @@ public sealed class EditorCodigoAlba : TextEditor
         {
             ".htm" => ".html",
             ".cc" or ".cxx" => ".cpp",
+            ".mjs" => ".js",
+            ".ts" or ".tsx" => ".js",
+            ".py" => ".py",
             _ => ext
         };
-        SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(extNormalizada);
+
+        IHighlightingDefinition? def = HighlightingManager.Instance.GetDefinitionByExtension(extNormalizada);
+        if (def is null && ext is ".py" or ".ts" or ".tsx" or ".json")
+        {
+            def = HighlightingManager.Instance.GetDefinitionByExtension(".js") ?? _resaltadoAlba;
+        }
+        SyntaxHighlighting = def;
     }
 
     public bool BuscarSiguiente(string termino, bool distinguirMayusculas)
@@ -277,7 +315,7 @@ public sealed class EditorCodigoAlba : TextEditor
         }
 
         e.Handled = true;
-        double nueva = Math.Clamp(FontSize + (e.Delta.Y > 0 ? 1 : -1), 10, 30);
+        double nueva = Math.Clamp(FontSize + (e.Delta.Y > 0 ? 1 : -1), 10, 32);
         if (Math.Abs(nueva - FontSize) > 0.1)
         {
             FontSize = nueva;
@@ -359,10 +397,20 @@ public sealed class EditorCodigoAlba : TextEditor
             return;
         }
 
-        if (char.IsLetter(e.Text[0]) || e.Text[0] == '_')
+        bool autoActivo = _configuracion?.AutocompletadoAutomatico ?? true;
+        if (!autoActivo) return;
+
+        char c = e.Text[0];
+        if (c == '.' || c == '<')
+        {
+            MostrarAutocompletado(string.Empty, c);
+            return;
+        }
+
+        if (char.IsLetter(c) || c == '_')
         {
             string prefijo = ObtenerPrefijoActual();
-            if (prefijo.Length >= 2)
+            if (prefijo.Length >= 1)
             {
                 MostrarAutocompletado(prefijo);
             }
@@ -396,7 +444,7 @@ public sealed class EditorCodigoAlba : TextEditor
         }
 
         string indentBase = new string(' ', espacios);
-        if (textoAnterior.TrimEnd().EndsWith('{'))
+        if (textoAnterior.TrimEnd().EndsWith('{') || textoAnterior.TrimEnd().EndsWith(':'))
         {
             indentBase += new string(' ', Math.Clamp(Options.IndentationSize, 2, 8));
         }
@@ -435,30 +483,61 @@ public sealed class EditorCodigoAlba : TextEditor
         return Document.GetText(inicio, offset - inicio);
     }
 
-    private void MostrarAutocompletado(string prefijo)
+    private void MostrarAutocompletado(string prefijo, char? caracterDisparador = null)
     {
         if (_servicioAutocompletado is null || string.IsNullOrEmpty(_rutaArchivoActual))
         {
             return;
         }
 
-        IReadOnlyList<ICompletionData> sugerencias = _servicioAutocompletado.ObtenerSugerencias(_rutaArchivoActual, prefijo);
+        string codigoDoc = Document?.Text ?? string.Empty;
+        IReadOnlyList<ICompletionData> sugerencias = _servicioAutocompletado.ObtenerSugerencias(
+            _rutaArchivoActual,
+            prefijo,
+            codigoDoc,
+            caracterDisparador);
+
         if (sugerencias.Count == 0)
         {
             _ventanaCompletado?.Close();
             return;
         }
 
+        if (_ventanaCompletado is not null)
+        {
+            _ventanaCompletado.Close();
+        }
+
+        string fondoHex = _gestorTemas?.TemaActual.FondoSuperficie ?? "#252526";
+        string bordeHex = _gestorTemas?.TemaActual.AcentoPrimario ?? "#007ACC";
+        string textoHex = _gestorTemas?.TemaActual.TextoPrincipal ?? "#F3F4F6";
+
         _ventanaCompletado = new CompletionWindow(TextArea)
         {
-            StartOffset = Math.Max(0, TextArea.Caret.Offset - prefijo.Length)
+            StartOffset = Math.Max(0, TextArea.Caret.Offset - prefijo.Length),
+            MinWidth = 380,
+            MaxWidth = 560,
+            MaxHeight = 290,
+            Background = Brush.Parse(fondoHex),
+            Foreground = Brush.Parse(textoHex),
+            BorderBrush = Brush.Parse(bordeHex),
+            BorderThickness = new Thickness(1.2)
         };
 
-        foreach (ICompletionData item in sugerencias)
+        _ventanaCompletado.CompletionList.Background = Brush.Parse(fondoHex);
+        _ventanaCompletado.CompletionList.Foreground = Brush.Parse(textoHex);
+        if (_ventanaCompletado.CompletionList.ListBox is { } lb)
+        {
+            lb.Background = Brush.Parse(fondoHex);
+            lb.Foreground = Brush.Parse(textoHex);
+        }
+
+        foreach (ICompletionData item in sugerencias.Take(40))
         {
             _ventanaCompletado.CompletionList.CompletionData.Add(item);
         }
 
+        _ventanaCompletado.CompletionList.SelectItem(prefijo);
         _ventanaCompletado.Closed += (_, _) => _ventanaCompletado = null;
         _ventanaCompletado.Show();
     }

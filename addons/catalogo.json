@@ -1,0 +1,85 @@
+[
+  {
+    "id": "web-html-css-pro",
+    "nombre": "HTML5 & CSS3 Studio Pack",
+    "version": "9.0.0",
+    "descripcion": "Snippets profesionales HTML5/CSS3, layout Flexbox/Grid y componentes responsivos listos para Live Preview.",
+    "autor": "CynexStudios",
+    "lenguaje": "HTML / CSS",
+    "extensiones": [".html", ".htm", ".css"],
+    "ejecutable": "browser",
+    "urlManifiesto": "https://raw.githubusercontent.com/CynexStudios/alba-ecosistema/main/addons/catalogo.json",
+    "snippetsIntegrados": [
+      { "prefijo": "html5", "titulo": "Plantilla HTML5 Moderna", "descripcion": "Documento HTML5 responsivo con meta viewport y estilos", "cuerpo": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>Mi Sitio Xynex</title>\n</head>\n<body>\n  <main class=\"card\">\n    <h1>Hola Mundo Web</h1>\n    <p>Editado en Xynex Code Editor 9.0</p>\n  </main>\n</body>\n</html>" },
+      { "prefijo": "card", "titulo": "Tarjeta CSS Moderna", "descripcion": "Componente tarjeta con bordes redondeados y sombra", "cuerpo": ".card {\n  background: #161b22;\n  border: 1px solid #30363d;\n  border-radius: 12px;\n  padding: 20px;\n  color: #e6edf3;\n}" }
+    ]
+  },
+  {
+    "id": "js-ts-runtime-pack",
+    "nombre": "JavaScript & TypeScript Pro Pack",
+    "version": "9.0.0",
+    "descripcion": "Plantillas rápidas ES2024/TypeScript, fetch async/await y ejecución directa con Node.js / tsc.",
+    "autor": "CynexStudios",
+    "lenguaje": "JavaScript / TypeScript",
+    "extensiones": [".js", ".mjs", ".ts"],
+    "ejecutable": "node",
+    "snippetsIntegrados": [
+      { "prefijo": "fnasync", "titulo": "Función Async/Await Fetch", "descripcion": "Consulta HTTP segura con try/catch", "cuerpo": "async function consultarDatos(url) {\n  try {\n    const res = await fetch(url);\n    return await res.json();\n  } catch (err) {\n    console.error('Error:', err);\n  }\n}" },
+      { "prefijo": "iface", "titulo": "Interface TypeScript", "descripcion": "Definición tipada de entidad TS", "cuerpo": "interface Usuario {\n  id: number;\n  nombre: string;\n  activo: boolean;\n}" }
+    ]
+  },
+  {
+    "id": "cibao-algoritmos-pro",
+    "nombre": "Cibao 9.0 Algoritmos y POO Pack",
+    "version": "9.0.0",
+    "descripcion": "Colección de patrones Cibao 9.0: rangos, lambdas flecha, clases con herencia, seguridad SHA-256 y diccionarios.",
+    "autor": "CynexStudios",
+    "lenguaje": "Cibao",
+    "extensiones": [".cibao", ".alb"],
+    "ejecutable": "cibao",
+    "snippetsIntegrados": [
+      { "prefijo": "clase9", "titulo": "Clase Cibao 9.0 completa", "descripcion": "Clase con campo privado, constructor y método", "cuerpo": "clase Servicio {\n    privado nombre: texto\n\n    constructor(nombre: texto) {\n        este.nombre = nombre\n    }\n\n    publico funcion ejecutar() {\n        mostrar($\"Servicio {este.nombre} activo\")\n    }\n}" },
+      { "prefijo": "rango9", "titulo": "Bucle con Rango 9.0", "descripcion": "Iteración inclusiva 1..=10", "cuerpo": "para i en 1..=10 {\n    mostrar($\"Paso {i}\")\n}" }
+    ]
+  },
+  {
+    "id": "python-data-pack",
+    "nombre": "Python 3 Data & Automatización",
+    "version": "9.0.0",
+    "descripcion": "Snippets modernos de Python 3 (dataclasses, lectura JSON/CSV, Tkinter GUI y manejo seguro de archivos).",
+    "autor": "CynexStudios",
+    "lenguaje": "Python",
+    "extensiones": [".py"],
+    "ejecutable": "python3",
+    "snippetsIntegrados": [
+      { "prefijo": "dclass", "titulo": "Dataclass Python", "descripcion": "Estructura tipada con @dataclass", "cuerpo": "from dataclasses import dataclass\n\n@dataclass\nclass Registro:\n    id: int\n    nombre: str" },
+      { "prefijo": "mainpy", "titulo": "Bloque principal Python", "descripcion": "Punto de entrada estándar Python 3", "cuerpo": "def main() -> None:\n    print(\"Listo en Xynex 9.0\")\n\nif __name__ == \"__main__\":\n    main()" }
+    ]
+  },
+  {
+    "id": "csharp-dotnet8-pack",
+    "nombre": "C# .NET 8 Productividad",
+    "version": "9.0.0",
+    "descripcion": "Records, LINQ, patrones modernos C# 12 y plantillas listas para dotnet run.",
+    "autor": "CynexStudios",
+    "lenguaje": "C#",
+    "extensiones": [".cs"],
+    "ejecutable": "dotnet",
+    "snippetsIntegrados": [
+      { "prefijo": "rec", "titulo": "Record inmutable C#", "descripcion": "Modelo compacto con record", "cuerpo": "public sealed record Elemento(int Id, string Nombre);" }
+    ]
+  },
+  {
+    "id": "cpp20-modern-pack",
+    "nombre": "C++20 Moderno y Estructuras",
+    "version": "9.0.0",
+    "descripcion": "Snippets C++20 con std::vector, std::span, std::format y lambdas rápidas.",
+    "autor": "CynexStudios",
+    "lenguaje": "C++",
+    "extensiones": [".cpp", ".hpp"],
+    "ejecutable": "g++",
+    "snippetsIntegrados": [
+      { "prefijo": "maincpp", "titulo": "Main C++20 estándar", "descripcion": "Esqueleto limpio con iostream y vector", "cuerpo": "#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> datos = {1, 2, 3};\n    std::cout << \"C++20 listo (\" << datos.size() << \")\\n\";\n    return 0;\n}" }
+    ]
+  }
+]

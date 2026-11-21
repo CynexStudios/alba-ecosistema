@@ -1,17 +1,17 @@
 Name:           xynex-code-editor
 Version:        %{_alba_version}
 Release:        1%{?dist}
-Summary:        Xynex Code Editor 5.0 — Lenguaje de programación Cibao e IDE nativo
+Summary:        Xynex Code Editor 9.0 — Lenguaje de programación Cibao e IDE nativo
 License:        Apache-2.0
 URL:            https://github.com/CynexStudios/alba-ecosistema
 BuildArch:      x86_64
 AutoReqProv:    no
 
 %description
-Xynex Code Editor es el entorno de desarrollo integrado oficial del lenguaje de
-programación Cibao (v5.0.0), creado por Jaderson Liriano (CynexStudios).
-Incluye motor autocontenido compatible con .cibao y .alb, CLI (cibao / alba),
-editor Avalonia UI y sistema de complementos extensible.
+Xynex Code Editor 9.0 es el entorno de desarrollo integrado oficial del lenguaje de
+programación Cibao (v9.0.0), creado por Jaderson Liriano (CynexStudios).
+Incluye motor autocontenido compatible con .cibao y .alb, SQLite integrado para cuentas,
+agente IA y bot tutor, CLI (cibao / alba), editor Avalonia UI y complementos en línea.
 
 %install
 mkdir -p %{buildroot}/opt/xynex-code-editor

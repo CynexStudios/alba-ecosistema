@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "5.0.0",
+    [string]$Version = "9.0.0",
     [string]$Configuration = "Release",
     [string]$Rid = "win-x64"
 )
@@ -55,8 +55,8 @@ Write-Host "ZIP portable generado: $ZipPath" -ForegroundColor Green
 
 # 5. Generar instalador gráfico .exe con Inno Setup 6 si está instalado
 $IsccCandidatos = @(
-    "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe",
-    "${env:ProgramFiles}\Inno Setup 7\ISCC.exe",
+    "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+    "${env:ProgramFiles}\Inno Setup 6\ISCC.exe",
     "iscc"
 )
 $Iscc = $IsccCandidatos | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1

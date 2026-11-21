@@ -8,12 +8,25 @@ namespace Alba.IDE.Views;
 
 public partial class VentanaConfiguracion : Window
 {
+    private static readonly string[] FuentesDisponibles =
+    [
+        "JetBrains Mono",
+        "Cascadia Mono",
+        "Cascadia Code",
+        "Fira Code",
+        "Consolas",
+        "DejaVu Sans Mono",
+        "Ubuntu Mono",
+        "SF Mono"
+    ];
+
     private readonly VentanaPrincipalViewModel? _vm;
     private string _urlReleases = $"https://github.com/{RutasUsuarioAlba.RepositorioGitHub}/releases";
 
     public VentanaConfiguracion()
     {
         InitializeComponent();
+        CmbFuenteEditor.ItemsSource = FuentesDisponibles;
     }
 
     public VentanaConfiguracion(VentanaPrincipalViewModel vm) : this()
@@ -31,6 +44,16 @@ public partial class VentanaConfiguracion : Window
         CmbTemas.SelectedItem = temas.FirstOrDefault(t =>
             t.Id.Equals(_vm.Configuracion.TemaId, StringComparison.OrdinalIgnoreCase)) ?? temas.FirstOrDefault();
 
+        string fuenteActual = string.IsNullOrWhiteSpace(_vm.Configuracion.FuenteEditor)
+            ? FuentesDisponibles[0]
+            : _vm.Configuracion.FuenteEditor;
+        CmbFuenteEditor.SelectedItem = FuentesDisponibles.FirstOrDefault(f =>
+            f.Equals(fuenteActual, StringComparison.OrdinalIgnoreCase)) ?? FuentesDisponibles[0];
+
+        ChkColoresEditorPersonalizados.IsChecked = _vm.Configuracion.UsarColoresEditorPersonalizados;
+        TxtFondoEditorPers.Text = _vm.Configuracion.ColorFondoEditorPersonalizado;
+        TxtTextoEditorPers.Text = _vm.Configuracion.ColorTextoEditorPersonalizado;
+
         ChkSintaxisPersonalizada.IsChecked = _vm.Configuracion.UsarSintaxisPersonalizada;
         ColoresSintaxisConfig syn = _vm.Configuracion.SintaxisPersonalizada;
         TxtColComentario.Text = syn.Comentario;
@@ -44,11 +67,22 @@ public partial class VentanaConfiguracion : Window
 
         NumFuente.Value = (decimal)_vm.Configuracion.TamanoFuenteEditor;
         NumTab.Value = _vm.Configuracion.TamanoTabulacion;
+
+        ChkAutocompletadoAuto.IsChecked = _vm.Configuracion.AutocompletadoAutomatico;
+        ChkDiagnosticosEnVivo.IsChecked = _vm.Configuracion.DiagnosticosEnVivo;
+        ChkNumerosLinea.IsChecked = _vm.Configuracion.MostrarNumerosLinea;
+        ChkResaltarLinea.IsChecked = _vm.Configuracion.ResaltarLineaActual;
+        ChkAjusteLinea.IsChecked = _vm.Configuracion.AjusteDeLinea;
+        ChkEspaciosBlanco.IsChecked = _vm.Configuracion.MostrarEspaciosEnBlanco;
+        ChkMostrarPanelAsistente.IsChecked = _vm.Configuracion.MostrarPanelAsistente;
+        ChkMostrarBarraEstado.IsChecked = _vm.Configuracion.MostrarBarraEstado;
+
         ChkAutoguardado.IsChecked = _vm.Configuracion.GuardadoAutomatico;
         NumIntervaloGuardado.Value = _vm.Configuracion.IntervaloGuardadoSegundos;
         ChkRestaurarSesion.IsChecked = _vm.Configuracion.RestaurarUltimaSesion;
         ChkComprobarActualizaciones.IsChecked = _vm.Configuracion.ComprobarActualizacionesAlIniciar;
         ChkDescargarActualizacionesAuto.IsChecked = _vm.Configuracion.DescargarActualizacionesAutomaticamente;
+        ChkActualizacionSilenciosa.IsChecked = _vm.Configuracion.ActualizacionSilenciosaAutomatica;
 
         var atajos = _vm.Configuracion.AtajosTeclado;
         TxtAtajoGuardar.Text = atajos.GetValueOrDefault("Guardar", "Ctrl+S");
@@ -148,6 +182,15 @@ public partial class VentanaConfiguracion : Window
             cfg.TemaId = tema.Id;
         }
 
+        if (CmbFuenteEditor.SelectedItem is string fuente)
+        {
+            cfg.FuenteEditor = fuente;
+        }
+
+        cfg.UsarColoresEditorPersonalizados = ChkColoresEditorPersonalizados.IsChecked == true;
+        cfg.ColorFondoEditorPersonalizado = TxtFondoEditorPers.Text?.Trim() ?? cfg.ColorFondoEditorPersonalizado;
+        cfg.ColorTextoEditorPersonalizado = TxtTextoEditorPers.Text?.Trim() ?? cfg.ColorTextoEditorPersonalizado;
+
         cfg.UsarSintaxisPersonalizada = ChkSintaxisPersonalizada.IsChecked == true;
         cfg.SintaxisPersonalizada.Comentario = TxtColComentario.Text?.Trim() ?? cfg.SintaxisPersonalizada.Comentario;
         cfg.SintaxisPersonalizada.Cadena = TxtColCadena.Text?.Trim() ?? cfg.SintaxisPersonalizada.Cadena;
@@ -160,11 +203,22 @@ public partial class VentanaConfiguracion : Window
 
         cfg.TamanoFuenteEditor = (double)(NumFuente.Value ?? 14);
         cfg.TamanoTabulacion = (int)(NumTab.Value ?? 4);
+
+        cfg.AutocompletadoAutomatico = ChkAutocompletadoAuto.IsChecked == true;
+        cfg.DiagnosticosEnVivo = ChkDiagnosticosEnVivo.IsChecked == true;
+        cfg.MostrarNumerosLinea = ChkNumerosLinea.IsChecked == true;
+        cfg.ResaltarLineaActual = ChkResaltarLinea.IsChecked == true;
+        cfg.AjusteDeLinea = ChkAjusteLinea.IsChecked == true;
+        cfg.MostrarEspaciosEnBlanco = ChkEspaciosBlanco.IsChecked == true;
+        cfg.MostrarPanelAsistente = ChkMostrarPanelAsistente.IsChecked == true;
+        cfg.MostrarBarraEstado = ChkMostrarBarraEstado.IsChecked == true;
+
         cfg.GuardadoAutomatico = ChkAutoguardado.IsChecked == true;
         cfg.IntervaloGuardadoSegundos = (int)(NumIntervaloGuardado.Value ?? 15);
         cfg.RestaurarUltimaSesion = ChkRestaurarSesion.IsChecked == true;
         cfg.ComprobarActualizacionesAlIniciar = ChkComprobarActualizaciones.IsChecked == true;
         cfg.DescargarActualizacionesAutomaticamente = ChkDescargarActualizacionesAuto.IsChecked == true;
+        cfg.ActualizacionSilenciosaAutomatica = ChkActualizacionSilenciosa.IsChecked == true;
 
         cfg.AtajosTeclado["Guardar"] = TxtAtajoGuardar.Text?.Trim() ?? "Ctrl+S";
         cfg.AtajosTeclado["Ejecutar"] = TxtAtajoEjecutar.Text?.Trim() ?? "F5";

@@ -60,6 +60,7 @@ public static class PalabrasReservadas
 
             // Entrada y salida
             ["imprimir"] = TipoToken.Imprimir,
+            ["mostrar"] = TipoToken.Imprimir,
             ["leer"] = TipoToken.Leer,
 
             // Valores y lógica

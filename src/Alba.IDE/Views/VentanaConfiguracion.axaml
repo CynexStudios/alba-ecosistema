@@ -2,72 +2,119 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:Alba.IDE.Models"
         x:Class="Alba.IDE.Views.VentanaConfiguracion"
-        Title="Configuración — Xynex Code Editor 5.0"
-        Width="780"
-        Height="600"
+        Title="Configuración — Xynex Code Editor 9.0"
+        Width="860"
+        Height="680"
+        MinWidth="740"
+        MinHeight="560"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource FondoBaseBrush}"
         Foreground="{DynamicResource TextoPrincipalBrush}">
-  <Grid RowDefinitions="*,Auto" Margin="18">
-    <TabControl Grid.Row="0">
-      <!-- Pestaña 1: Apariencia y Sintaxis -->
-      <TabItem Header="Apariencia y Sintaxis">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+    <!-- Cabecera clara -->
+    <StackPanel Grid.Row="0" Spacing="3" Margin="0,0,0,12">
+      <TextBlock Text="Configuración de Xynex Code Editor 9.0" FontSize="20" FontWeight="Bold" />
+      <TextBlock Text="Personaliza temas, tipografía, color de letra y fondo, interruptores de asistencia inteligente, atajos y actualización automática."
+                 FontSize="12.5"
+                 Foreground="{DynamicResource TextoSecundarioBrush}" />
+    </StackPanel>
+
+    <TabControl Grid.Row="1">
+      <!-- Pestaña 1: Apariencia, Colores del Editor y Sintaxis -->
+      <TabItem Header="Apariencia y Colores">
         <ScrollViewer Margin="0,12,0,0">
           <StackPanel Spacing="14">
-            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
               <StackPanel Spacing="10">
-                <TextBlock Text="Tema visual del IDE" FontSize="14" FontWeight="Bold" />
-                <ComboBox x:Name="CmbTemas" Width="340" SelectionChanged="AlCambiarTemaCombo">
+                <TextBlock Text="Tema general del entorno" FontSize="14.5" FontWeight="Bold" />
+                <ComboBox x:Name="CmbTemas" Width="380" SelectionChanged="AlCambiarTemaCombo">
                   <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="models:TemaIDE">
-                      <TextBlock Text="{Binding Nombre}" />
+                      <TextBlock Text="{Binding Nombre}" FontSize="13" />
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
                 </ComboBox>
               </StackPanel>
             </Border>
 
-            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+            <!-- Fuente, Tamaño y Colores propios del Editor -->
+            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+              <StackPanel Spacing="12">
+                <TextBlock Text="Tipografía y Colores del Área de Código" FontSize="14.5" FontWeight="Bold" />
+                <Grid ColumnDefinitions="*,16,150,16,150">
+                  <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Fuente tipográfica del editor" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <ComboBox x:Name="CmbFuenteEditor" HorizontalAlignment="Stretch" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Tamaño de letra (px)" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <NumericUpDown x:Name="NumFuente" Minimum="10" Maximum="32" Increment="1" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="4" Spacing="4">
+                    <TextBlock Text="Espacios Tab" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <NumericUpDown x:Name="NumTab" Minimum="2" Maximum="8" Increment="1" />
+                  </StackPanel>
+                </Grid>
+
+                <CheckBox x:Name="ChkColoresEditorPersonalizados"
+                          Content="Sobrescribir color de letra y fondo del editor manualmente (#RRGGBB)"
+                          FontWeight="SemiBold" />
+
+                <Grid ColumnDefinitions="*,16,*">
+                  <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Color de fondo del editor (#RRGGBB)" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBox x:Name="TxtFondoEditorPers" Watermark="#1E1E1E" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Color de texto principal (#RRGGBB)" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBox x:Name="TxtTextoEditorPers" Watermark="#D4D4D4" />
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- Colores de Sintaxis Cibao 9.0 -->
+            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
               <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*,Auto">
-                  <CheckBox Grid.Column="0" x:Name="ChkSintaxisPersonalizada" Content="Personalizar colores de sintaxis de Cibao (hexadecimal #RRGGBB)" FontWeight="SemiBold" />
+                  <CheckBox Grid.Column="0" x:Name="ChkSintaxisPersonalizada" Content="Personalizar colores de sintaxis de Cibao Code 9.0 (#RRGGBB)" FontWeight="SemiBold" />
                   <Button Grid.Column="1" Classes="ToolbarBtn" Content="Copiar del tema actual" Click="AlCopiarColoresTema" />
                 </Grid>
 
                 <Grid ColumnDefinitions="*,14,*" RowDefinitions="Auto,Auto,Auto,Auto">
                   <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Comentarios" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Comentarios" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColComentario" />
                   </StackPanel>
                   <StackPanel Grid.Row="0" Grid.Column="2" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Cadenas de texto" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Cadenas de texto" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColCadena" />
                   </StackPanel>
 
                   <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Números" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Números" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColNumero" />
                   </StackPanel>
                   <StackPanel Grid.Row="1" Grid.Column="2" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Control (si, para, mientras)" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Control (si, para, mientras, elegir)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColControl" />
                   </StackPanel>
 
                   <StackPanel Grid.Row="2" Grid.Column="0" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Declaraciones (variable, funcion, clase)" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Declaraciones (variable, funcion, clase)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColDeclaracion" />
                   </StackPanel>
                   <StackPanel Grid.Row="2" Grid.Column="2" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Tipos de dato (entero, texto...)" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Tipos de dato (entero, texto, lista...)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColTipo" />
                   </StackPanel>
 
                   <StackPanel Grid.Row="3" Grid.Column="0" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Funciones integradas (imprimir, leer)" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Funciones integradas (mostrar, imprimir, leer)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColFuncion" />
                   </StackPanel>
                   <StackPanel Grid.Row="3" Grid.Column="2" Spacing="4" Margin="0,4">
-                    <TextBlock Text="Operadores lógicos (y, o, no)" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                    <TextBlock Text="Operadores lógicos (y, o, no)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
                     <TextBox x:Name="TxtColOperador" />
                   </StackPanel>
                 </Grid>
@@ -77,71 +124,71 @@
         </ScrollViewer>
       </TabItem>
 
-      <!-- Pestaña 2: Editor y Productividad -->
-      <TabItem Header="Editor y Sesión">
-        <StackPanel Spacing="14" Margin="0,12,0,0">
-          <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
-            <StackPanel Spacing="10">
-              <TextBlock Text="Tipografía e indentación" FontSize="14" FontWeight="Bold" />
-              <StackPanel Orientation="Horizontal" Spacing="20">
-                <StackPanel Spacing="4">
-                  <TextBlock Text="Tamaño de fuente (px)" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
-                  <NumericUpDown x:Name="NumFuente" Minimum="10" Maximum="30" Increment="1" Width="140" />
-                </StackPanel>
-                <StackPanel Spacing="4">
-                  <TextBlock Text="Espacios por tabulación" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
-                  <NumericUpDown x:Name="NumTab" Minimum="2" Maximum="8" Increment="1" Width="140" />
-                </StackPanel>
+      <!-- Pestaña 2: Funciones del Editor (Activar / Desactivar) -->
+      <TabItem Header="Editor y Funciones">
+        <ScrollViewer Margin="0,12,0,0">
+          <StackPanel Spacing="14">
+            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+              <StackPanel Spacing="10">
+                <TextBlock Text="Asistencia Inteligente y Visualización (Activar / Desactivar)" FontSize="14.5" FontWeight="Bold" />
+                <CheckBox x:Name="ChkAutocompletadoAuto" Content="Activar IntelliSense automático de alta visibilidad al escribir código" />
+                <CheckBox x:Name="ChkDiagnosticosEnVivo" Content="Activar detección nativa de errores en vivo (Cibao, Python, HTML, JS, TS, CSS, C#, C++)" />
+                <CheckBox x:Name="ChkNumerosLinea" Content="Mostrar números de línea en el margen izquierdo del editor" />
+                <CheckBox x:Name="ChkResaltarLinea" Content="Resaltar la línea actual del cursor" />
+                <CheckBox x:Name="ChkAjusteLinea" Content="Ajuste automático de líneas largas (Word Wrap)" />
+                <CheckBox x:Name="ChkEspaciosBlanco" Content="Mostrar espacios y tabulaciones visibles" />
               </StackPanel>
-            </StackPanel>
-          </Border>
+            </Border>
 
-          <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
-            <StackPanel Spacing="10">
-              <TextBlock Text="Guardado automático y recuperación" FontSize="14" FontWeight="Bold" />
-              <CheckBox x:Name="ChkAutoguardado" Content="Activar guardado automático periódico de archivos modificados" />
-              <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="Intervalo (segundos):" VerticalAlignment="Center" Foreground="{DynamicResource TextoSecundarioBrush}" />
-                <NumericUpDown x:Name="NumIntervaloGuardado" Minimum="5" Maximum="300" Increment="5" Width="130" />
+            <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+              <StackPanel Spacing="10">
+                <TextBlock Text="Interfaz, Guardado y Sesión" FontSize="14.5" FontWeight="Bold" />
+                <CheckBox x:Name="ChkMostrarPanelAsistente" Content="Mostrar panel derecho (Agente IA del Usuario + Bot Tutor Cibao 9.0)" />
+                <CheckBox x:Name="ChkMostrarBarraEstado" Content="Mostrar barra de estado inferior" />
+                <CheckBox x:Name="ChkAutoguardado" Content="Activar guardado automático periódico de archivos con ruta en disco" />
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="24,0,0,0">
+                  <TextBlock Text="Intervalo de autoguardado (segundos):" VerticalAlignment="Center" Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  <NumericUpDown x:Name="NumIntervaloGuardado" Minimum="5" Maximum="300" Increment="5" Width="130" />
+                </StackPanel>
+                <CheckBox x:Name="ChkRestaurarSesion" Content="Recuperar última sesión al abrir el editor (desactívalo para iniciar limpio siempre)" />
               </StackPanel>
-              <CheckBox x:Name="ChkRestaurarSesion" Content="Recuperar automáticamente el último proyecto y pestañas al iniciar" />
-            </StackPanel>
-          </Border>
-        </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
       </TabItem>
 
       <!-- Pestaña 3: Atajos de teclado -->
       <TabItem Header="Atajos de Teclado">
         <ScrollViewer Margin="0,12,0,0">
-          <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+          <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
             <StackPanel Spacing="10">
               <TextBlock Text="Atajos configurables (formato ejemplo: Ctrl+S, Ctrl+Shift+P, F5)" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" />
-              <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Guardar archivo" VerticalAlignment="Center" Margin="0,4" />
+              <Grid ColumnDefinitions="240,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Guardar archivo" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="0" Grid.Column="1" x:Name="TxtAtajoGuardar" Margin="0,4" />
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Ejecutar programa" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Ejecutar programa" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtAtajoEjecutar" Margin="0,4" />
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Verificar sintaxis" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Verificar errores" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtAtajoVerificar" Margin="0,4" />
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Paleta de comandos" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Paleta de comandos" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="3" Grid.Column="1" x:Name="TxtAtajoPaleta" Margin="0,4" />
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="Apertura rápida de archivo" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Apertura rápida" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtAtajoAbrirRapido" Margin="0,4" />
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Buscar en archivo" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Buscar en archivo" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="5" Grid.Column="1" x:Name="TxtAtajoBuscarArchivo" Margin="0,4" />
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="Buscar en proyecto" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Buscar en proyecto" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="6" Grid.Column="1" x:Name="TxtAtajoBuscarProyecto" Margin="0,4" />
 
-                <TextBlock Grid.Row="7" Grid.Column="0" Text="Mostrar/ocultar barra lateral" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="Alternar barra lateral" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="7" Grid.Column="1" x:Name="TxtAtajoSidebar" Margin="0,4" />
 
-                <TextBlock Grid.Row="8" Grid.Column="0" Text="Mostrar/ocultar panel inferior" VerticalAlignment="Center" Margin="0,4" />
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="Alternar panel inferior" VerticalAlignment="Center" Margin="0,5" />
                 <TextBox Grid.Row="8" Grid.Column="1" x:Name="TxtAtajoPanelInferior" Margin="0,4" />
               </Grid>
             </StackPanel>
@@ -149,36 +196,40 @@
         </ScrollViewer>
       </TabItem>
 
-      <!-- Pestaña 4: Actualizaciones y Acerca de -->
-      <TabItem Header="Actualizaciones">
-        <StackPanel Spacing="14" Margin="0,12,0,0">
-          <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
-            <StackPanel Spacing="10">
-              <TextBlock Text="Xynex Code Editor v5.0.0 — Cibao Programming Language · CynexStudios" FontSize="15" FontWeight="Bold" />
-              <TextBlock x:Name="TxtRutaDatosUsuario" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-              <CheckBox x:Name="ChkComprobarActualizaciones" Content="Comprobar actualizaciones automáticamente al iniciar" />
-              <CheckBox x:Name="ChkDescargarActualizacionesAuto" Content="Descargar actualizaciones automáticamente en segundo plano cuando haya una nueva versión" />
+      <!-- Pestaña 4: Actualizaciones Automáticas -->
+      <TabItem Header="Actualizaciones Automáticas">
+        <ScrollViewer Margin="0,12,0,0">
+          <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Xynex Code Editor v9.0.0 — Cibao Code 9.0 · CynexStudios" FontSize="15.5" FontWeight="Bold" />
+              <TextBlock x:Name="TxtRutaDatosUsuario" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+
+              <CheckBox x:Name="ChkComprobarActualizaciones" Content="Comprobar nuevas versiones automáticamente al iniciar" />
+              <CheckBox x:Name="ChkDescargarActualizacionesAuto" Content="Descargar paquete nativo verificado por SHA-256 automáticamente" />
+              <CheckBox x:Name="ChkActualizacionSilenciosa" Content="Instalar actualizaciones automáticamente al detectar nueva versión (sin pedir clic manual)" FontWeight="SemiBold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+
               <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Classes="PrimaryBtn" Content="Abrir actualizador integrado..." Click="AlAbrirActualizadorIntegrado" />
+                <Button Classes="PrimaryBtn" Content="Abrir centro de actualización..." Click="AlAbrirActualizadorIntegrado" />
                 <Button Classes="ToolbarBtn" Content="Comprobar ahora" Click="AlComprobarActualizaciones" />
-                <Button Classes="ToolbarBtn" Content="Abrir página de Releases en GitHub" Click="AlAbrirReleases" />
+                <Button Classes="ToolbarBtn" Content="Ver Releases en GitHub" Click="AlAbrirReleases" />
               </StackPanel>
-              <TextBlock x:Name="TxtEstadoActualizacion" FontSize="12" Foreground="{DynamicResource AcentoPrimarioBrush}" TextWrapping="Wrap" />
+
+              <TextBlock x:Name="TxtEstadoActualizacion" FontSize="12.5" Foreground="{DynamicResource AcentoSecundarioBrush}" TextWrapping="Wrap" />
               <TextBox x:Name="TxtNotasActualizacion"
                        IsReadOnly="True"
                        AcceptsReturn="True"
                        TextWrapping="Wrap"
-                       Height="150"
+                       Height="170"
                        Background="{DynamicResource FondoEditorBrush}"
                        BorderBrush="{DynamicResource BordeSutilBrush}"
-                       Watermark="Aquí aparecerán las novedades de nuevas versiones cuando existan lanzamientos publicados." />
+                       Watermark="Notas de la release más reciente..." />
             </StackPanel>
           </Border>
-        </StackPanel>
+        </ScrollViewer>
       </TabItem>
     </TabControl>
 
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,14,0,0">
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,14,0,0">
       <Button Classes="ToolbarBtn" Content="Cancelar" Click="AlCancelar" />
       <Button Classes="PrimaryBtn" Content="Guardar configuración" IsDefault="True" Click="AlGuardar" />
     </StackPanel>

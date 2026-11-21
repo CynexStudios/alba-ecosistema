@@ -1,47 +1,18 @@
-# 5. Arquitectura Interna del Intérprete y Guía de Desarrollo (`Cibao 5.0`)
+# 05. Arquitectura Interna, Seguridad y Base de Datos de Cuentas (v9.0)
 
-## 5.1. Visión general de capas
+El ecosistema Xynex 9.0 está estructurado en capas limpias y desacopladas dentro de `.NET 8` + `Avalonia UI 11`.
 
-El ecosistema separa estrictamente el motor del lenguaje (`Alba.Engine`), los adaptadores de ejecución (`Alba.CLI` y **Xynex Code Editor** / `Alba.IDE`), el lanzador nativo (`alba-host`) y la extensibilidad (`/addons`):
+## 1. Motor del Lenguaje (`Alba.Engine`)
 
-```text
-+-------------------------------------------------------------------+
-|          Xynex Code Editor (Alba.IDE - Avalonia UI 11)            |
-|  Explorador | EditorCodigoAlba | ConsolaIdeIO | GestorAddons      |
-+-------------------------------+-----------------------------------+
-                                | IConsolaIO / AST / EjecutorAlba
-+-------------------------------v-----------------------------------+
-|                 Alba.Engine (.NET 8 — Cibao 5.0)                  |
-|  AnalizadorLexico -> AnalizadorSintactico -> Interprete (partial) |
-|  Diagnostics (UbicacionFuente, ErrorAlba, FormateadorErrores)     |
-+-------------------------------^-----------------------------------+
-                                | CLI / Host C++20
-+-------------------------------+-----------------------------------+
-|      Alba.CLI (cibao / alba)  <---  alba-host (C++20 / CMake)     |
-+-------------------------------------------------------------------+
-```
+1. **`AnalizadorLexico`:** Convierte el código fuente `.cibao` / `.alb` en tokens tipados, con soporte para interpolación `$""`, multilínea `"""`, operadores `..`, `..=`, `=>`, `?.`, `??`, `**`, `++`, `--` y literales españoles.
+2. **`AnalizadorSintactico`:** Parser recursivo descendente con recuperación de errores que produce un AST tipado (`Declaraciones`, `Expresiones`) y diagnósticos exactos de línea y columna.
+3. **`Interprete` & `BibliotecaEstandar`:** Ejecución directa con entornos léxicos anidados, herencia dinámica (`extiende`, `super`), clausuras, resolución segura de módulos relativos y prevención de bucles/recursión descontrolada.
 
-## 5.2. Flujo interno del motor (`Alba.Engine`)
+## 2. Arquitectura de Seguridad 9.0 (`ServicioSeguridad` y `ServicioBaseDatosUsuarios`)
 
-1. **`AnalizadorLexico` (`Lexer/`):**
-   - Recorre el código UTF-8 manteniendo línea y columna exactas (`1-based`).
-   - Gestiona suprimir `SaltoLinea` dentro de `(...)` y `[...]`, además de una pila dedicada de interpolación (`$"..."` / `$'...'`) para expresiones `{...}` anidadas.
-   - Emite `ResultadoLexico(Tokens, Errores)`.
-2. **`AnalizadorSintactico` (`Parser/`):**
-   - Analizador recursivo descendente con precedencia completa hasta coalescencia nula (`??`) y comprobación polimórfica de tipos (`es`).
-   - Construye nodos AST inmutables (`Declaraciones.cs`, `Sentencias.cs`, `Expresiones.cs`).
-   - Realiza validación contextual estática (`romper`/`continuar` solo en ciclos, `retornar` solo en funciones, `este`/`super` solo dentro de clases, `constante` con inicializador).
-3. **`Interprete` (`Runtime/Interprete.cs` y `Runtime/Interprete.BibliotecaEstandar.cs`):**
-   - Implementado como `partial class` para separar el núcleo de evaluación (ámbitos `Entorno`, herencia en `DefinicionClase`/`InstanciaAlba`, caché de módulos e importación circular `ALB-E098`, control `elegir`, lambdas, diccionarios) respecto a la biblioteca estándar ampliada (matemáticas, texto, funcional, JSON y archivos UTF-8).
-   - Mantiene `_pilaClases` y `_pilaInstancias` para resolver `este`, `super(...)`, `super.metodo(...)` y encapsulamiento `privado` por clase declarante.
-   - Delega toda E/S de consola en `IConsolaIO`.
-
-## 5.3. Guía de extensión rápida
-
-- **Agregar una nueva función estándar o método por punto:** Registrarla en `Interprete.BibliotecaEstandar.cs` y agregar su firma en `ServicioAutocompletado.cs` y `Resources/alba.xshd`.
-- **Agregar una nueva palabra reservada o construcción sintáctica:**
-  1. Añadir token en `TipoToken.cs` y registrarlo en `PalabrasReservadas.cs`.
-  2. Crear nodo AST en `Ast/` y regla en `AnalizadorSintactico.cs`.
-  3. Despachar la ejecución en `Interprete.cs`.
-  4. Añadir pruebas unitarias en `tests/Alba.Engine.Tests/`.
-- **Regla de arquitectura:** `Alba.Engine` nunca debe depender de `Alba.IDE`, `Avalonia` ni `System.Console`.
+- **Base de datos embebida SQLite (`xynex_accounts.db`):** Todas las consultas utilizan exclusivamente **parámetros enlazados** (`@u`, `@c`, `@id`) evitando inyección SQL.
+- **Hashing criptográfico robusto:** Las contraseñas de usuario se derivan con **PBKDF2-HMAC-SHA512** (120,000 iteraciones + sal aleatoria de 256 bits) y verificación en tiempo constante (`CryptographicOperations.FixedTimeEquals`).
+- **Bloqueo ante fuerza bruta:** Tras 5 intentos fallidos consecutivos, la cuenta se protege automáticamente durante 5 minutos.
+- **Bóveda cifrada para API Keys de IA:** Las claves del usuario se cifran en reposo mediante **Windows DPAPI** en Windows o **AES-256-GCM** con clave maestra protegida (`0600`) en Linux/macOS.
+- **Validación de rutas y URLs:** Prevención de *Path Traversal* en addons (`ValidadorAddons.TryResolverRutaSegura`) y filtro estricto de URLs (`EsUrlHttpSegura`: HTTPS o `localhost`/`127.0.0.1` únicamente para Ollama local).
+- **Verificación de actualizaciones:** Los paquetes descargados desde GitHub Releases se validan por **SHA-256** antes de su ejecución silenciosa.

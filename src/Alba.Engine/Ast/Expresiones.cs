@@ -140,3 +140,16 @@ public sealed record ExprFuncionAnonima(
     SentenciaBloque Cuerpo,
     UbicacionFuente Ubicacion
 ) : Expresion(Ubicacion);
+
+public sealed record ExprRango(
+    Expresion Inicio,
+    Expresion Fin,
+    bool Inclusivo,
+    UbicacionFuente Ubicacion
+) : Expresion(Ubicacion);
+
+public sealed record ExprAccesoMiembroOpcional(
+    Expresion Objeto,
+    string NombreMiembro,
+    UbicacionFuente Ubicacion
+) : Expresion(Ubicacion);

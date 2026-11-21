@@ -174,7 +174,7 @@ public sealed class GestorTools
         _catalogo.Add(new ElementoTool
         {
             Id = "cibao-engine",
-            Nombre = "Cibao Programming Language Motor v5.0",
+            Nombre = "Cibao Programming Language Motor v9.0",
             Descripcion = "Intérprete oficial, analizador léxico/sintáctico AST y consola interactiva para .cibao y .alb.",
             Version = RutasUsuarioAlba.VersionActual,
             Autor = "Jaderson Liriano (CynexStudios)",
@@ -335,7 +335,7 @@ public sealed class GestorTools
             Id = "tool-deps-manager",
             Nombre = "Gestor de Dependencias de Proyecto",
             Descripcion = "Detecta automáticamente requirements.txt (pip), *.csproj (NuGet) y package.json (npm) para instalar dependencias del proyecto.",
-            Version = "5.0.0",
+            Version = "9.0.0",
             Autor = "CynexStudios",
             Categoria = CategoriaHerramienta.Dependencias,
             CategoriaTexto = "Dependencias",
@@ -403,8 +403,8 @@ public sealed class GestorTools
         _catalogo.Add(new ElementoTool
         {
             Id = "tool-xynex-templates",
-            Nombre = "Plantillas Tripartitas Xynex 5.0",
-            Descripcion = "Creación guiada de Proyectos, Programas directos y Archivos independientes.",
+            Nombre = "Plantillas Tripartitas Xynex 9.0",
+            Descripcion = "Creación guiada de Proyectos, Programas directos, Archivos sin carpeta y código multi-lenguaje.",
             Version = RutasUsuarioAlba.VersionActual,
             Autor = "CynexStudios",
             Categoria = CategoriaHerramienta.Frameworks,
@@ -458,18 +458,18 @@ public sealed class GestorTools
         _catalogo.Add(new ElementoTool
         {
             Id = "tool-ia-hub",
-            Nombre = "Hub Multi-Proveedor de IA (Fase 5)",
-            Descripcion = "Arquitectura preparada para conectar claves API del usuario con OpenAI, Gemini, Anthropic u Ollama.",
-            Version = "Arquitectura 5.0",
+            Nombre = "Agente IA Multi-Proveedor + Bot Tutor 9.0",
+            Descripcion = "Chat integrado con tus propias cuentas/API Keys (Ollama, Gemini, OpenAI, Claude) cifradas en bóveda SQLite local + Bot Tutor Cibao de 8 lecciones.",
+            Version = RutasUsuarioAlba.VersionActual,
             Autor = "CynexStudios",
             Categoria = CategoriaHerramienta.IntegracionesIA,
             CategoriaTexto = "Integraciones de IA",
-            FuenteOficial = "Programado para Fase 5",
-            Requisitos = "Disponible en Fase 5 con credenciales propias del usuario",
-            Instalado = false,
-            Activo = false,
-            EstadoInstalacion = "Próxima fase (Fase 5)",
-            QueFaltaTexto = "El panel de IA y Agentes se activará en la Fase 5."
+            FuenteOficial = "Integrado en Xynex Code Editor 9.0",
+            Requisitos = "API Key personal o Ollama local en Cuenta / Conectar IA",
+            Instalado = true,
+            Activo = true,
+            EsIntegrado = true,
+            EstadoInstalacion = "Integrado y activo (Panel derecho)"
         });
 
         // 7. Addons instalados localmente

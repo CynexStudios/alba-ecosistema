@@ -20,6 +20,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.1.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +32,9 @@
     <EmbeddedResource Include="Assets\themes\*.json" />
     <AvaloniaResource Include="Assets\alba-studio-256.png" />
     <AvaloniaResource Include="Assets\alba-studio.ico" />
+    <AvaloniaResource Include="Assets\xynex-banner.png" />
+    <None Include="../../docs/**/*" CopyToOutputDirectory="PreserveNewest" Link="docs/%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="../../addons/catalogo.json" CopyToOutputDirectory="PreserveNewest" Link="addons/catalogo.json" />
   </ItemGroup>
 
 </Project>

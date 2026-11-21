@@ -1,29 +1,22 @@
-# Registro de cambios (Changelog)
+# Registro de Cambios (CHANGELOG)
 
-Todos los cambios relevantes de **Xynex Code Editor** y **Cibao Programming Language** se documentan en este archivo siguiendo [Versionado Semántico](https://semver.org/lang/es/).
+## [9.0.0] — Gran Renovación Integral Xynex Code Editor 9.0 & Cibao Code 9.0
 
-## [5.0.0] - 2026-11-19
+### Lenguaje Cibao Code 9.0
+- Nuevos rangos nativos exclusivos (`1..5`) e inclusivos (`1..=5`).
+- Lambdas flecha concisas (`x => x * 2`, `(a, b) => a + b`) y funciones de una línea con `=>`.
+- Operador de potencia (`**`), operador de comprobación de tipo (`es`), acceso opcional encadenado (`?.`), incrementos (`++`, `--`) y bloques de texto multilínea (`"""..."""`).
+- Mejora en el resaltado de sintaxis (`alba.xshd`) y autocompletado inteligente por contexto.
 
-### Añadido
-- **Nueva identidad oficial del ecosistema:** Lenguaje renombrado a **Cibao** (*Cibao Programming Language*, extensión principal `.cibao` con 100% compatibilidad `.alb`) e IDE oficial **Xynex Code Editor**, creados por **Jaderson Liriano (`CynexStudios`)**.
-- **Diccionarios nativos (`diccionario`):** Literales `{ clave: valor }` y `{ "clave": valor }`, acceso/mutación `d["k"]` y `d.k`, iteración de claves con `para k en d` y soporte JSON (`json_a_texto`, `texto_a_json`).
-- **Interpolación de texto (`$"..."` y `$'...'`):** Evaluación directa de expresiones embebidas `{expr}`, interpolación anidada y escapes `\{`/`\}`.
-- **Herencia y polimorfismo en POO:** Clases derivadas con `extiende`, llamadas a constructores y métodos base con `super(...)` / `super.metodo()`, comprobación de tipos en ejecución con `es` y preservación estricta del encapsulamiento `privado`.
-- **Módulos reales (`importar`):** Resolución relativa de archivos `.cibao`/`.alb`, caché de carga única, detección de ciclos (`ALB-E098`), espacios de nombres (`como alias`) y módulos estándar virtuales (`"matematicas"`, `"texto"`, `"json"`, `"archivos"`).
-- **Control de flujo y programación funcional:** Sentencia `elegir` / `caso` / `defecto` sin *fall-through*, funciones anónimas de primera clase con *closures* (`funcion(...) { ... }`) y operador de coalescencia nula (`??`).
-- **Métodos integrados por punto y Biblioteca Estándar ampliada:** Métodos `.longitud()`, `.agregar()`, `.filtrar()`, `.mapear()`, `.reducir()`, `.ordenar()`, `.mayusculas()`, `.dividir()`, funciones matemáticas trigonométricas/logarítmicas y E/S de archivos UTF-8 seguros.
-- **Integración total en Xynex Code Editor:** Resaltado `alba.xshd` actualizado, autocompletado de Cibao 5.0, paso de ruta activa para `importar` relativo, soporte multi-lenguaje en terminal integrada y panel **Problemas**.
-- **Empaquetado y CI/CD optimizados:** Instaladores `XynexCodeEditor-5.0.0` para Windows (`.exe`/`.zip`) y Linux (`.deb`/`.rpm`/`.AppImage`/`.tar.gz`) con comandos `cibao` y `alba`, matriz CI enfocada en Windows + Linux (macOS bajo demanda manual) y scripts unificados `scripts/compilar-todo.*`.
-
-## [2.0.0] - 2026-11-18
-
-### Añadido
-- Pantalla de inicio moderna, historial persistente de proyectos recientes, sistema de 3 temas personalizables y diagnósticos en vivo.
-- Terminal integrada real, paleta de comandos (`Ctrl+Shift+P`), búsqueda global en proyectos y autoguardado con recuperación de sesión.
-- Distribución multiplataforma con Inno Setup 6 y empaquetado nativo Linux/macOS.
-
-## [0.1.0] - 2026-11-17
-
-### Añadido
-- Primera versión completa del motor `Alba.Engine` (Lexer, Parser, AST, Intérprete y diagnósticos `ALB-*`).
-- CLI inicial (`alba`), lanzador nativo C++20 (`alba-host`) e IDE inicial en Avalonia UI 11.
+### IDE Visual Studio Pro 9.0 y Nuevas Capacidades
+- **Interfaz renovada** con tema por defecto `Xynex Visual Studio Pro`, nuevo logo e icono, nuevo banner de bienvenida y paleta de alto contraste para listas, menús y pestañas.
+- **Archivos sin carpeta:** Crea y ejecuta código directamente (`Archivo Sin Carpeta`) en 9 lenguajes sin obligar a seleccionar una carpeta primero.
+- **IntelliSense visible y contextual:** Ventana de sugerencias de alto contraste con insignias de categoría (`FN`, `KW`, `TIPO`, `METODO`, `VAR`, `ADDON`), extracción de símbolos en vivo y disparadores inmediatos.
+- **Detectores de error y runners nativos:** Análisis en tiempo real y ejecución nativa para Cibao 9.0, Python, HTML5, CSS3, JavaScript, TypeScript, JSON, C# y C++20.
+- **Bot Tutor Automático (Desde Cero):** 8 lecciones interactivas integradas con inserción directa al editor y verificación automática de salida al ejecutar (`F5`).
+- **Agente de IA conectado a tu propia IA:** Soporte multi-proveedor (Ollama local, Google Gemini, OpenAI / Groq / DeepSeek / OpenRouter, Anthropic Claude) con botón para aplicar código o crear archivos al instante.
+- **Base de Datos SQLite y Seguridad Alta:** Registro/login de cuentas locales con PBKDF2-HMAC-SHA512, bloqueo tras 5 intentos fallidos, consultas parametrizadas y bóveda cifrada DPAPI / AES-256-GCM para credenciales de IA.
+- **Tienda Online de Addons (API):** Descarga e instalación en 1 clic directamente dentro del editor.
+- **Ajustes ampliados:** Fuente, tamaño, colores personalizados del editor, personalización completa de tokens de sintaxis y visibilidad de paneles.
+- **Documentación desde cero:** 8 capítulos reescritos más manual HTML interactivo ejecutable desde el propio IDE.
+- **Actualizador automático silencioso y empaquetado Linux/Arch/CachyOS/Windows:** Validación SHA-256 con actualización automática y compilación multiplataforma endurecida.

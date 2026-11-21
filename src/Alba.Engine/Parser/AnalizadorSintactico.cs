@@ -737,6 +737,25 @@ public sealed class AnalizadorSintactico
             return new SentenciaAsignacion(izquierda, tipoOp, valor, op.Ubicacion);
         }
 
+        if (actual.Tipo is TipoToken.MasMas or TipoToken.MenosMenos)
+        {
+            Token op = Consumir();
+            if (izquierda is not (ExprIdentificador or ExprAccesoMiembro or ExprIndice))
+            {
+                RegistrarError("ALB-S005", izquierda.Ubicacion,
+                    "Objetivo inválido para incremento/decremento. Utiliza una variable o propiedad.");
+            }
+
+            OperadorAsignacion tipoOp = op.Tipo == TipoToken.MasMas
+                ? OperadorAsignacion.Suma
+                : OperadorAsignacion.Resta;
+            return new SentenciaAsignacion(
+                izquierda,
+                tipoOp,
+                new ExprLiteral(1L, TipoLiteralAlba.Entero, op.Ubicacion),
+                op.Ubicacion);
+        }
+
         return new SentenciaExpresion(izquierda, izquierda.Ubicacion);
     }
 
@@ -807,7 +826,7 @@ public sealed class AnalizadorSintactico
 
     private Expresion AnalizarComparacion()
     {
-        Expresion expr = AnalizarSuma();
+        Expresion expr = AnalizarRango();
         while (Coincide(TipoToken.Menor, TipoToken.MenorIgual, TipoToken.Mayor, TipoToken.MayorIgual, TipoToken.Es))
         {
             Token op = TokenAnterior();
@@ -826,8 +845,21 @@ public sealed class AnalizadorSintactico
                 TipoToken.MayorIgual => OperadorBinario.MayorIgual,
                 _ => throw new InvalidOperationException()
             };
-            Expresion derecha = AnalizarSuma();
+            Expresion derecha = AnalizarRango();
             expr = new ExprBinaria(expr, bin, derecha, op.Ubicacion);
+        }
+        return expr;
+    }
+
+    private Expresion AnalizarRango()
+    {
+        Expresion expr = AnalizarSuma();
+        if (Coincide(TipoToken.PuntoPunto, TipoToken.PuntoPuntoIgual))
+        {
+            Token op = TokenAnterior();
+            bool inclusivo = op.Tipo == TipoToken.PuntoPuntoIgual;
+            Expresion fin = AnalizarSuma();
+            return new ExprRango(expr, fin, inclusivo, op.Ubicacion);
         }
         return expr;
     }
@@ -928,6 +960,12 @@ public sealed class AnalizadorSintactico
                     "Se esperaba el nombre de una propiedad o método después de '.'.");
                 expr = new ExprAccesoMiembro(expr, miembro.Lexema, miembro.Ubicacion);
             }
+            else if (Coincide(TipoToken.InterrogacionPunto))
+            {
+                Token miembro = Esperar(TipoToken.Identificador, "ALB-S032",
+                    "Se esperaba el nombre de una propiedad o método después de '?.'.");
+                expr = new ExprAccesoMiembroOpcional(expr, miembro.Lexema, miembro.Ubicacion);
+            }
             else
             {
                 break;
@@ -986,6 +1024,12 @@ public sealed class AnalizadorSintactico
                 return new ExprSuper(actual.Ubicacion);
 
             case TipoToken.Identificador:
+                if (_posicion + 1 < _tokens.Count && _tokens[_posicion + 1].Tipo == TipoToken.FlechaGorda)
+                {
+                    Token paramTok = Consumir();
+                    var paramUnico = new List<ParametroAst> { new(paramTok.Lexema, null, paramTok.Ubicacion) };
+                    return AnalizarCuerpoLambdaFlecha(paramUnico, null, paramTok.Ubicacion);
+                }
                 Consumir();
                 return new ExprIdentificador(actual.Lexema, actual.Ubicacion);
 
@@ -1005,6 +1049,18 @@ public sealed class AnalizadorSintactico
                 return AnalizarDiccionarioLiteral();
 
             case TipoToken.ParentesisIzq:
+                if (EsInicioLambdaParentesis())
+                {
+                    Token tokParenLambda = Consumir();
+                    IReadOnlyList<ParametroAst> paramsLambda = AnalizarListaParametros();
+                    Esperar(TipoToken.ParentesisDer, "ALB-S007", "Se esperaba ')' después de los parámetros lambda.");
+                    AnotacionTipo? retLambda = null;
+                    if (Coincide(TipoToken.Flecha))
+                    {
+                        retLambda = AnalizarTipo();
+                    }
+                    return AnalizarCuerpoLambdaFlecha(paramsLambda, retLambda, tokParenLambda.Ubicacion);
+                }
                 Token paren = Consumir();
                 Expresion interna = AnalizarExpresionEsperada("Se esperaba una expresión dentro de '('.");
                 Esperar(TipoToken.ParentesisDer, "ALB-S007", "Se esperaba ')' para cerrar la expresión agrupada.");
@@ -1074,6 +1130,11 @@ public sealed class AnalizadorSintactico
             tipoRetorno = AnalizarTipo();
         }
 
+        if (MirarActual().Tipo == TipoToken.FlechaGorda)
+        {
+            return AnalizarCuerpoLambdaFlecha(parametros, tipoRetorno, tokFunc.Ubicacion);
+        }
+
         _profundidadFuncion++;
         try
         {
@@ -1084,6 +1145,58 @@ public sealed class AnalizadorSintactico
         {
             _profundidadFuncion--;
         }
+    }
+
+    private ExprFuncionAnonima AnalizarCuerpoLambdaFlecha(
+        IReadOnlyList<ParametroAst> parametros,
+        AnotacionTipo? tipoRetorno,
+        UbicacionFuente ubicacion)
+    {
+        Token tokFlecha = Esperar(TipoToken.FlechaGorda, "ALB-S044", "Se esperaba '=>' en la expresión lambda.");
+        _profundidadFuncion++;
+        try
+        {
+            if (MirarDespuesDeSaltosLinea() == TipoToken.LlaveIzq)
+            {
+                SentenciaBloque bloque = AnalizarBloque();
+                return new ExprFuncionAnonima(parametros, tipoRetorno, bloque, ubicacion);
+            }
+
+            Expresion expr = AnalizarExpresionEsperada("Se esperaba una expresión después de '=>'.");
+            var bloqueUnico = new SentenciaBloque([new SentenciaRetornar(expr, tokFlecha.Ubicacion)], tokFlecha.Ubicacion);
+            return new ExprFuncionAnonima(parametros, tipoRetorno, bloqueUnico, ubicacion);
+        }
+        finally
+        {
+            _profundidadFuncion--;
+        }
+    }
+
+    private bool EsInicioLambdaParentesis()
+    {
+        if (_posicion >= _tokens.Count || _tokens[_posicion].Tipo != TipoToken.ParentesisIzq)
+            return false;
+
+        int i = _posicion + 1;
+        int prof = 1;
+        while (i < _tokens.Count && prof > 0)
+        {
+            TipoToken t = _tokens[i].Tipo;
+            if (t == TipoToken.ParentesisIzq) prof++;
+            else if (t == TipoToken.ParentesisDer) prof--;
+            else if (t == TipoToken.FinArchivo) return false;
+            i++;
+        }
+
+        if (prof != 0 || i >= _tokens.Count)
+            return false;
+
+        if (_tokens[i].Tipo == TipoToken.Flecha)
+        {
+            i += 2;
+        }
+
+        return i < _tokens.Count && _tokens[i].Tipo == TipoToken.FlechaGorda;
     }
 
     private ExprDiccionario AnalizarDiccionarioLiteral()

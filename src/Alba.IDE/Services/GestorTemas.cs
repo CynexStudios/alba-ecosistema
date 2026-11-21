@@ -113,6 +113,7 @@ public sealed class GestorTemas
         Assembly asm = Assembly.GetExecutingAssembly();
         string[] ordenPreferido =
         [
+            "Alba.IDE.Assets.themes.xynex-vs-pro.json",
             "Alba.IDE.Assets.themes.alba-crepusculo.json",
             "Alba.IDE.Assets.themes.alba-medianoche.json",
             "Alba.IDE.Assets.themes.alba-amanecer.json"

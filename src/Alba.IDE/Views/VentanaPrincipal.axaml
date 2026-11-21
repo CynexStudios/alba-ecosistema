@@ -2,18 +2,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Alba.IDE.ViewModels"
         xmlns:models="clr-namespace:Alba.IDE.Models"
+        xmlns:services="clr-namespace:Alba.IDE.Services"
         xmlns:controls="clr-namespace:Alba.IDE.Controls"
         x:Class="Alba.IDE.Views.VentanaPrincipal"
         Title="{Binding TituloVentana}"
-        Width="1380"
-        Height="860"
-        MinWidth="980"
-        MinHeight="620"
+        Width="1440"
+        Height="890"
+        MinWidth="1020"
+        MinHeight="640"
         Background="{DynamicResource FondoBaseBrush}"
         Foreground="{DynamicResource TextoPrincipalBrush}">
 
   <Grid RowDefinitions="Auto,*,Auto">
-    <!-- ==================== 1. BARRA SUPERIOR ==================== -->
+    <!-- ==================== 1. BARRA SUPERIOR (VISUAL STUDIO PRO 9.0) ==================== -->
     <Border Grid.Row="0"
             Background="{DynamicResource FondoBarraBrush}"
             BorderBrush="{DynamicResource BordeSutilBrush}"
@@ -26,23 +27,36 @@
                  Width="24" Height="24"
                  VerticalAlignment="Center"
                  Margin="2,0,4,0" />
-          <TextBlock Text="XYNEX CODE EDITOR"
+          <TextBlock Text="XYNEX CODE"
                      FontWeight="Bold"
                      FontSize="12.5"
                      Foreground="{DynamicResource TextoPrincipalBrush}"
                      VerticalAlignment="Center" />
-          <TextBlock Text="v5.0"
-                     FontSize="11"
-                     FontWeight="SemiBold"
+          <TextBlock Text="9.0"
+                     FontSize="11.5"
+                     FontWeight="Bold"
                      Foreground="{DynamicResource AcentoPrimarioBrush}"
                      VerticalAlignment="Center"
                      Margin="2,0,8,0" />
 
           <Menu VerticalAlignment="Center">
             <MenuItem Header="Archivo">
+              <MenuItem Header="Archivo rápido sin carpeta (Cibao)" Click="AlCrearArchivoSinCarpeta" />
+              <MenuItem Header="Archivo sin carpeta por lenguaje...">
+                <MenuItem Header="Cibao Code 9.0 (.cibao)" Click="AlCrearScratchPorExtension" Tag=".cibao" />
+                <MenuItem Header="Python (.py)" Click="AlCrearScratchPorExtension" Tag=".py" />
+                <MenuItem Header="HTML5 (.html)" Click="AlCrearScratchPorExtension" Tag=".html" />
+                <MenuItem Header="CSS3 (.css)" Click="AlCrearScratchPorExtension" Tag=".css" />
+                <MenuItem Header="JavaScript (.js)" Click="AlCrearScratchPorExtension" Tag=".js" />
+                <MenuItem Header="TypeScript (.ts)" Click="AlCrearScratchPorExtension" Tag=".ts" />
+                <MenuItem Header="JSON (.json)" Click="AlCrearScratchPorExtension" Tag=".json" />
+                <MenuItem Header="C# (.cs)" Click="AlCrearScratchPorExtension" Tag=".cs" />
+                <MenuItem Header="C++20 (.cpp)" Click="AlCrearScratchPorExtension" Tag=".cpp" />
+              </MenuItem>
+              <Separator />
               <MenuItem Header="Nuevo proyecto..." Click="AlCrearProyecto" />
               <MenuItem Header="Nuevo programa..." Click="AlCrearPrograma" />
-              <MenuItem Header="Nuevo archivo independiente..." Click="AlCrearArchivoIndependiente" />
+              <MenuItem Header="Nuevo archivo en disco..." Click="AlCrearArchivoIndependiente" />
               <Separator />
               <MenuItem Header="Abrir carpeta de proyecto..." Click="AlAbrirCarpeta" />
               <MenuItem Header="Abrir archivo..." Click="AlAbrirArchivo" />
@@ -58,25 +72,32 @@
               <MenuItem Header="Buscar en todo el proyecto" Click="AlAbrirBusquedaProyecto" />
             </MenuItem>
             <MenuItem Header="Ver">
-              <MenuItem Header="Alternar barra lateral" Click="AlAlternarBarraLateral" />
-              <MenuItem Header="Alternar panel inferior" Click="AlAlternarPanelInferior" />
-              <MenuItem Header="Navegador Web integrado (Vista previa)" Click="AlAlternarVistaWeb" />
+              <MenuItem Header="Alternar barra lateral (Ctrl+B)" Click="AlAlternarBarraLateral" />
+              <MenuItem Header="Alternar panel inferior (Ctrl+J)" Click="AlAlternarPanelInferior" />
+              <MenuItem Header="Alternar panel Bot Tutor / Agente IA" Click="AlAlternarAsistente" />
+              <MenuItem Header="Vista previa Web / HTML integrada" Click="AlAlternarVistaWeb" />
               <MenuItem Header="Abrir Terminal" Click="AlAbrirTerminal" />
               <MenuItem Header="Centro de Herramientas (Tools)" Click="AlAbrirTools" />
+              <MenuItem Header="Tienda de Addons Online (API)" Click="AlAbrirAddonsOnline" />
               <Separator />
               <MenuItem Header="Cambiar tema visual" Click="AlCambiarTemaRapido" />
-              <MenuItem Header="Configuración..." Click="AlAbrirConfiguracion" />
+              <MenuItem Header="Configuración completa..." Click="AlAbrirConfiguracion" />
             </MenuItem>
             <MenuItem Header="Ejecutar">
               <MenuItem Header="Ejecutar archivo actual (F5)" Command="{Binding ComandoEjecutar}" />
               <MenuItem Header="Abrir HTML en navegador real (Live Server)" Click="AlAbrirWebExterno" />
-              <MenuItem Header="Verificar archivo actual" Command="{Binding ComandoVerificar}" />
+              <MenuItem Header="Verificar errores del archivo actual" Command="{Binding ComandoVerificar}" />
               <MenuItem Header="Verificar todo el proyecto" Click="AlVerificarProyecto" />
               <MenuItem Header="Detener ejecución" Command="{Binding ComandoDetener}" />
             </MenuItem>
             <MenuItem Header="Herramientas">
-              <MenuItem Header="Centro de Herramientas (Tools)" Click="AlAbrirTools" />
+              <MenuItem Header="Tienda Online de Addons (API)" Click="AlAbrirAddonsOnline" />
+              <MenuItem Header="Centro de Tools y SDKs" Click="AlAbrirTools" />
               <MenuItem Header="Re-escanear SDKs instalados" Click="AlReescanearTools" />
+              <Separator />
+              <MenuItem Header="Bot Tutor Cibao 9.0 (Aprender desde 0)" Click="AlAbrirTutorCibao" />
+              <MenuItem Header="Agente de IA (Conectar tu IA)" Click="AlConectarTuIA" />
+              <MenuItem Header="Cuenta Xynex y Bóveda Segura" Click="AlAbrirCuentaUsuario" />
               <Separator />
               <MenuItem Header="Paleta de comandos (Ctrl+Shift+P)" Click="AlAbrirPaletaComandos" />
               <MenuItem Header="Apertura rápida de archivos (Ctrl+P)" Click="AlAbrirArchivosRapidos" />
@@ -90,13 +111,14 @@
               <MenuItem Header="Cerrar sesión de GitHub" Click="AlCerrarSesionGitHub" IsVisible="{Binding EstaConectadoGitHub}" />
             </MenuItem>
             <MenuItem Header="Ayuda">
-              <MenuItem Header="Documentación de Cibao..." Click="AlAbrirDocumentacion" />
-              <MenuItem Header="Comprobar actualizaciones..." Click="AlComprobarActualizaciones" />
+              <MenuItem Header="Documentación Interactiva Cibao 9.0..." Click="AlAbrirDocumentacion" />
+              <MenuItem Header="Bot Tutor Interactivo (Desde Cero)" Click="AlAbrirTutorCibao" />
+              <MenuItem Header="Actualizador Automático..." Click="AlComprobarActualizaciones" />
             </MenuItem>
           </Menu>
         </StackPanel>
 
-        <!-- Barra central: Proyecto activo + Paleta de Comandos -->
+        <!-- Barra central estilo Visual Studio: Proyecto activo + Paleta de Comandos -->
         <Button Grid.Column="1"
                 HorizontalAlignment="Center"
                 MinWidth="260"
@@ -107,101 +129,143 @@
                 CornerRadius="6"
                 Padding="12,5"
                 Click="AlAbrirPaletaComandos"
-                ToolTip.Tip="Abrir Paleta de Comandos (Ctrl+Shift+P)">
+                ToolTip.Tip="Buscar comandos, archivos o funciones (Ctrl+Shift+P)">
           <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
             <TextBlock Text="{Binding NombreProyectoActual}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextoPrincipalBrush}" />
             <TextBlock Text="·" FontSize="12" Foreground="{DynamicResource TextoApagadoBrush}" />
-            <TextBlock Text="Buscar comandos o archivos..." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
+            <TextBlock Text="Buscar comandos o archivos (Ctrl+Shift+P)" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" />
           </StackPanel>
         </Button>
 
         <!-- Accesos rápidos derechos -->
         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-          <Button Classes="ToolbarBtn" Content="Vista Web" Click="AlAlternarVistaWeb" ToolTip.Tip="Navegador Web integrado y Live Server" />
-          <Button Classes="ToolbarBtn" Content="Tools" Click="AlAbrirTools" ToolTip.Tip="Centro de Herramientas (SDKs y Complementos)" />
-          <Button Classes="ToolbarBtn" Content="Verificar" Command="{Binding ComandoVerificar}" ToolTip.Tip="Analizar sintaxis del archivo actual" />
+          <Button Classes="ToolbarBtn" Content="+ Sin Carpeta" Click="AlCrearArchivoSinCarpeta" ToolTip.Tip="Crear código rápido sin carpeta definida" />
+          <Button Classes="ToolbarBtn" Content="Vista Web" Click="AlAlternarVistaWeb" ToolTip.Tip="Previsualizador HTML / Web Live Server" />
+          <Button Classes="ToolbarBtn" Content="Addons API" Click="AlAbrirAddonsOnline" ToolTip.Tip="Descargar extensiones en línea" />
+          <Button Classes="ToolbarBtn" Content="Bot / IA" Click="AlAlternarAsistente" ToolTip.Tip="Mostrar u ocultar Bot Tutor y Agente IA" />
           <Button Classes="RunBtn" Content="▶ Ejecutar" Command="{Binding ComandoEjecutar}" ToolTip.Tip="Ejecutar archivo actual (F5)" />
-          <Button Classes="StopBtn" Content="■ Detener" Command="{Binding ComandoDetener}" ToolTip.Tip="Detener ejecución" />
-          <Button Classes="ToolbarBtn" Content="Inicio" Click="AlIrInicio" ToolTip.Tip="Ir a Pantalla de Inicio" />
-          <Button Classes="ToolbarBtn" Content="Ajustes" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración y Temas" />
+          <Button Classes="StopBtn" Content="■" Command="{Binding ComandoDetener}" ToolTip.Tip="Detener ejecución" />
+          <Button Classes="ToolbarBtn" Content="{Binding TextoCuentaBadge}" Click="AlAbrirCuentaUsuario" ToolTip.Tip="Cuenta SQLite local y conexión de tu IA" />
+          <Button Classes="ToolbarBtn" Content="Inicio" Click="AlIrInicio" ToolTip.Tip="Pantalla de inicio" />
+          <Button Classes="ToolbarBtn" Content="Ajustes" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración completa y colores" />
         </StackPanel>
       </Grid>
     </Border>
 
     <!-- ==================== 2. CONTENIDO CENTRAL ==================== -->
     <Grid Grid.Row="1">
-      <!-- A. PANTALLA DE INICIO (BIENVENIDA) -->
+      <!-- A. PANTALLA DE INICIO (BIENVENIDA LIMPIA SIN CÓDIGO FIJO REPETITIVO) -->
       <ScrollViewer IsVisible="{Binding MostrarPantallaInicio}" Background="{DynamicResource FondoBaseBrush}">
-        <Grid MaxWidth="1120" Margin="34,26" ColumnDefinitions="1.08*,28,1*">
-          <!-- Columna izquierda: Identidad + Creación Tripartita + Apertura -->
-          <StackPanel Grid.Column="0" Spacing="18">
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-              <Image Source="avares://Alba.IDE/Assets/alba-studio-256.png" Width="68" Height="68" />
-              <StackPanel VerticalAlignment="Center" Spacing="4">
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                  <TextBlock Text="Xynex Code Editor" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextoPrincipalBrush}" />
-                  <TextBlock Text="v5.0.0" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Bottom" Margin="0,0,0,4" />
-                </StackPanel>
-                <TextBlock Text="IDE profesional multi-lenguaje y entorno oficial de Cibao Programming Language."
-                           FontSize="13"
-                           TextWrapping="Wrap"
-                           Foreground="{DynamicResource TextoSecundarioBrush}" />
-              </StackPanel>
-            </StackPanel>
+        <Grid MaxWidth="1180" Margin="30,22" ColumnDefinitions="1.12*,26,0.95*">
+          <!-- Columna izquierda: Banner v9.0 + Acciones rápidas sin carpeta + Creación/Apertura + Entornos -->
+          <StackPanel Grid.Column="0" Spacing="16">
+            <!-- Banner Visual Studio Hero v9.0 -->
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    ClipToBounds="True">
+              <Grid RowDefinitions="Auto,Auto">
+                <Border Grid.Row="0" Height="138" ClipToBounds="True" Background="#161616">
+                  <Image Source="avares://Alba.IDE/Assets/xynex-banner.png" Stretch="UniformToFill" />
+                </Border>
+                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="16,12">
+                  <Image Grid.Column="0" Source="avares://Alba.IDE/Assets/alba-studio-256.png" Width="44" Height="44" Margin="0,0,12,0" />
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="Xynex Code Editor 9.0" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextoPrincipalBrush}" />
+                      <Border Background="{DynamicResource AcentoPrimarioBrush}" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                        <TextBlock Text="CIBAO CODE 9.0" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF" />
+                      </Border>
+                    </StackPanel>
+                    <TextBlock Text="Entorno estilo Visual Studio multi-lenguaje: escribe directo sin carpetas, aprende con Bot Tutor 9.0 o conecta tu propia IA."
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextoSecundarioBrush}" />
+                  </StackPanel>
+                  <Button Grid.Column="2" Classes="PrimaryBtn" Content="Empezar Sin Carpeta" Click="AlCrearArchivoSinCarpeta" VerticalAlignment="Center" Margin="10,0,0,0" />
+                </Grid>
+              </Grid>
+            </Border>
 
-            <TextBlock Text="CREAR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,4,0,0" />
-
-            <Grid ColumnDefinitions="*,10,*,10,*">
-              <Button Grid.Column="0" Classes="CardBtn" Click="AlCrearProyecto">
+            <!-- ACCIONES PRINCIPALES -->
+            <TextBlock Text="COMENZAR AHORA" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+            <Grid ColumnDefinitions="*,10,*,10,*" RowDefinitions="Auto,10,Auto">
+              <Button Grid.Row="0" Grid.Column="0" Classes="CardBtn" Click="AlCrearArchivoSinCarpeta">
                 <StackPanel Spacing="4">
-                  <TextBlock Text="Crear proyecto" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  <TextBlock Text="Archivo Sin Carpeta" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  <TextBlock Text="Crea y ejecuta al instante sin elegir carpetas ni rutas." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+
+              <Button Grid.Row="0" Grid.Column="2" Classes="CardBtn" Click="AlAbrirTutorCibao">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Bot Tutor Cibao 9.0" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource ExitoColorBrush}" />
+                  <TextBlock Text="Aprende desde cero con ejemplos guiados y retos paso a paso." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+
+              <Button Grid.Row="0" Grid.Column="4" Classes="CardBtn" Click="AlCrearProyecto">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Nuevo Proyecto" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
                   <TextBlock Text="Carpeta estructurada en Cibao, Python, Web, C# o C++." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
                 </StackPanel>
               </Button>
 
-              <Button Grid.Column="2" Classes="CardBtn" Click="AlCrearPrograma">
+              <Button Grid.Row="2" Grid.Column="0" Classes="CardBtn" Click="AlAbrirCarpeta">
                 <StackPanel Spacing="4">
-                  <TextBlock Text="Crear programa" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
-                  <TextBlock Text="Programa ejecutable directo sin carpeta compleja." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                  <TextBlock Text="Abrir Carpeta" FontSize="13" FontWeight="SemiBold" />
+                  <TextBlock Text="Carga una carpeta existente en el explorador lateral." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
                 </StackPanel>
               </Button>
 
-              <Button Grid.Column="4" Classes="CardBtn" Click="AlCrearArchivoIndependiente">
+              <Button Grid.Row="2" Grid.Column="2" Classes="CardBtn" Click="AlAbrirArchivo">
                 <StackPanel Spacing="4">
-                  <TextBlock Text="Crear archivo" FontSize="13.5" FontWeight="SemiBold" />
-                  <TextBlock Text="Archivo independiente listo para editar y probar." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                  <TextBlock Text="Abrir Archivo" FontSize="13" FontWeight="SemiBold" />
+                  <TextBlock Text="Abre .cibao, .alb, .py, .html, .js, .ts, .cs o .cpp." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Button>
+
+              <Button Grid.Row="2" Grid.Column="4" Classes="CardBtn" Click="AlAbrirAddonsOnline">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Addons Online (API)" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  <TextBlock Text="Instala lenguajes y snippets en 1 clic sin descargas manuales." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
                 </StackPanel>
               </Button>
             </Grid>
 
-            <TextBlock Text="ABRIR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" Margin="0,2,0,0" />
+            <!-- Plantillas rápidas sin carpeta por lenguaje -->
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="12">
+              <StackPanel Spacing="8">
+                <TextBlock Text="CREAR ARCHIVO RÁPIDO SIN CARPETA EN:" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                <WrapPanel Orientation="Horizontal">
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="Cibao 9.0 (.cibao)" Click="AlCrearScratchPorExtension" Tag=".cibao" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="Python (.py)" Click="AlCrearScratchPorExtension" Tag=".py" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="HTML5 (.html)" Click="AlCrearScratchPorExtension" Tag=".html" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="JavaScript (.js)" Click="AlCrearScratchPorExtension" Tag=".js" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="TypeScript (.ts)" Click="AlCrearScratchPorExtension" Tag=".ts" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="CSS3 (.css)" Click="AlCrearScratchPorExtension" Tag=".css" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="C# (.cs)" Click="AlCrearScratchPorExtension" Tag=".cs" />
+                  <Button Classes="ToolbarBtn" Margin="0,0,6,6" Content="C++20 (.cpp)" Click="AlCrearScratchPorExtension" Tag=".cpp" />
+                </WrapPanel>
+              </StackPanel>
+            </Border>
 
-            <Grid ColumnDefinitions="*,10,*">
-              <Button Grid.Column="0" Classes="CardBtn" Click="AlAbrirCarpeta">
-                <StackPanel Spacing="3">
-                  <TextBlock Text="Abrir proyecto o carpeta" FontSize="13.5" FontWeight="SemiBold" />
-                  <TextBlock Text="Carga una carpeta en el explorador del IDE." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                </StackPanel>
-              </Button>
+            <!-- Accesos complementarios -->
+            <WrapPanel Orientation="Horizontal">
+              <Button Classes="ToolbarBtn" Margin="0,0,8,6" Content="Documentación Interactiva HTML" Click="AlAbrirDocumentacion" />
+              <Button Classes="ToolbarBtn" Margin="0,0,8,6" Content="Cuenta y Conectar tu IA" Click="AlAbrirCuentaUsuario" />
+              <Button Classes="ToolbarBtn" Margin="0,0,8,6" Content="Centro de Tools" Click="AlAbrirTools" />
+              <Button Classes="ToolbarBtn" Margin="0,0,8,6" Content="Git / GitHub" Click="AlAbrirPanelGitHubInicio" />
+              <Button Classes="ToolbarBtn" Margin="0,0,8,6" Content="Temas y Ajustes" Click="AlAbrirConfiguracion" />
+              <Button Classes="ToolbarBtn" Margin="0,0,8,6" Content="Actualizaciones" Click="AlComprobarActualizaciones" />
+            </WrapPanel>
 
-              <Button Grid.Column="2" Classes="CardBtn" Click="AlAbrirArchivo">
-                <StackPanel Spacing="3">
-                  <TextBlock Text="Abrir archivo independiente" FontSize="13.5" FontWeight="SemiBold" />
-                  <TextBlock Text="Abre .cibao, .alb, .py, .html, .cs o .cpp." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                </StackPanel>
-              </Button>
-            </Grid>
-
-            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
-              <Button Classes="ToolbarBtn" Content="Centro de Tools" Click="AlAbrirTools" />
-              <Button Classes="ToolbarBtn" Content="Git / GitHub" Click="AlAbrirPanelGitHubInicio" />
-              <Button Classes="ToolbarBtn" Content="Documentación Cibao" Click="AlAbrirDocumentacion" />
-              <Button Classes="ToolbarBtn" Content="Temas y Ajustes" Click="AlAbrirConfiguracion" />
-              <Button Classes="ToolbarBtn" Content="Ejemplo Hola Mundo" Click="AlAbrirEjemploHolaMundo" />
-              <Button Classes="ToolbarBtn" Content="Actualizaciones" Click="AlComprobarActualizaciones" />
-            </StackPanel>
-
-            <!-- Entornos detectados en este equipo -->
+            <!-- Entornos nativos detectados -->
             <Border Background="{DynamicResource FondoSuperficieBrush}"
                     BorderBrush="{DynamicResource BordeSutilBrush}"
                     BorderThickness="1"
@@ -209,30 +273,16 @@
                     Padding="14">
               <StackPanel Spacing="8">
                 <Grid ColumnDefinitions="*,Auto">
-                  <TextBlock Grid.Column="0" Text="ENTORNOS DETECTADOS EN ESTE EQUIPO" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="0" Text="APIs Y ENTORNOS NATIVOS DETECTADOS" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
                   <Button Grid.Column="1" Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Re-escanear" Click="AlReescanearTools" />
                 </Grid>
                 <ItemsControl ItemsSource="{Binding EntornosDetectados}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:EstadoEntornoLenguaje">
-                      <Grid ColumnDefinitions="130,60,*" Margin="0,2">
+                      <Grid ColumnDefinitions="135,60,*" Margin="0,2">
                         <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="12" FontWeight="SemiBold" />
                         <TextBlock Grid.Column="1" Text="{Binding ExtensionPrincipal}" FontSize="11.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
                         <TextBlock Grid.Column="2" Text="{Binding EstadoResumen}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
-                      </Grid>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <Separator Background="{DynamicResource BordeSutilBrush}" Margin="0,4" />
-                <TextBlock Text="ENTORNOS GRÁFICOS Y WEB" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
-                <ItemsControl ItemsSource="{Binding EntornosGraficosDetectados}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:EstadoEntornoGrafico">
-                      <Grid ColumnDefinitions="195,65,*" Margin="0,2">
-                        <TextBlock Grid.Column="0" Text="{Binding Nombre}" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Grid.Column="1" Text="{Binding Plataforma}" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
-                        <TextBlock Grid.Column="2" Text="{Binding Detalle}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
                       </Grid>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
@@ -241,8 +291,25 @@
             </Border>
           </StackPanel>
 
-          <!-- Columna derecha: Proyectos recientes y Archivos recientes separados -->
+          <!-- Columna derecha: Proyectos y Archivos recientes -->
           <StackPanel Grid.Column="2" Spacing="14">
+            <Border Background="{DynamicResource FondoSuperficieBrush}"
+                    BorderBrush="{DynamicResource BordeSutilBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14">
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Grid.Column="0" Spacing="2">
+                    <TextBlock Text="PERFIL DE SEGURIDAD Y AGENTE IA" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                    <TextBlock Text="{Binding TextoCuentaBadge}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                    <TextBlock Text="{Binding TextoEstadoIA}" FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Classes="PrimaryBtn" Content="Gestionar" Click="AlConectarTuIA" VerticalAlignment="Center" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
             <Border Background="{DynamicResource FondoSuperficieBrush}"
                     BorderBrush="{DynamicResource BordeSutilBrush}"
                     BorderThickness="1"
@@ -284,7 +351,7 @@
               <StackPanel Spacing="8">
                 <TextBlock Text="ARCHIVOS RECIENTES" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
                 <TextBlock IsVisible="{Binding SinArchivosRecientes}"
-                           Text="Aún no has abierto archivos independientes."
+                           Text="Aún no has abierto archivos recientes."
                            FontSize="12"
                            Foreground="{DynamicResource TextoSecundarioBrush}" />
                 <ListBox ItemsSource="{Binding ArchivosRecientes}"
@@ -312,8 +379,8 @@
         </Grid>
       </ScrollViewer>
 
-      <!-- B. ESPACIO DE TRABAJO DEL IDE -->
-      <Grid IsVisible="{Binding MostrarEspacioTrabajo}" ColumnDefinitions="Auto,Auto,*">
+      <!-- B. ESPACIO DE TRABAJO DEL IDE ESTILO VISUAL STUDIO -->
+      <Grid IsVisible="{Binding MostrarEspacioTrabajo}" ColumnDefinitions="Auto,Auto,*,Auto">
         <!-- Activity Rail izquierdo -->
         <Border Grid.Column="0"
                 Background="{DynamicResource FondoBarraBrush}"
@@ -344,22 +411,30 @@
               <Button Classes="RailBtn"
                       Classes.Activo="{Binding EsToolsActivo}"
                       Click="AlRailTools"
-                      ToolTip.Tip="Centro de Herramientas (Tools)">
+                      ToolTip.Tip="Centro de Herramientas (Tools y SDKs)">
                 <PathIcon Width="18" Height="18" Data="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm12.5 0v3H20v2h-3.5v3h-2v-3H11v-2h3.5v-3h2z" />
+              </Button>
+              <Button Classes="RailBtn"
+                      Click="AlAbrirAddonsOnline"
+                      ToolTip.Tip="Tienda Online de Extensiones (API)">
+                <PathIcon Width="18" Height="18" Data="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
               </Button>
               <Button Classes="RailBtn"
                       Classes.Activo="{Binding EsHerramientasActivo}"
                       Click="AlRailHerramientas"
-                      ToolTip.Tip="Acciones rápidas del proyecto">
+                      ToolTip.Tip="Acciones rápidas">
                 <PathIcon Width="18" Height="18" Data="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
               </Button>
             </StackPanel>
 
             <StackPanel Grid.Row="1" Spacing="8" HorizontalAlignment="Center">
-              <Button Classes="RailBtn" Click="AlAbrirDocumentacion" ToolTip.Tip="Documentación de Cibao">
+              <Button Classes="RailBtn" Click="AlAbrirCuentaUsuario" ToolTip.Tip="Cuenta Xynex y Bóveda IA">
+                <PathIcon Width="18" Height="18" Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </Button>
+              <Button Classes="RailBtn" Click="AlAbrirDocumentacion" ToolTip.Tip="Documentación Interactiva Cibao 9.0">
                 <PathIcon Width="18" Height="18" Data="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />
               </Button>
-              <Button Classes="RailBtn" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración">
+              <Button Classes="RailBtn" Click="AlAbrirConfiguracion" ToolTip.Tip="Configuración completa">
                 <PathIcon Width="18" Height="18" Data="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
               </Button>
             </StackPanel>
@@ -373,30 +448,29 @@
                   BorderBrush="{DynamicResource BordeSutilBrush}"
                   BorderThickness="0,0,1,0">
             <Grid>
-              <!-- Vista 1: Explorador (Archivos independientes + Proyecto) -->
+              <!-- Vista 1: Explorador (Borradores sin carpeta + Proyecto) -->
               <Grid IsVisible="{Binding EsExploradorActivo}" RowDefinitions="Auto,Auto,*">
                 <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
                   <Grid ColumnDefinitions="*,Auto">
                     <TextBlock Text="EXPLORADOR" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" VerticalAlignment="Center" />
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+SinDir" Click="AlCrearArchivoSinCarpeta" ToolTip.Tip="Archivo rápido sin carpeta" />
                       <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Arch" Click="AlNuevoArchivo" ToolTip.Tip="Nuevo archivo" />
-                      <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Prog" Click="AlCrearPrograma" ToolTip.Tip="Nuevo programa" />
                       <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="+Dir" Click="AlNuevaCarpeta" ToolTip.Tip="Nueva carpeta" />
                       <Button Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="↻" Command="{Binding ComandoRefrescarExplorador}" ToolTip.Tip="Refrescar" />
                     </StackPanel>
                   </Grid>
                 </Border>
 
-                <!-- Archivos independientes abiertos -->
                 <Border Grid.Row="1"
                         IsVisible="{Binding TieneArchivosIndependientes}"
                         BorderBrush="{DynamicResource BordeSutilBrush}"
                         BorderThickness="0,0,0,1"
                         Padding="8,6">
                   <StackPanel Spacing="4">
-                    <TextBlock Text="ARCHIVOS INDEPENDIENTES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
+                    <TextBlock Text="ARCHIVOS RÁPIDOS / SUELTOS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
                     <ListBox ItemsSource="{Binding ArchivosIndependientes}"
-                             MaxHeight="130"
+                             MaxHeight="140"
                              Background="Transparent"
                              SelectionChanged="AlSeleccionarArchivoIndependiente">
                       <ListBox.ItemTemplate>
@@ -418,6 +492,7 @@
                           DoubleTapped="AlDobleClicArbol">
                   <TreeView.ContextMenu>
                     <ContextMenu>
+                      <MenuItem Header="Archivo rápido sin carpeta..." Click="AlCrearArchivoSinCarpeta" />
                       <MenuItem Header="Nuevo archivo..." Click="AlNuevoArchivo" />
                       <MenuItem Header="Nuevo programa..." Click="AlCrearPrograma" />
                       <MenuItem Header="Nueva carpeta..." Click="AlNuevaCarpeta" />
@@ -484,7 +559,6 @@
 
                 <ScrollViewer Grid.Row="1">
                   <StackPanel Margin="10" Spacing="10">
-                    <!-- Cuenta GitHub -->
                     <Border Background="{DynamicResource FondoSuperficieBrush}"
                             BorderBrush="{DynamicResource BordeSutilBrush}"
                             BorderThickness="1"
@@ -492,12 +566,10 @@
                             Padding="10">
                       <StackPanel Spacing="6">
                         <TextBlock Text="CUENTA GITHUB" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
-
                         <StackPanel IsVisible="{Binding NoEstaConectadoGitHub}" Spacing="6">
-                          <TextBlock Text="Conecta tu cuenta de GitHub con OAuth o Token Personal para clonar y publicar." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                          <TextBlock Text="Conecta tu cuenta de GitHub con OAuth o Token Personal para clonar, hacer pull y push." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
                           <Button Classes="PrimaryBtn" Content="Iniciar sesión en GitHub" Click="AlIniciarSesionGitHub" HorizontalAlignment="Stretch" />
                         </StackPanel>
-
                         <StackPanel IsVisible="{Binding EstaConectadoGitHub}" Spacing="6">
                           <Grid ColumnDefinitions="Auto,*">
                             <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16" ClipToBounds="True" Background="{DynamicResource FondoBarraBrush}" Margin="0,0,8,0">
@@ -517,7 +589,6 @@
                       </StackPanel>
                     </Border>
 
-                    <!-- Clonar y repositorios GitHub -->
                     <Border Background="{DynamicResource FondoSuperficieBrush}"
                             BorderBrush="{DynamicResource BordeSutilBrush}"
                             BorderThickness="1"
@@ -549,7 +620,6 @@
                       </StackPanel>
                     </Border>
 
-                    <!-- Control de versiones Git del proyecto actual -->
                     <Border Background="{DynamicResource FondoSuperficieBrush}"
                             BorderBrush="{DynamicResource BordeSutilBrush}"
                             BorderThickness="1"
@@ -557,13 +627,11 @@
                             Padding="10">
                       <StackPanel Spacing="8">
                         <TextBlock Text="REPOSITORIO LOCAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextoApagadoBrush}" />
-
                         <TextBlock IsVisible="{Binding GitNoInstalado}"
-                                   Text="Git no está instalado en el sistema. Instala Git para usar commits, ramas y sincronización."
+                                   Text="Git no está instalado en el sistema."
                                    FontSize="11.5"
                                    Foreground="{DynamicResource AdvertenciaColorBrush}"
                                    TextWrapping="Wrap" />
-
                         <StackPanel IsVisible="{Binding NoEsRepositorioGit}" Spacing="6">
                           <TextBlock Text="Esta carpeta aún no es un repositorio Git." FontSize="11.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
                           <Button Classes="PrimaryBtn" Content="Inicializar Git (git init)" Click="AlInicializarGit" HorizontalAlignment="Stretch" />
@@ -571,7 +639,6 @@
 
                         <StackPanel IsVisible="{Binding EsRepositorioGit}" Spacing="8">
                           <TextBlock Text="{Binding TextoRemotoOrigin}" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" TextTrimming="CharacterEllipsis" />
-
                           <Grid ColumnDefinitions="*,Auto">
                             <ComboBox Grid.Column="0"
                                       ItemsSource="{Binding RamasGit}"
@@ -619,7 +686,6 @@
                             </ListBox.ItemTemplate>
                           </ListBox>
                         </StackPanel>
-
                         <TextBlock Text="{Binding EstadoOperacionGitTexto}" FontSize="10.5" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
                       </StackPanel>
                     </Border>
@@ -627,62 +693,64 @@
                 </ScrollViewer>
               </Grid>
 
-              <!-- Vista 4: Herramientas rápidas del proyecto -->
+              <!-- Vista 4: Herramientas rápidas -->
               <Grid IsVisible="{Binding EsHerramientasActivo}" RowDefinitions="Auto,*">
                 <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" Padding="10,8" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1">
                   <TextBlock Text="ACCIONES RÁPIDAS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextoSecundarioBrush}" />
                 </Border>
-                <StackPanel Grid.Row="1" Margin="10" Spacing="8">
-                  <Button Classes="CardBtn" Click="AlAlternarVistaWeb">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Vista previa Web integrada" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
-                      <TextBlock Text="Navegador integrado con Live Server, consola y vista responsive." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                  <Button Classes="CardBtn" Click="AlAbrirTools">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Centro de Herramientas (Tools)" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
-                      <TextBlock Text="Administra SDKs, compiladores, lenguajes y complementos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                  <Button Classes="CardBtn" Click="AlPublicarEnGitHub">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Publicar proyecto en GitHub" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoSecundarioBrush}" />
-                      <TextBlock Text="Asistente guiado con análisis de secretos y .gitignore." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                  <Button Classes="CardBtn" Click="AlVerificarProyecto">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Verificar todo el proyecto" FontWeight="SemiBold" FontSize="12.5" />
-                      <TextBlock Text="Analiza todos los archivos .cibao y .alb en busca de errores." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                  <Button Classes="CardBtn" Click="AlAbrirTerminal">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Abrir Terminal en proyecto" FontWeight="SemiBold" FontSize="12.5" />
-                      <TextBlock Text="Inicia una sesión real en la carpeta actual." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                  <Button Classes="CardBtn" Click="AlAbrirDocumentacion">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Manual del lenguaje Cibao" FontWeight="SemiBold" FontSize="12.5" />
-                      <TextBlock Text="Consulta sintaxis, tipos, clases y errores." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                  <Button Classes="CardBtn" Click="AlAbrirEnExploradorSO">
-                    <StackPanel Spacing="2">
-                      <TextBlock Text="Abrir carpeta en el sistema" FontWeight="SemiBold" FontSize="12.5" />
-                      <TextBlock Text="Muestra el proyecto en tu explorador de archivos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Button>
-                </StackPanel>
+                <ScrollViewer Grid.Row="1">
+                  <StackPanel Margin="10" Spacing="8">
+                    <Button Classes="CardBtn" Click="AlCrearArchivoSinCarpeta">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Archivo rápido sin carpeta" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        <TextBlock Text="Crea y ejecuta código directo sin crear estructura de proyecto." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="CardBtn" Click="AlAbrirAddonsOnline">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Tienda Online de Addons (API)" FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        <TextBlock Text="Descarga paquetes y soporte en 1 clic sin descargas manuales." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="CardBtn" Click="AlAlternarVistaWeb">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Vista previa Web integrada" FontWeight="SemiBold" FontSize="12.5" />
+                        <TextBlock Text="Renderizador HTML/CSS mejorado + Live Server y vista App." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="CardBtn" Click="AlAbrirTools">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Centro de Herramientas (Tools)" FontWeight="SemiBold" FontSize="12.5" />
+                        <TextBlock Text="SDKs nativos, compiladores, intérpretes y complementos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="CardBtn" Click="AlAbrirDocumentacion">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Documentación HTML Cibao 9.0" FontWeight="SemiBold" FontSize="12.5" />
+                        <TextBlock Text="Manual completo desde cero con ejemplos probables en vivo." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="CardBtn" Click="AlAbrirCuentaUsuario">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Cuenta Xynex y Conectar IA" FontWeight="SemiBold" FontSize="12.5" />
+                        <TextBlock Text="Base de datos SQLite local con claves cifradas para tu IA." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="CardBtn" Click="AlAbrirEnExploradorSO">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="Abrir carpeta en el sistema" FontWeight="SemiBold" FontSize="12.5" />
+                        <TextBlock Text="Muestra el proyecto en tu explorador de archivos." FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                  </StackPanel>
+                </ScrollViewer>
               </Grid>
             </Grid>
           </Border>
           <GridSplitter Grid.Column="1" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Columns" />
         </Grid>
 
-        <!-- Área central: Editor / Centro Tools integrado + Panel inferior colapsable -->
+        <!-- Área central: Editor / Tools + Panel inferior -->
         <Grid Grid.Column="2" RowDefinitions="*,Auto">
           <Grid Grid.Row="0">
             <!-- Subvista A: Editor de Código -->
@@ -726,42 +794,44 @@
                 </ScrollViewer>
               </Border>
 
-              <!-- Breadcrumbs + Botón Buscar en archivo -->
+              <!-- Breadcrumbs + Acciones rápidas del editor -->
               <Border Grid.Row="1" Background="{DynamicResource FondoEditorBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="12,4">
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Grid.Column="0" Text="{Binding RutaRelativaActiva}" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
-                  <Button Grid.Column="1" Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Buscar (Ctrl+F)" Click="AlBuscarReemplazar" />
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Button Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Verificar errores" Command="{Binding ComandoVerificar}" />
+                    <Button Classes="ToolbarBtn" Padding="8,2" FontSize="11" Content="Buscar (Ctrl+F)" Click="AlBuscarReemplazar" />
+                  </StackPanel>
                 </Grid>
               </Border>
 
-              <!-- Editor principal + Vista Web integrada en panel dividido -->
+              <!-- Editor principal + Vista Web integrada -->
               <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
                 <controls:EditorCodigoAlba Grid.Column="0" x:Name="EditorPrincipal" />
-                <Grid Grid.Column="1" IsVisible="{Binding MostrarVistaPreviaWeb}" ColumnDefinitions="4,430">
+                <Grid Grid.Column="1" IsVisible="{Binding MostrarVistaPreviaWeb}" ColumnDefinitions="4,445">
                   <GridSplitter Grid.Column="0" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Columns" />
                   <controls:VistaPreviaWebControl Grid.Column="1" x:Name="VistaPreviaWeb" />
                 </Grid>
               </Grid>
             </Grid>
 
-            <!-- Subvista B: Centro de Herramientas (Tools) integrado dentro del IDE -->
+            <!-- Subvista B: Centro de Herramientas (Tools) -->
             <Grid IsVisible="{Binding MostrarCentroTools}" RowDefinitions="Auto,Auto,*" Background="{DynamicResource FondoBaseBrush}" Margin="16">
-              <!-- Cabecera Tools -->
               <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
                 <StackPanel Grid.Column="0" Spacing="2">
                   <TextBlock Text="Centro de Herramientas (Tools)" FontSize="20" FontWeight="Bold" />
-                  <TextBlock Text="Motores, SDKs, compiladores detectados y complementos activos en Xynex Code Editor."
+                  <TextBlock Text="SDKs nativos, compiladores, intérpretes y complementos de Xynex Code Editor 9.0."
                              FontSize="12"
                              Foreground="{DynamicResource TextoSecundarioBrush}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                  <Button Classes="PrimaryBtn" Content="Tienda Online (API)" Click="AlAbrirAddonsOnline" />
                   <Button Classes="ToolbarBtn" Content="Re-escanear equipo" Click="AlReescanearTools" />
-                  <Button Classes="PrimaryBtn" Content="Instalar addon..." Click="AlInstalarAddonTools" />
+                  <Button Classes="ToolbarBtn" Content="Instalar carpeta..." Click="AlInstalarAddonTools" />
                   <Button Classes="ToolbarBtn" Content="Volver al editor" Click="AlCerrarCentroTools" />
                 </StackPanel>
               </Grid>
 
-              <!-- Filtros Tools -->
               <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
                 <TextBox Grid.Column="0"
                          Text="{Binding FiltroTextoTools}"
@@ -778,8 +848,7 @@
                           VerticalAlignment="Center" />
               </Grid>
 
-              <!-- Maestro-Detalle Tools -->
-              <Grid Grid.Row="2" ColumnDefinitions="1.1*,14,1*">
+              <Grid Grid.Row="2" ColumnDefinitions="1.1*,14,*">
                 <Border Grid.Column="0"
                         Background="{DynamicResource FondoSuperficieBrush}"
                         BorderBrush="{DynamicResource BordeSutilBrush}"
@@ -859,7 +928,6 @@
                                 Click="AlDesinstalarToolSeleccionado" />
                       </StackPanel>
 
-                      <!-- Dependencias del proyecto actual -->
                       <Border IsVisible="{Binding TieneDependenciasProyecto}"
                               Background="{DynamicResource FondoPanelBrush}"
                               BorderBrush="{DynamicResource BordeSutilBrush}"
@@ -891,12 +959,11 @@
             </Grid>
           </Grid>
 
-          <!-- Panel inferior colapsable y redimensionable -->
-          <Grid Grid.Row="1" IsVisible="{Binding MostrarPanelInferior}" RowDefinitions="4,245">
+          <!-- Panel inferior colapsable -->
+          <Grid Grid.Row="1" IsVisible="{Binding MostrarPanelInferior}" RowDefinitions="4,240">
             <GridSplitter Grid.Row="0" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Rows" />
             <Border Grid.Row="1" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,1,0,0">
               <Grid RowDefinitions="Auto,*">
-                <!-- Cabecera de pestañas inferiores -->
                 <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="10,0">
                   <Grid ColumnDefinitions="*,Auto">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
@@ -918,7 +985,7 @@
                   </Grid>
                 </Border>
 
-                <!-- Contenido 1: Consola -->
+                <!-- Consola -->
                 <Grid Grid.Row="1" IsVisible="{Binding EsConsolaActiva}" RowDefinitions="*,Auto">
                   <ListBox Grid.Row="0"
                            x:Name="ListaConsola"
@@ -965,7 +1032,7 @@
                   </Border>
                 </Grid>
 
-                <!-- Contenido 2: Problemas -->
+                <!-- Problemas -->
                 <ListBox Grid.Row="1"
                          x:Name="ListaProblemas"
                          IsVisible="{Binding EsProblemasActiva}"
@@ -984,9 +1051,8 @@
                   </ListBox.ItemTemplate>
                 </ListBox>
 
-                <!-- Contenido 3: Terminal real multi-sesión -->
+                <!-- Terminal -->
                 <Grid Grid.Row="1" IsVisible="{Binding EsTerminalActiva}" RowDefinitions="Auto,Auto,*,Auto">
-                  <!-- Barra de sesiones + modalidad -->
                   <Border Grid.Row="0" Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="8,3">
                     <Grid ColumnDefinitions="*,Auto">
                       <ListBox Grid.Column="0"
@@ -1027,7 +1093,6 @@
                     </Grid>
                   </Border>
 
-                  <!-- Comandos recomendados -->
                   <Border Grid.Row="1" Background="{DynamicResource FondoPanelBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="8,3">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                       <TextBlock Text="Sugeridos:" FontSize="10.5" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
@@ -1046,7 +1111,6 @@
                     </StackPanel>
                   </Border>
 
-                  <!-- Salida de sesión activa -->
                   <ListBox Grid.Row="2"
                            x:Name="ListaTerminal"
                            ItemsSource="{Binding LineasTerminalActiva}"
@@ -1063,7 +1127,6 @@
                     </ListBox.ItemTemplate>
                   </ListBox>
 
-                  <!-- Entrada de comandos -->
                   <Border Grid.Row="3" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,1,0,0" Padding="8,5">
                     <Grid ColumnDefinitions="Auto,*,Auto">
                       <TextBlock Grid.Column="0" Text="$ " FontFamily="JetBrains Mono, Consolas, monospace" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" />
@@ -1079,7 +1142,7 @@
                   </Border>
                 </Grid>
 
-                <!-- Contenido 4: Registro de actividad -->
+                <!-- Registro -->
                 <ListBox Grid.Row="1"
                          IsVisible="{Binding EsRegistroActiva}"
                          ItemsSource="{Binding RegistroActividad}"
@@ -1098,6 +1161,156 @@
               </Grid>
             </Border>
           </Grid>
+        </Grid>
+
+        <!-- PANEL DERECHO INTEGRADO: BOT TUTOR CIBAO 9.0 + AGENTE IA CON CREDENCIALES PROPIAS -->
+        <Grid Grid.Column="3" IsVisible="{Binding MostrarPanelAsistente}" ColumnDefinitions="4,340">
+          <GridSplitter Grid.Column="0" Background="{DynamicResource BordeSutilBrush}" ResizeDirection="Columns" />
+          <Border Grid.Column="1"
+                  Background="{DynamicResource FondoPanelBrush}"
+                  BorderBrush="{DynamicResource BordeSutilBrush}"
+                  BorderThickness="1,0,0,0">
+            <Grid RowDefinitions="Auto,*">
+              <!-- Pestañas superiores Bot Tutor vs Agente IA -->
+              <Border Grid.Row="0" Background="{DynamicResource FondoBarraBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="0,0,0,1" Padding="8,6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                    <Button Classes="DockTabBtn" Classes.Activo="{Binding EsTutorActivo}" Content="BOT TUTOR 9.0" Click="AlSeleccionarTabTutor" />
+                    <Button Classes="DockTabBtn" Classes.Activo="{Binding EsAgenteIAActivo}" Content="AGENTE IA" Click="AlSeleccionarTabAgenteIA" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Classes="ToolbarBtn" Padding="6,2" FontSize="11" Content="×" Click="AlAlternarAsistente" ToolTip.Tip="Ocultar panel derecho" />
+                </Grid>
+              </Border>
+
+              <!-- SUBPANEL 1: BOT TUTOR AUTOMÁTICO CIBAO 9.0 (DESDE CERO) -->
+              <Grid Grid.Row="1" IsVisible="{Binding EsTutorActivo}" RowDefinitions="Auto,*,Auto" Margin="10">
+                <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,8">
+                  <TextBlock Text="APRENDE CIBAO CODE 9.0 DESDE CERO" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                  <ComboBox ItemsSource="{Binding LeccionesTutor}"
+                            SelectedIndex="{Binding IndiceLeccionTutor}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="services:LeccionTutorCibao">
+                        <TextBlock Text="{Binding Titulo}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <Grid ColumnDefinitions="*,8,*">
+                    <Button Grid.Column="0" Classes="ToolbarBtn" Content="← Anterior" Click="AlAnteriorLeccionTutor" HorizontalAlignment="Stretch" />
+                    <Button Grid.Column="2" Classes="ToolbarBtn" Content="Siguiente →" Click="AlSiguienteLeccionTutor" HorizontalAlignment="Stretch" />
+                  </Grid>
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1">
+                  <StackPanel Spacing="10">
+                    <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="6" Padding="10">
+                      <StackPanel Spacing="6">
+                        <TextBlock Text="{Binding LeccionTutorActual.Titulo}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource TextoPrincipalBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding LeccionTutorActual.Explicacion}" FontSize="12" Foreground="{DynamicResource TextoSecundarioBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding EstadoRetoTutor}" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource ExitoColorBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource FondoEditorBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="6" Padding="10">
+                      <TextBlock Text="{Binding LeccionTutorActual.CodigoEjemplo}"
+                                 FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                                 FontSize="11.5"
+                                 Foreground="{DynamicResource TextoPrincipalBrush}"
+                                 TextWrapping="Wrap" />
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,8,*">
+                      <Button Grid.Column="0" Classes="PrimaryBtn" Content="Insertar en Editor" Click="AlInsertarLeccionTutor" HorizontalAlignment="Stretch" />
+                      <Button Grid.Column="2" Classes="RunBtn" Content="▶ Probar (F5)" Click="AlProbarLeccionTutor" HorizontalAlignment="Stretch" />
+                    </Grid>
+
+                    <Border Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="6" Padding="10">
+                      <StackPanel Spacing="4">
+                        <TextBlock Text="RESPUESTA DEL BOT TUTOR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+                        <TextBlock Text="{Binding RespuestaTutorBot}" FontSize="12" Foreground="{DynamicResource TextoPrincipalBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </ScrollViewer>
+
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+                  <TextBox Grid.Column="0"
+                           x:Name="TxtPreguntaTutor"
+                           Text="{Binding PreguntaTutorBot}"
+                           Watermark="Pregunta al Bot (variables, tipos, bucles, clases)..."
+                           Margin="0,0,6,0"
+                           KeyDown="AlTeclaPreguntaTutor" />
+                  <Button Grid.Column="1" Classes="PrimaryBtn" Content="Preguntar" Click="AlPreguntarTutorBot" />
+                </Grid>
+              </Grid>
+
+              <!-- SUBPANEL 2: AGENTE IA CONECTADO CON LA IA PROPIA DEL USUARIO -->
+              <Grid Grid.Row="1" IsVisible="{Binding EsAgenteIAActivo}" RowDefinitions="Auto,*,Auto" Margin="10">
+                <Border Grid.Row="0" Background="{DynamicResource FondoSuperficieBrush}" BorderBrush="{DynamicResource BordeSutilBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                  <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Text="TU AGENTE DE IA CONECTADO" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                        <TextBlock Text="{Binding TextoEstadoIA}" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                      <Button Grid.Column="1" Classes="PrimaryBtn" Padding="8,4" FontSize="11" Content="Conectar tu IA" Click="AlConectarTuIA" />
+                    </Grid>
+                    <ComboBox ItemsSource="{Binding PerfilesIAUsuario}"
+                              SelectedItem="{Binding PerfilIAActivo}"
+                              IsVisible="{Binding TienePerfilIAActivo}"
+                              HorizontalAlignment="Stretch"
+                              FontSize="11.5">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:PerfilIAConectado">
+                          <TextBlock Text="{Binding NombrePerfil}" />
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+                </Border>
+
+                <ListBox Grid.Row="1"
+                         x:Name="ListaChatIA"
+                         ItemsSource="{Binding MensajesChatIA}"
+                         Background="Transparent"
+                         Padding="2">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="services:MensajeChatIA">
+                      <Border Background="{DynamicResource FondoSuperficieBrush}"
+                              BorderBrush="{DynamicResource BordeSutilBrush}"
+                              BorderThickness="1"
+                              CornerRadius="6"
+                              Padding="10"
+                              Margin="0,4">
+                        <StackPanel Spacing="6">
+                          <TextBlock Text="{Binding EtiquetaRol}" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource AcentoPrimarioBrush}" />
+                          <TextBlock Text="{Binding Contenido}" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextoPrincipalBrush}" />
+                          <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding TieneBloqueCodigo}">
+                            <Button Classes="PrimaryBtn" Padding="8,3" FontSize="11" Content="Aplicar al editor" Click="AlAplicarCodigoIA" Tag="{Binding BloqueCodigoExtraido}" />
+                            <Button Classes="ToolbarBtn" Padding="8,3" FontSize="11" Content="Nuevo archivo" Click="AlNuevoArchivoCodigoIA" Tag="{Binding BloqueCodigoExtraido}" />
+                          </StackPanel>
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="2" Spacing="6" Margin="0,8,0,0">
+                  <ProgressBar IsIndeterminate="True" IsVisible="{Binding EstaConsultandoIA}" Height="3" />
+                  <Grid ColumnDefinitions="*,Auto,Auto">
+                    <TextBox Grid.Column="0"
+                             x:Name="TxtConsultaIA"
+                             Text="{Binding ConsultaUsuarioIA}"
+                             Watermark="Pide código, corregir errores o explicar este archivo..."
+                             Margin="0,0,6,0"
+                             KeyDown="AlTeclaConsultaIA" />
+                    <Button Grid.Column="1" Classes="PrimaryBtn" Content="Enviar" Click="AlEnviarConsultaIA" Margin="0,0,4,0" />
+                    <Button Grid.Column="2" Classes="ToolbarBtn" Padding="8,5" Content="↺" Click="AlLimpiarChatIA" ToolTip.Tip="Limpiar chat" />
+                  </Grid>
+                </StackPanel>
+              </Grid>
+            </Grid>
+          </Border>
         </Grid>
       </Grid>
 
@@ -1118,11 +1331,12 @@
 
     <!-- ==================== 3. BARRA DE ESTADO ==================== -->
     <Border Grid.Row="2"
+            IsVisible="{Binding MostrarBarraEstado}"
             Background="{DynamicResource FondoBarraBrush}"
             BorderBrush="{DynamicResource BordeSutilBrush}"
             BorderThickness="0,1,0,0"
             Padding="12,4">
-      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
           <TextBlock Text="{Binding EstadoBarra}" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
           <ProgressBar IsIndeterminate="True" IsVisible="{Binding EstaEjecutando}" Width="70" Height="4" VerticalAlignment="Center" />
@@ -1142,7 +1356,7 @@
                 Background="Transparent"
                 BorderThickness="0"
                 Padding="6,1"
-                Margin="0,0,12,0"
+                Margin="0,0,10,0"
                 Click="AlTabProblemas">
           <StackPanel Orientation="Horizontal" Spacing="4">
             <TextBlock Text="Errores:" FontSize="11" Foreground="{DynamicResource TextoSecundarioBrush}" />
@@ -1150,10 +1364,20 @@
           </StackPanel>
         </Button>
 
-        <TextBlock Grid.Column="3" Text="{Binding ArchivoActivo.Lenguaje, FallbackValue='Sin archivo'}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
-        <TextBlock Grid.Column="4" Text="{Binding PosicionCursor}" FontSize="11" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <Button Grid.Column="3"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="6,1"
+                Margin="0,0,12,0"
+                Click="AlAlternarAsistente"
+                ToolTip.Tip="Bot Tutor Cibao 9.0 y Agente IA">
+          <TextBlock Text="Bot / IA" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
+        </Button>
 
-        <Button Grid.Column="5"
+        <TextBlock Grid.Column="4" Text="{Binding ArchivoActivo.Lenguaje, FallbackValue='Sin archivo'}" FontSize="11" Foreground="{DynamicResource AcentoPrimarioBrush}" VerticalAlignment="Center" Margin="0,0,14,0" />
+        <TextBlock Grid.Column="5" Text="{Binding PosicionCursor}" FontSize="11" Foreground="{DynamicResource TextoPrincipalBrush}" VerticalAlignment="Center" Margin="0,0,14,0" />
+
+        <Button Grid.Column="6"
                 Background="Transparent"
                 BorderThickness="0"
                 Padding="6,1"
@@ -1163,7 +1387,7 @@
           <TextBlock Text="{Binding NombreTemaActual}" FontSize="11" Foreground="{DynamicResource AcentoSecundarioBrush}" />
         </Button>
 
-        <TextBlock Grid.Column="6" Text="v5.0.0" FontSize="11" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="7" Text="v9.0.0" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextoApagadoBrush}" VerticalAlignment="Center" />
       </Grid>
     </Border>
   </Grid>

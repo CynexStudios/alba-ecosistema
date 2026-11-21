@@ -87,7 +87,7 @@ int ejecutar_proceso_seguro(const fs::path& ejecutable, const std::vector<std::s
 }
 
 void imprimir_ayuda() {
-    std::cout << "Xynex NativeHost v5.0.0 (C++20 Portable Windows/macOS/Linux)\n"
+    std::cout << "Xynex NativeHost v9.0.0 (C++20 Portable Windows/macOS/Linux)\n"
               << "Uso:\n"
               << "  alba-host ejecutar <archivo.cibao|alb>   Ejecuta un programa en Cibao\n"
               << "  alba-host verificar <archivo.cibao|alb>  Verifica sintaxis sin ejecutar\n"
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     std::string comando = argv[1];
 
     if (comando == "version" || comando == "--version") {
-        std::cout << "Xynex NativeHost v5.0.0 (Cibao Programming Language)\n";
+        std::cout << "Xynex NativeHost v9.0.0 (Cibao Programming Language)\n";
         return 0;
     }
 

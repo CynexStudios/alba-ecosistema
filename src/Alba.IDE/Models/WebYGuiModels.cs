@@ -16,10 +16,10 @@ public sealed class MensajeConsolaWeb
 
     public string ColorHex => Nivel.ToLowerInvariant() switch
     {
-        "error" or "render" => "#EF4444",
-        "warn" or "advertencia" => "#FBBF24",
-        "ok" or "sistema" => "#38BDF8",
-        _ => "#E2E8F0"
+        "error" or "render" => "#F14C4C",
+        "warn" or "advertencia" => "#CCA700",
+        "ok" or "sistema" => "#3794FF",
+        _ => "#CCCCCC"
     };
 
     public string Resumen => $"[{MarcaTiempo:HH:mm:ss}] [{Nivel.ToUpperInvariant()}] ({Origen}) {Mensaje}";
@@ -30,14 +30,18 @@ public sealed class BloquePreviewWeb
     public string Etiqueta { get; init; } = "p";
     public string Texto { get; init; } = string.Empty;
     public string Href { get; init; } = string.Empty;
+    public string ImagenRuta { get; init; } = string.Empty;
+    public string FondoHex { get; init; } = string.Empty;
+    public IReadOnlyList<IReadOnlyList<string>> FilasTabla { get; init; } = [];
 }
 
 public sealed class ResultadoAnalisisWeb
 {
     public string TituloPagina { get; init; } = "Vista previa HTML";
-    public string FondoCssHex { get; init; } = "#0D1320";
+    public string FondoCssHex { get; init; } = "#1E1E1E";
     public string ColorTextoCssHex { get; init; } = "#E2E8F0";
-    public string ColorAcentoCssHex { get; init; } = "#38BDF8";
+    public string ColorAcentoCssHex { get; init; } = "#007ACC";
+    public string FondoTarjetaCssHex { get; init; } = "#252526";
     public IReadOnlyList<BloquePreviewWeb> Bloques { get; init; } = [];
     public IReadOnlyList<MensajeConsolaWeb> Errores { get; init; } = [];
     public bool EsValido => Errores.Count == 0;

@@ -60,8 +60,8 @@ public sealed class AnalizadorLexico
                 continue;
             }
 
-            // Comentario de una línea (# ...)
-            if (actual == '#')
+            // Comentario de una línea (# ... o // ...)
+            if (actual == '#' || (actual == '/' && MirarSiguiente() == '/'))
             {
                 SaltarComentarioLinea();
                 continue;
@@ -80,6 +80,13 @@ public sealed class AnalizadorLexico
                 Avanzar(); // '$'
                 char delim = MirarActual();
                 LeerSegmentoInterpolado(delim, esInicio: true);
+                continue;
+            }
+
+            // Cadenas multilínea ("""...""")
+            if (actual == '"' && MirarSiguiente() == '"' && MirarEn(2) == '"')
+            {
+                LeerTextoMultilinea();
                 continue;
             }
 
@@ -193,6 +200,56 @@ public sealed class AnalizadorLexico
             "ALB-L003",
             new UbicacionFuente(_archivo, lineaInicio, colInicio, 2),
             "Comentario multilínea '/*' sin cerrar antes del fin de archivo."
+        );
+    }
+
+    private void LeerTextoMultilinea()
+    {
+        int lineaInicio = _linea;
+        int colInicio = _columna;
+
+        Avanzar(); // "
+        Avanzar(); // "
+        Avanzar(); // "
+
+        var valor = new StringBuilder();
+        while (!EstaAlFinal())
+        {
+            if (MirarActual() == '"' && MirarSiguiente() == '"' && MirarEn(2) == '"')
+            {
+                Avanzar();
+                Avanzar();
+                Avanzar();
+                _tokens.Add(new Token(
+                    TipoToken.TextoLiteral,
+                    valor.ToString(),
+                    valor.ToString(),
+                    new UbicacionFuente(_archivo, lineaInicio, colInicio, 3)
+                ));
+                return;
+            }
+
+            if (MirarActual() == '\r' || MirarActual() == '\n')
+            {
+                if (MirarActual() == '\r' && MirarSiguiente() == '\n')
+                {
+                    Avanzar();
+                }
+                Avanzar();
+                valor.Append('\n');
+                _linea++;
+                _columna = 1;
+            }
+            else
+            {
+                valor.Append(Avanzar());
+            }
+        }
+
+        RegistrarError(
+            "ALB-L001",
+            new UbicacionFuente(_archivo, lineaInicio, colInicio, 3),
+            "Cadena multilínea '\"\"\"' sin cerrar antes del fin de archivo."
         );
     }
 
@@ -490,14 +547,18 @@ public sealed class AnalizadorLexico
         switch (c)
         {
             case '+':
-                if (Coincide('='))
+                if (Coincide('+'))
+                    Emitir(TipoToken.MasMas, "++", lineaInicio, colInicio);
+                else if (Coincide('='))
                     Emitir(TipoToken.MasIgual, "+=", lineaInicio, colInicio);
                 else
                     Emitir(TipoToken.Mas, "+", lineaInicio, colInicio);
                 break;
 
             case '-':
-                if (Coincide('='))
+                if (Coincide('-'))
+                    Emitir(TipoToken.MenosMenos, "--", lineaInicio, colInicio);
+                else if (Coincide('='))
                     Emitir(TipoToken.MenosIgual, "-=", lineaInicio, colInicio);
                 else if (Coincide('>'))
                     Emitir(TipoToken.Flecha, "->", lineaInicio, colInicio);
@@ -530,6 +591,8 @@ public sealed class AnalizadorLexico
             case '=':
                 if (Coincide('='))
                     Emitir(TipoToken.IgualIgual, "==", lineaInicio, colInicio);
+                else if (Coincide('>'))
+                    Emitir(TipoToken.FlechaGorda, "=>", lineaInicio, colInicio);
                 else
                     Emitir(TipoToken.Igual, "=", lineaInicio, colInicio);
                 break;
@@ -611,12 +674,16 @@ public sealed class AnalizadorLexico
                 {
                     Emitir(TipoToken.NuloCoalescente, "??", lineaInicio, colInicio);
                 }
+                else if (Coincide('.'))
+                {
+                    Emitir(TipoToken.InterrogacionPunto, "?.", lineaInicio, colInicio);
+                }
                 else
                 {
                     RegistrarError(
                         "ALB-L002",
                         new UbicacionFuente(_archivo, lineaInicio, colInicio, 1),
-                        "Carácter inesperado '?'. En Cibao utiliza '??' para valor por defecto ante nulo."
+                        "Carácter inesperado '?'. En Cibao utiliza '??' para valor por defecto o '?.' para acceso seguro."
                     );
                 }
                 break;
@@ -626,7 +693,17 @@ public sealed class AnalizadorLexico
                 break;
 
             case '.':
-                Emitir(TipoToken.Punto, ".", lineaInicio, colInicio);
+                if (Coincide('.'))
+                {
+                    if (Coincide('='))
+                        Emitir(TipoToken.PuntoPuntoIgual, "..=", lineaInicio, colInicio);
+                    else
+                        Emitir(TipoToken.PuntoPunto, "..", lineaInicio, colInicio);
+                }
+                else
+                {
+                    Emitir(TipoToken.Punto, ".", lineaInicio, colInicio);
+                }
                 break;
 
             case ':':
@@ -684,6 +761,8 @@ public sealed class AnalizadorLexico
     private char MirarActual() => EstaAlFinal() ? '\0' : _codigoFuente[_indice];
 
     private char MirarSiguiente() => _indice + 1 >= _codigoFuente.Length ? '\0' : _codigoFuente[_indice + 1];
+
+    private char MirarEn(int offset) => _indice + offset >= _codigoFuente.Length ? '\0' : _codigoFuente[_indice + offset];
 
     private char Avanzar()
     {

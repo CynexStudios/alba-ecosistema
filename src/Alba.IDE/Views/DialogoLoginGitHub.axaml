@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Alba.IDE.Views.DialogoLoginGitHub"
-        Title="Conectar con GitHub — Xynex Code Editor 5.0"
+        Title="Conectar con GitHub — Xynex Code Editor 9.0"
         Width="560"
         Height="510"
         MinWidth="500"

@@ -33,18 +33,18 @@ public sealed class ServicioCreacion
                 Modalidad = ModalidadCreacion.Proyecto,
                 ExtensionArchivoPrincipal = ".cibao",
                 ArchivoPrincipalSugerido = "principal.cibao",
-                DependenciasRecomendadas = "Motor Cibao v5.0 integrado"
+                DependenciasRecomendadas = "Motor Cibao 9.0 integrado"
             },
             new PlantillaCreacion
             {
                 Id = "proj-cibao-modular",
                 Nombre = "Proyecto Cibao Modular",
-                Descripcion = "Incluye carpeta de módulos y utilidades iniciales en Cibao para aplicaciones organizadas.",
+                Descripcion = "Incluye carpeta de módulos y utilidades iniciales en Cibao 9.0 para aplicaciones organizadas.",
                 Lenguaje = LenguajeSoportado.Cibao,
                 Modalidad = ModalidadCreacion.Proyecto,
                 ExtensionArchivoPrincipal = ".cibao",
                 ArchivoPrincipalSugerido = "principal.cibao",
-                DependenciasRecomendadas = "Motor Cibao v5.0 integrado"
+                DependenciasRecomendadas = "Motor Cibao 9.0 integrado"
             },
             new PlantillaCreacion
             {
@@ -128,7 +128,7 @@ public sealed class ServicioCreacion
                 Modalidad = ModalidadCreacion.Programa,
                 ExtensionArchivoPrincipal = ".cibao",
                 ArchivoPrincipalSugerido = "programa.cibao",
-                DependenciasRecomendadas = "Motor Cibao v5.0 integrado"
+                DependenciasRecomendadas = "Motor Cibao v9.0 integrado"
             },
             new PlantillaCreacion
             {
@@ -188,7 +188,7 @@ public sealed class ServicioCreacion
                 Modalidad = ModalidadCreacion.ArchivoIndependiente,
                 ExtensionArchivoPrincipal = ".cibao",
                 ArchivoPrincipalSugerido = "archivo.cibao",
-                DependenciasRecomendadas = "Motor Cibao v5.0 integrado"
+                DependenciasRecomendadas = "Motor Cibao 9.0 integrado"
             },
             new PlantillaCreacion
             {
@@ -212,6 +212,39 @@ public sealed class ServicioCreacion
                 ExtensionArchivoPrincipal = ".html",
                 ArchivoPrincipalSugerido = "index.html",
                 DependenciasRecomendadas = "HTML5 integrado"
+            },
+            new PlantillaCreacion
+            {
+                Id = "file-js",
+                Nombre = "Archivo JavaScript (.js)",
+                Descripcion = "Script JavaScript moderno suelto sin carpeta de proyecto.",
+                Lenguaje = LenguajeSoportado.JavaScript,
+                Modalidad = ModalidadCreacion.ArchivoIndependiente,
+                ExtensionArchivoPrincipal = ".js",
+                ArchivoPrincipalSugerido = "app.js",
+                DependenciasRecomendadas = "Node.js / Web"
+            },
+            new PlantillaCreacion
+            {
+                Id = "file-ts",
+                Nombre = "Archivo TypeScript (.ts)",
+                Descripcion = "Archivo TypeScript tipado independiente sin carpeta obligatoria.",
+                Lenguaje = LenguajeSoportado.TypeScript,
+                Modalidad = ModalidadCreacion.ArchivoIndependiente,
+                ExtensionArchivoPrincipal = ".ts",
+                ArchivoPrincipalSugerido = "modulo.ts",
+                DependenciasRecomendadas = "TypeScript (tsc / ts-node)"
+            },
+            new PlantillaCreacion
+            {
+                Id = "file-json",
+                Nombre = "Archivo JSON (.json)",
+                Descripcion = "Archivo de configuración o datos JSON con validación nativa.",
+                Lenguaje = LenguajeSoportado.Json,
+                Modalidad = ModalidadCreacion.ArchivoIndependiente,
+                ExtensionArchivoPrincipal = ".json",
+                ArchivoPrincipalSugerido = "datos.json",
+                DependenciasRecomendadas = "Validador JSON integrado"
             },
             new PlantillaCreacion
             {
@@ -305,7 +338,7 @@ public sealed class ServicioCreacion
         var manifiesto = new
         {
             nombre = nombreProyecto,
-            version = "5.0.0",
+            version = "9.0.0",
             ide = "Xynex Code Editor",
             lenguaje = solicitud.Lenguaje.ToString(),
             plantilla = solicitud.Plantilla.Id,
@@ -341,11 +374,11 @@ public sealed class ServicioCreacion
                 File.WriteAllText(
                     rutaPrincipal,
                     $$"""
-                    # Proyecto: {{nombreProyecto}}
-                    # Lenguaje: Cibao Programming Language · Xynex Code Editor 5.0
+                    // Proyecto: {{nombreProyecto}}
+                    // Lenguaje: Cibao 9.0 · Xynex Code Editor 9.0
 
                     funcion principal() {
-                        imprimir("Bienvenido a {{nombreProyecto}} en Cibao")
+                        mostrar("Bienvenido a {{nombreProyecto}} en Cibao 9.0")
                     }
 
                     principal()
@@ -360,7 +393,7 @@ public sealed class ServicioCreacion
                         rutaPrincipal,
                         $$"""
                         # Aplicación Gráfica Python (Tkinter) - {{nombreProyecto}}
-                        # Creado con Xynex Code Editor 5.0
+                        # Creado con Xynex Code Editor 9.0
                         import tkinter as tk
 
                         def main() -> None:
@@ -379,7 +412,7 @@ public sealed class ServicioCreacion
                             titulo.pack(pady=(22, 8))
 
                             entrada = tk.Entry(ventana, font=("Segoe UI", 11), width=28)
-                            entrada.insert(0, "Cibao 5.0")
+                            entrada.insert(0, "Cibao 9.0")
                             entrada.pack(pady=6)
 
                             estado = tk.Label(ventana, text="Listo", bg="#0D1320", fg="#E2E8F0", font=("Segoe UI", 11))
@@ -413,7 +446,7 @@ public sealed class ServicioCreacion
                         rutaPrincipal,
                         $$"""
                         # Proyecto: {{nombreProyecto}}
-                        # Creado con Xynex Code Editor 5.0
+                        # Creado con Xynex Code Editor 9.0
 
                         def main() -> None:
                             print("Bienvenido a {{nombreProyecto}} en Python")
@@ -442,7 +475,7 @@ public sealed class ServicioCreacion
                     <body>
                       <main class="contenedor">
                         <h1>{{nombreProyecto}}</h1>
-                        <p>Proyecto web creado con Xynex Code Editor 5.0.</p>
+                        <p>Proyecto web creado con Xynex Code Editor 9.0.</p>
                         <button id="btnAccion" type="button">Probar interacción</button>
                         <p id="estado"></p>
                       </main>
@@ -591,7 +624,7 @@ public sealed class ServicioCreacion
                                 Foreground="#E2E8F0">
                           <StackPanel Margin="24" Spacing="12" VerticalAlignment="Center">
                             <TextBlock Text="{{nombreProyecto}}" FontSize="22" FontWeight="Bold" Foreground="#38BDF8" />
-                            <TextBlock Text="Aplicación gráfica multiplataforma creada desde Xynex Code Editor 5.0." FontSize="13" />
+                            <TextBlock Text="Aplicación gráfica multiplataforma creada desde Xynex Code Editor 9.0." FontSize="13" />
                             <Button Content="Probar clic" Click="AlHacerClic" HorizontalAlignment="Left" Padding="14,8" />
                             <TextBlock x:Name="TxtContador" Text="Clics: 0" FontSize="13" Foreground="#22C55E" />
                           </StackPanel>
@@ -675,7 +708,7 @@ public sealed class ServicioCreacion
 
         File.WriteAllText(
             Path.Combine(rutaProyecto, "README.md"),
-            $"# {nombreProyecto}\n\nProyecto creado con Xynex Code Editor 5.0.\n",
+            $"# {nombreProyecto}\n\nProyecto creado con Xynex Code Editor 9.0.\n",
             Encoding.UTF8);
 
         return rutaPrincipal;
@@ -691,7 +724,7 @@ public sealed class ServicioCreacion
             LenguajeSoportado.Cibao => modalidad == ModalidadCreacion.Programa
                 ? $$"""
                   # Programa Cibao: {{nombreBase}}
-                  # Creado con Xynex Code Editor 5.0
+                  # Creado con Xynex Code Editor 9.0
 
                   funcion principal() {
                       imprimir("Ejecutando programa '{{nombreBase}}' en Cibao")
@@ -734,7 +767,7 @@ public sealed class ServicioCreacion
                 </head>
                 <body>
                   <h1>{{nombreBase}}</h1>
-                  <p>Documento creado con Xynex Code Editor 5.0.</p>
+                  <p>Documento creado con Xynex Code Editor 9.0.</p>
                 </body>
                 </html>
                 """,
@@ -753,6 +786,49 @@ public sealed class ServicioCreacion
                 }
                 """,
 
+            LenguajeSoportado.JavaScript => $$"""
+                // {{nombreBase}}.js — JavaScript en Xynex Code Editor 9.0
+                const saludo = "Hola desde {{nombreBase}} en JavaScript";
+                console.log(saludo);
+                """,
+
+            LenguajeSoportado.TypeScript => $$"""
+                // {{nombreBase}}.ts — TypeScript en Xynex Code Editor 9.0
+                interface SaludoConfig {
+                  nombre: string;
+                  version: number;
+                }
+
+                const cfg: SaludoConfig = { nombre: "{{nombreBase}}", version: 9.0 };
+                console.log(`Hola desde ${cfg.nombre} v${cfg.version}`);
+                """,
+
+            LenguajeSoportado.Json => $$"""
+                {
+                  "nombre": "{{nombreBase}}",
+                  "editor": "Xynex Code Editor",
+                  "version": "9.0.0"
+                }
+                """,
+
+            _ => string.Empty
+        };
+    }
+
+    public static string GenerarPlantillaRapidaPorExtension(string extension, string nombreBase)
+    {
+        string ext = (extension ?? ".cibao").ToLowerInvariant();
+        return ext switch
+        {
+            ".cibao" or ".alb" => $"// Archivo rápido Cibao 9.0: {nombreBase}\nmostrar(\"¡Hola desde {nombreBase} en Cibao 9.0!\")\n",
+            ".py" => $"# Archivo rápido Python: {nombreBase}\nprint(\"¡Hola desde {nombreBase} en Python!\")\n",
+            ".html" or ".htm" => GenerarContenidoArchivoUnico(LenguajeSoportado.Html, nombreBase, ModalidadCreacion.ArchivoIndependiente),
+            ".css" => $"/* Hoja de estilos: {nombreBase} */\nbody {{\n  background: #0f172a;\n  color: #e2e8f0;\n  font-family: system-ui, sans-serif;\n}}\n",
+            ".js" or ".mjs" => GenerarContenidoArchivoUnico(LenguajeSoportado.JavaScript, nombreBase, ModalidadCreacion.ArchivoIndependiente),
+            ".ts" => GenerarContenidoArchivoUnico(LenguajeSoportado.TypeScript, nombreBase, ModalidadCreacion.ArchivoIndependiente),
+            ".json" => GenerarContenidoArchivoUnico(LenguajeSoportado.Json, nombreBase, ModalidadCreacion.ArchivoIndependiente),
+            ".cs" => GenerarContenidoArchivoUnico(LenguajeSoportado.CSharp, nombreBase, ModalidadCreacion.ArchivoIndependiente),
+            ".cpp" => GenerarContenidoArchivoUnico(LenguajeSoportado.Cpp, nombreBase, ModalidadCreacion.ArchivoIndependiente),
             _ => string.Empty
         };
     }

@@ -12,7 +12,7 @@
             BorderThickness="0,0,0,1"
             Padding="8,6">
       <StackPanel Spacing="6">
-        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
           <Button Grid.Column="0" Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="↻" Click="AlRecargarPreview" ToolTip.Tip="Recargar vista previa" Margin="0,0,6,0" />
           <TextBox Grid.Column="1"
                    x:Name="TxtUrlWeb"
@@ -20,11 +20,11 @@
                    FontSize="11.5"
                    FontFamily="JetBrains Mono, Consolas, monospace"
                    Margin="0,0,6,0" />
-          <Button Grid.Column="2" Classes="PrimaryBtn" Padding="8,3" FontSize="11" Content="Navegador real" Click="AlAbrirNavegadorExterno" ToolTip.Tip="Abrir URL local Live Server en tu navegador" Margin="0,0,4,0" />
-          <Button Grid.Column="3" Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="×" Click="AlCerrarPreview" ToolTip.Tip="Cerrar vista previa Web" />
+          <Button Grid.Column="2" Classes="ToolbarBtn" Padding="8,3" FontSize="11" Content="Ventana App" Click="AlAbrirVentanaApp" ToolTip.Tip="Abrir en ventana web dedicada (--app) vía Live Server" Margin="0,0,4,0" />
+          <Button Grid.Column="3" Classes="PrimaryBtn" Padding="8,3" FontSize="11" Content="Navegador" Click="AlAbrirNavegadorExterno" ToolTip.Tip="Abrir URL local Live Server en navegador completo" Margin="0,0,4,0" />
+          <Button Grid.Column="4" Classes="ToolbarBtn" Padding="7,3" FontSize="11" Content="×" Click="AlCerrarPreview" ToolTip.Tip="Cerrar vista previa Web" />
         </Grid>
 
-        <!-- Selector de dispositivo y auto-recarga -->
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
             <Button x:Name="BtnModoEscritorio" Classes="ToolbarBtn" Padding="7,2" FontSize="10.5" Content="Escritorio" Click="AlModoEscritorio" />
@@ -54,12 +54,12 @@
               BorderThickness="1"
               CornerRadius="8"
               Padding="16"
-              MinHeight="260">
+              MinHeight="280">
         <StackPanel Spacing="10">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock Grid.Column="0"
                        x:Name="TxtTituloPaginaWeb"
-                       FontSize="11"
+                       FontSize="12"
                        FontWeight="Bold"
                        Foreground="{DynamicResource AcentoPrimarioBrush}" />
             <TextBlock Grid.Column="1"

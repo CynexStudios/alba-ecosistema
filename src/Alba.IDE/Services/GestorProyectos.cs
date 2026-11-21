@@ -25,7 +25,7 @@ public sealed class GestorProyectos
         var metadatos = new
         {
             nombre = nombreSeguro,
-            version = "5.0.0",
+            version = "9.0.0",
             lenguaje = "Cibao",
             archivoPrincipal = "principal.alb"
         };
@@ -39,11 +39,11 @@ public sealed class GestorProyectos
         if (!File.Exists(rutaPrincipal))
         {
             string plantilla = $$"""
-                # Proyecto: {{nombreSeguro}}
-                # Creado con Xynex Code Editor v5.0.0 — Lenguaje Cibao
+                // Proyecto: {{nombreSeguro}}
+                // Creado con Xynex Code Editor v9.0.0 — Lenguaje Cibao
 
                 funcion principal() {
-                    imprimir($"¡Bienvenido a {{nombreSeguro}} en Cibao 5.0!")
+                    mostrar($"¡Bienvenido a {{nombreSeguro}} en Cibao 9.0!")
                 }
 
                 principal()

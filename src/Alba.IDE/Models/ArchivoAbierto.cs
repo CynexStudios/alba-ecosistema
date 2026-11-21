@@ -5,7 +5,7 @@ using AvaloniaEdit.Document;
 namespace Alba.IDE.Models;
 
 /// <summary>
-/// Representa una pestaña de archivo abierta dentro del editor.
+/// Representa una pestaña de archivo abierta dentro del editor (en disco o borrador sin carpeta).
 /// </summary>
 public sealed class ArchivoAbierto : INotifyPropertyChanged
 {
@@ -13,6 +13,7 @@ public sealed class ArchivoAbierto : INotifyPropertyChanged
     private string _nombreArchivo;
     private bool _tieneCambiosSinGuardar;
     private string _lenguaje;
+    private bool _esBorradorSinRuta;
 
     public TextDocument Documento { get; }
 
@@ -58,6 +59,20 @@ public sealed class ArchivoAbierto : INotifyPropertyChanged
         }
     }
 
+    public bool EsBorradorSinRuta
+    {
+        get => _esBorradorSinRuta;
+        set
+        {
+            if (_esBorradorSinRuta != value)
+            {
+                _esBorradorSinRuta = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TituloPestana));
+            }
+        }
+    }
+
     public string Lenguaje
     {
         get => _lenguaje;
@@ -73,11 +88,13 @@ public sealed class ArchivoAbierto : INotifyPropertyChanged
 
     public string TituloPestana => TieneCambiosSinGuardar ? $"{NombreArchivo} *" : NombreArchivo;
 
-    public ArchivoAbierto(string rutaArchivo, string contenidoInicial, string lenguaje)
+    public ArchivoAbierto(string rutaArchivo, string contenidoInicial, string lenguaje, bool esBorradorSinRuta = false)
     {
         _rutaArchivo = rutaArchivo;
         _nombreArchivo = Path.GetFileName(rutaArchivo);
         _lenguaje = lenguaje;
+        _esBorradorSinRuta = esBorradorSinRuta;
+        _tieneCambiosSinGuardar = esBorradorSinRuta;
         Documento = new TextDocument(contenidoInicial);
         Documento.Changed += (_, _) => TieneCambiosSinGuardar = true;
     }
