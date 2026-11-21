@@ -16,9 +16,15 @@ public sealed class Fase2CreacionYToolsTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_carpetaTemporal))
+        try
         {
-            Directory.Delete(_carpetaTemporal, recursive: true);
+            if (Directory.Exists(_carpetaTemporal))
+            {
+                Directory.Delete(_carpetaTemporal, recursive: true);
+            }
+        }
+        catch
+        {
         }
     }
 

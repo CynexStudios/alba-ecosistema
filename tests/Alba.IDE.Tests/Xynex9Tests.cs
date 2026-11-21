@@ -1,5 +1,6 @@
 using Alba.IDE.Models;
 using Alba.IDE.Services;
+using Microsoft.Data.Sqlite;
 using Xunit;
 
 namespace Alba.IDE.Tests;
@@ -16,9 +17,19 @@ public sealed class Xynex9Tests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_carpetaTemporal))
+        try
         {
-            Directory.Delete(_carpetaTemporal, recursive: true);
+            SqliteConnection.ClearAllPools();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            if (Directory.Exists(_carpetaTemporal))
+            {
+                Directory.Delete(_carpetaTemporal, recursive: true);
+            }
+        }
+        catch
+        {
+            // Evita fallos de limpieza por bloqueos de archivos en Windows
         }
     }
 

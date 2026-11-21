@@ -18,9 +18,15 @@ public sealed class Fase4WebYGuiTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_carpetaTemporal))
+        try
         {
-            Directory.Delete(_carpetaTemporal, recursive: true);
+            if (Directory.Exists(_carpetaTemporal))
+            {
+                Directory.Delete(_carpetaTemporal, recursive: true);
+            }
+        }
+        catch
+        {
         }
     }
 
@@ -66,8 +72,17 @@ public sealed class Fase4WebYGuiTests : IDisposable
         Assert.Contains(logs, m => m.Nivel == "error" && m.Origen == "Navegador" && m.Mensaje.Contains("demo is not defined"));
 
         // 4. Bloqueo de directory traversal fuera de webRoot
-        HttpResponseMessage respTraversal = await http.GetAsync($"{urlBase}../secreto.txt");
-        Assert.Equal(HttpStatusCode.Forbidden, respTraversal.StatusCode);
+        using (var tcpTraversal = new System.Net.Sockets.TcpClient())
+        {
+            await tcpTraversal.ConnectAsync("127.0.0.1", servidor.Puerto);
+            using var tcpStream = tcpTraversal.GetStream();
+            byte[] req = Encoding.UTF8.GetBytes("GET /../secreto.txt HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n");
+            await tcpStream.WriteAsync(req);
+            using var tcpReader = new StreamReader(tcpStream, Encoding.UTF8);
+            string? statusLine = await tcpReader.ReadLineAsync();
+            Assert.NotNull(statusLine);
+            Assert.Contains("403", statusLine);
+        }
 
         // 5. Detección 404 en consola web
         HttpResponseMessage resp404 = await http.GetAsync($"{urlBase}no-existe.js");
@@ -183,7 +198,7 @@ public sealed class Fase4WebYGuiTests : IDisposable
 
         var addons = new GestorAddons(Path.Combine(_carpetaTemporal, "addons_test"));
         var gestorTools = new GestorTools(addons, detector);
-        await gestorTools.RefrescarCatalogoAsync(forzar: true);
+        await gestorTools.RefrescarCatalogoAsync(forzarRecarga: true);
 
         Assert.Contains(gestorTools.Catalogo, t => t.Id == "tool-html-web" && t.Instalado);
         Assert.Contains(gestorTools.Catalogo, t => t.Id == "tool-avalonia-ui" && t.Categoria == CategoriaHerramienta.AplicacionesGraficas);

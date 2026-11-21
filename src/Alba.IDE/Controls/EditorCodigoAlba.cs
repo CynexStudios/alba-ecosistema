@@ -517,11 +517,7 @@ public sealed class EditorCodigoAlba : TextEditor
             StartOffset = Math.Max(0, TextArea.Caret.Offset - prefijo.Length),
             MinWidth = 380,
             MaxWidth = 560,
-            MaxHeight = 290,
-            Background = Brush.Parse(fondoHex),
-            Foreground = Brush.Parse(textoHex),
-            BorderBrush = Brush.Parse(bordeHex),
-            BorderThickness = new Thickness(1.2)
+            MaxHeight = 290
         };
 
         _ventanaCompletado.CompletionList.Background = Brush.Parse(fondoHex);

@@ -45,6 +45,14 @@ public sealed partial class Interprete
         _rutaArchivo = string.IsNullOrWhiteSpace(rutaArchivo) ? "<entrada>" : rutaArchivo;
         _cacheModulos = cacheModulos;
         _modulosEnCarga = modulosEnCarga;
+        if (!string.IsNullOrWhiteSpace(_rutaArchivo) && _rutaArchivo != "<entrada>")
+        {
+            try
+            {
+                _modulosEnCarga.Add(Path.GetFullPath(_rutaArchivo));
+            }
+            catch { }
+        }
         _entornoGlobal = new Entorno();
         RegistrarBibliotecaEstandar();
     }

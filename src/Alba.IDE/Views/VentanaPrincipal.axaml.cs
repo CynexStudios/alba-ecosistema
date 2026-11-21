@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Alba.IDE.Models;
 using Alba.IDE.Services;
 using Alba.IDE.ViewModels;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -196,13 +197,9 @@ public partial class VentanaPrincipal : Window
 
     private void AlCrearScratchPorExtension(object? sender, RoutedEventArgs e)
     {
-        if (sender is StyledElement el && el.Tag is string ext && !string.IsNullOrWhiteSpace(ext))
+        if (sender is Control el && el.Tag is string ext && !string.IsNullOrWhiteSpace(ext))
         {
             _vm.CrearArchivoSinCarpeta(ext);
-        }
-        else if (sender is MenuItem mi && mi.Tag is string extMenu && !string.IsNullOrWhiteSpace(extMenu))
-        {
-            _vm.CrearArchivoSinCarpeta(extMenu);
         }
     }
 

@@ -180,7 +180,7 @@ public sealed class AnalizadorSintactico
             "Se esperaba ')' después de la lista de parámetros.");
 
         AnotacionTipo? tipoRetorno = null;
-        if (Coincide(TipoToken.Flecha))
+        if (Coincide(TipoToken.Flecha, TipoToken.DosPuntos))
         {
             tipoRetorno = AnalizarTipo();
         }
@@ -358,7 +358,7 @@ public sealed class AnalizadorSintactico
         Esperar(TipoToken.ParentesisDer, "ALB-S007", "Se esperaba ')' después de los parámetros del método.");
 
         AnotacionTipo? tipoRetorno = null;
-        if (Coincide(TipoToken.Flecha))
+        if (Coincide(TipoToken.Flecha, TipoToken.DosPuntos))
         {
             tipoRetorno = AnalizarTipo();
         }
@@ -488,7 +488,7 @@ public sealed class AnalizadorSintactico
                     }
                     while (Coincide(TipoToken.Coma));
 
-                    SentenciaBloque bloqueCaso = AnalizarBloque();
+                    SentenciaBloque bloqueCaso = AnalizarCuerpoCaso();
                     casos.Add(new CasoElegir(valores, bloqueCaso, tokCaso.Ubicacion));
                 }
                 else if (Coincide(TipoToken.Defecto))
@@ -498,7 +498,7 @@ public sealed class AnalizadorSintactico
                     {
                         RegistrarError("ALB-S040", tokDef.Ubicacion, "Un bloque 'elegir' solo puede contener una rama 'defecto'.");
                     }
-                    defecto = AnalizarBloque();
+                    defecto = AnalizarCuerpoCaso();
                 }
                 else
                 {
@@ -518,6 +518,67 @@ public sealed class AnalizadorSintactico
         }
 
         return new SentenciaElegir(objetivo, casos, defecto, tokElegir.Ubicacion);
+    }
+
+    private SentenciaBloque AnalizarCuerpoCaso()
+    {
+        SaltarSaltosLinea();
+        if (Coincide(TipoToken.DosPuntos))
+        {
+            Token tokDosPuntos = TokenAnterior();
+            SaltarSeparadores();
+            var sentencias = new List<Sentencia>();
+            while (!EstaAlFinal() &&
+                   MirarActual().Tipo != TipoToken.Caso &&
+                   MirarActual().Tipo != TipoToken.Defecto &&
+                   MirarActual().Tipo != TipoToken.LlaveDer)
+            {
+                try
+                {
+                    Sentencia sent = AnalizarDeclaracionOSentencia(permitirClaseYModulo: false);
+                    sentencias.Add(sent);
+                    if (!EstaAlFinal() &&
+                        MirarActual().Tipo != TipoToken.Caso &&
+                        MirarActual().Tipo != TipoToken.Defecto &&
+                        MirarActual().Tipo != TipoToken.LlaveDer)
+                    {
+                        ConsumirSeparadorObligatorio();
+                    }
+                }
+                catch (ErrorSincronizacionExcepcion)
+                {
+                    SincronizarCaso();
+                }
+                SaltarSeparadores();
+            }
+            return new SentenciaBloque(sentencias, tokDosPuntos.Ubicacion);
+        }
+
+        if (MirarActual().Tipo == TipoToken.LlaveIzq)
+        {
+            return AnalizarBloque();
+        }
+
+        throw LanzarError("ALB-S020", MirarActual().Ubicacion,
+            "Se esperaba ':' o '{' después de la condición de 'caso' o 'defecto'.");
+    }
+
+    private void SincronizarCaso()
+    {
+        while (!EstaAlFinal())
+        {
+            TipoToken actual = MirarActual().Tipo;
+            if (actual is TipoToken.Caso or TipoToken.Defecto or TipoToken.LlaveDer)
+            {
+                return;
+            }
+            if (actual is TipoToken.SaltoLinea or TipoToken.PuntoYComa)
+            {
+                Consumir();
+                return;
+            }
+            Consumir();
+        }
     }
 
     private SentenciaSi AnalizarSi()
@@ -930,6 +991,12 @@ public sealed class AnalizadorSintactico
 
         while (true)
         {
+            if (MirarActual().Tipo == TipoToken.SaltoLinea &&
+                MirarDespuesDeSaltosLinea() is TipoToken.Punto or TipoToken.InterrogacionPunto)
+            {
+                SaltarSaltosLinea();
+            }
+
             if (Coincide(TipoToken.ParentesisIzq))
             {
                 Token tokParen = TokenAnterior();
@@ -1024,6 +1091,7 @@ public sealed class AnalizadorSintactico
                 return new ExprSuper(actual.Ubicacion);
 
             case TipoToken.Identificador:
+            case TipoToken.LogicoY:
                 if (_posicion + 1 < _tokens.Count && _tokens[_posicion + 1].Tipo == TipoToken.FlechaGorda)
                 {
                     Token paramTok = Consumir();
@@ -1055,7 +1123,7 @@ public sealed class AnalizadorSintactico
                     IReadOnlyList<ParametroAst> paramsLambda = AnalizarListaParametros();
                     Esperar(TipoToken.ParentesisDer, "ALB-S007", "Se esperaba ')' después de los parámetros lambda.");
                     AnotacionTipo? retLambda = null;
-                    if (Coincide(TipoToken.Flecha))
+                    if (Coincide(TipoToken.Flecha, TipoToken.DosPuntos))
                     {
                         retLambda = AnalizarTipo();
                     }
@@ -1125,7 +1193,7 @@ public sealed class AnalizadorSintactico
         Esperar(TipoToken.ParentesisDer, "ALB-S007", "Se esperaba ')' después de los parámetros.");
 
         AnotacionTipo? tipoRetorno = null;
-        if (Coincide(TipoToken.Flecha))
+        if (Coincide(TipoToken.Flecha, TipoToken.DosPuntos))
         {
             tipoRetorno = AnalizarTipo();
         }
@@ -1191,7 +1259,7 @@ public sealed class AnalizadorSintactico
         if (prof != 0 || i >= _tokens.Count)
             return false;
 
-        if (_tokens[i].Tipo == TipoToken.Flecha)
+        if (_tokens[i].Tipo is TipoToken.Flecha or TipoToken.DosPuntos)
         {
             i += 2;
         }
@@ -1217,7 +1285,7 @@ public sealed class AnalizadorSintactico
 
                 Token actualClave = MirarActual();
                 Expresion clave;
-                if (actualClave.Tipo == TipoToken.Identificador &&
+                if ((actualClave.Tipo == TipoToken.Identificador || actualClave.Tipo == TipoToken.LogicoY) &&
                     _posicion + 1 < _tokens.Count &&
                     _tokens[_posicion + 1].Tipo == TipoToken.DosPuntos)
                 {
@@ -1389,7 +1457,7 @@ public sealed class AnalizadorSintactico
 
     private Token Esperar(TipoToken esperado, string codigo, string mensaje)
     {
-        if (MirarActual().Tipo == esperado)
+        if (MirarActual().Tipo == esperado || (esperado == TipoToken.Identificador && MirarActual().Tipo == TipoToken.LogicoY))
         {
             return Consumir();
         }
