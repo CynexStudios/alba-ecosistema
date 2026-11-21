@@ -1,3 +1,5 @@
+<img width="1280" height="720" alt="banner-github" src="https://github.com/user-attachments/assets/a6fca9ea-c26e-42cf-98b1-12fe0b16d518" />
+
 # Xynex Code Editor 9.0 & Cibao Code 9.0
 
 **IDE profesional multi-lenguaje estilo Visual Studio** y lenguaje de programación oficial **Cibao Code 9.0** (`CynexStudios/alba-ecosistema`).
