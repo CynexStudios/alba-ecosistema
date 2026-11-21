@@ -59,7 +59,7 @@ public sealed class ServicioGit
             : "main";
 
         List<string> ramas = branchesTask.Result.Stdout
-            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+            .Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(r => r.Trim())
             .Where(r => !string.IsNullOrWhiteSpace(r))
             .ToList();
@@ -501,7 +501,7 @@ public sealed class ServicioGit
     private static List<ArchivoCambioGit> ParsearCambiosPorcelain(string salida)
     {
         var lista = new List<ArchivoCambioGit>();
-        foreach (string linea in salida.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+        foreach (string linea in salida.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
         {
             if (linea.Length < 4) continue;
             char x = linea[0];
@@ -545,7 +545,7 @@ public sealed class ServicioGit
     private static List<CommitHistorialGit> ParsearHistorial(string salida)
     {
         var lista = new List<CommitHistorialGit>();
-        foreach (string linea in salida.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+        foreach (string linea in salida.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
         {
             string[] partes = linea.Split('\x1f');
             if (partes.Length < 4) continue;
