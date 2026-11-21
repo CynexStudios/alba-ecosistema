@@ -329,7 +329,7 @@ public sealed class DetectorEntornos
             }
 
             string primeraLinea = texto
-                .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .FirstOrDefault()?.Trim() ?? string.Empty;
 
             if (primeraLinea.Length > 48)
